@@ -1,0 +1,472 @@
+<template>
+  <div>
+    <v-data-table
+      :headers="headers"
+      :items="filteredTasks"
+      item-key="id"
+      fixed-header
+      :expanded.sync="expanded"
+      show-expand
+      class="elevation-1"
+    >
+      <template v-slot:body.prepend>
+        <tr class="filterRow">
+          <td v-for="header in headers" :key="header.value">
+            <v-select
+              v-if="header.filterable && header.text === 'Típus'"
+              v-model="filters[header.value]"
+              :items="taskTypes"
+              item-value="id"
+              item-text="name"
+              small-chips
+              solo
+              placeholder="szűrés"
+              hide-details="auto"
+              multiple
+            />
+            <v-select
+              v-if="header.filterable && header.text === 'Státusz(partner)'"
+              v-model="filters[header.value]"
+              :items="statuses"
+              item-value="id"
+              item-text="name"
+              small-chips
+              solo
+              placeholder="szűrés"
+              hide-details="auto"
+              multiple
+            />
+            <v-text-field
+              v-if="header.filterable && header.text === 'Zip'"
+              v-model="filters[header.value]"
+              placeholder="szűrés"
+              solo
+              hide-details="auto"
+            />
+            <v-text-field
+              v-if="header.filterable && header.text === 'Település'"
+              v-model="filters[header.value]"
+              placeholder="szűrés"
+              solo
+              hide-details="auto"
+            />
+            <v-text-field
+              v-if="header.filterable && header.text === 'Cím'"
+              v-model="filters[header.value]"
+              placeholder="szűrés"
+              solo
+              hide-details="auto"
+            />
+            <v-select
+              v-if="header.filterable && header.text === 'Lokáció típus'"
+              v-model="filters[header.value]"
+              :items="locationTypes"
+              item-value="type"
+              item-text="type"
+              small-chips
+              solo
+              placeholder="szűrés"
+              hide-details="auto"
+              multiple
+            />
+            <v-text-field
+              v-if="
+                header.filterable && header.text === 'Kivitelezési dátum(terv)'
+              "
+              v-model="filters.startDatePlan"
+              type="datetime-local"
+              label="Tól"
+            />
+            <v-text-field
+              v-if="
+                header.filterable && header.text === 'Kivitelezési dátum(terv)'
+              "
+              v-model="filters.endDatePlan"
+              type="datetime-local"
+              label="Ig"
+            />
+            <v-text-field
+              v-if="
+                header.filterable && header.text === 'Kivitelezési dátum(tény)'
+              "
+              v-model="filters.startDate"
+              type="datetime-local"
+              label="Tól"
+            />
+            <v-text-field
+              v-if="
+                header.filterable && header.text === 'Kivitelezési dátum(tény)'
+              "
+              v-model="filters.endDate"
+              type="datetime-local"
+              label="Ig"
+            />
+            <v-select
+              v-if="header.filterable && header.text === 'Megbízottak'"
+              v-model="filters[header.value]"
+              :items="users"
+              item-value="id"
+              item-text="name"
+              small-chips
+              solo
+              placeholder="szűrés"
+              hide-details="auto"
+              multiple
+            />
+          </td>
+        </tr>
+      </template>
+      <template #[`item.type`]="{ header, item }">
+        <v-select
+          v-model="item.type"
+          :items="taskTypes"
+          item-value="id"
+          item-text="name"
+          small-chips
+          solo
+          hide-details="auto"
+          @change="updateTask(header, { id: item.id, value: item.type })"
+        >
+          <template #selection="{ item: selectedItem, index }">
+            <v-chip
+              v-if="index === 0"
+              small
+              :style="{ 'background-color': selectedItem.color }"
+            >
+              <span>{{ selectedItem.name }}</span>
+            </v-chip>
+          </template>
+        </v-select>
+      </template>
+      <template #[`item.status_partner_id`]="{ header, item }">
+        <v-select
+          v-model="item.status_partner_id"
+          :items="statuses"
+          item-value="id"
+          item-text="name"
+          small-chips
+          solo
+          hide-details="auto"
+          item-color="primary"
+          @change="
+            updateTask(header, { id: item.id, value: item.status_partner_id })
+          "
+        >
+          <template #selection="{ item: selectedItem, index }">
+            <v-chip
+              v-if="index === 0"
+              small
+              :style="{ 'background-color': selectedItem.color }"
+            >
+              <span>{{ selectedItem.name }}</span>
+            </v-chip>
+          </template>
+        </v-select>
+      </template>
+      <template #[`item.status_exohu_id`]="{ header, item }">
+        <v-select
+          v-model="item.status_exohu_id"
+          :items="statuses"
+          item-value="id"
+          item-text="name"
+          small-chips
+          solo
+          hide-details="auto"
+          @change="
+            updateTask(header, { id: item.id, value: item.status_exohu_id })
+          "
+        >
+          <template #selection="{ item: selectedItem, index }">
+            <v-chip
+              v-if="index === 0"
+              small
+              :style="{ 'background-color': selectedItem.color }"
+            >
+              <span>{{ selectedItem.name }}</span>
+            </v-chip>
+          </template>
+        </v-select>
+      </template>
+      <template #[`item.zip`]="{ header, item }">
+        <v-text-field
+          v-model="item.zip"
+          solo
+          hide-details="auto"
+          class="zip"
+          @change="updateTask(header, item)"
+        ></v-text-field>
+      </template>
+      <template #[`item.city`]="{ header, item }">
+        <v-text-field
+          v-model="item.city"
+          solo
+          hide-details="auto"
+          class="city"
+          @change="updateTask(header, item)"
+        ></v-text-field>
+      </template>
+      <template #[`item.address`]="{ header, item }">
+        <v-text-field
+          v-model="item.address"
+          solo
+          hide-details="auto"
+          class="address"
+          @change="updateTask(header, item)"
+        ></v-text-field>
+      </template>
+      <template #[`item.delivery_date`]="{ header, item }">
+        <v-text-field
+          v-model="item.delivery_date"
+          solo
+          hide-details="auto"
+          type="datetime-local"
+          @change="updateTask(header, item)"
+        ></v-text-field>
+      </template>
+      <template #[`item.planned_delivery_date`]="{ header, item }">
+        <v-text-field
+          v-model="item.planned_delivery_date"
+          type="datetime-local"
+          solo
+          hide-details="auto"
+          @change="updateTask(header, item)"
+        ></v-text-field>
+      </template>
+      <template #[`item.location_type`]="{ header, item }">
+        <v-select
+          v-model="item.location_type"
+          :items="locationTypes"
+          item-value="type"
+          item-text="type"
+          small-chips
+          solo
+          hide-details="auto"
+          @change="
+            updateTask(header, { id: item.id, value: item.location_type })
+          "
+        >
+          <template #selection="{ item: selectedItem, index }">
+            <v-chip
+              v-if="index === 0"
+              small
+              :style="{ 'background-color': selectedItem.color }"
+            >
+              <span>{{ selectedItem.type }}</span>
+            </v-chip>
+          </template>
+        </v-select>
+      </template>
+      <template #[`item.responsibles`]="{ header, item }">
+        <v-select
+          v-model="item.responsibles"
+          :items="users"
+          item-value="id"
+          item-text="name"
+          small-chips
+          multiple
+          solo
+          hide-details="auto"
+          deletable-chips
+          @change="
+            updateTask(header, { id: item.id, value: item.responsibles })
+          "
+        >
+        </v-select>
+      </template>
+      <template #expanded-item="{ item }">
+        <TableExpandedField
+          :item="item"
+          :headers="headers"
+          :rules="rules"
+          @updateTask="updateTask"
+          @uploadTaskFile="uploadTaskFile"
+        />
+      </template>
+    </v-data-table>
+  </div>
+</template>
+
+<script>
+import TableExpandedField from './TableExpandedField.vue';
+
+export default {
+  components: { TableExpandedField },
+  props: {
+    tasks: {
+      type: Array,
+      required: true
+    },
+    headers: {
+      type: Array,
+      required: true
+    }
+  },
+  data() {
+    return {
+      filters: {},
+      statuses: [
+        { id: 4, name: 'Új', color: '#f07b00' },
+        { id: 5, name: 'Folyamatban', color: '#ffa64d' },
+        { id: 6, name: 'Teljesítve', color: '#4caf50' },
+        { id: 7, name: 'Felfüggesztve', color: '#ffeb3b' },
+        { id: 8, name: 'Törölve', color: '#9e9e9e' }
+      ],
+      locationTypes: [
+        { type: 'Beltéri', color: '#9e9e9e' },
+        { type: 'Kültéri', color: '#f07b00' }
+      ],
+      taskTypes: [
+        { id: 3, name: 'telepítés', color: '#f07b00' },
+        { id: 2, name: 'javítás', color: '#9e9e9e' }
+      ],
+      users: [
+        { id: 1, name: 'John Doe' },
+        { id: 2, name: 'Jane Doe' },
+        { id: 3, name: 'Mike Doe' }
+      ],
+      expanded: [],
+      taskFiles: [],
+      rules: [
+        (value) =>
+          !value ||
+          value.size < 2000000 ||
+          'Avatar size should be less than 20 MB!'
+      ]
+    };
+  },
+  computed: {
+    filteredTasks() {
+      return this.tasks.filter((task) => {
+        return Object.keys(this.filters).every((key) => {
+          const filterValue = this.filters[key];
+
+          if (!filterValue || filterValue.length === 0) {
+            // Ha nincs szűrés, minden elem megjelenik
+            return true;
+          }
+          if (key === 'startDatePlan' || key === 'endDatePlan') {
+            // Ha a dátum oszlopról van szó, ellenőrizzük a tól-ig intervallumot
+            const taskDate = new Date(task.planned_delivery_date); // Feltételezzük, hogy task.date a dátum
+            const startDatePlan = new Date(this.filters.startDatePlan);
+            const endDatePlan = new Date(this.filters.endDatePlan);
+
+            return (
+              (!this.filters.startDatePlan || taskDate >= startDatePlan) &&
+              (!this.filters.endDatePlan || taskDate <= endDatePlan)
+            );
+          }
+          if (key === 'startDate' || key === 'endDate') {
+            // Ha a dátum oszlopról van szó, ellenőrizzük a tól-ig intervallumot
+            const taskDate = new Date(task.delivery_date); // Feltételezzük, hogy task.date a dátum
+            const startDate = new Date(this.filters.startDate);
+            const endDate = new Date(this.filters.endDate);
+
+            return (
+              (!this.filters.startDate || taskDate >= startDate) &&
+              (!this.filters.endDate || taskDate <= endDate)
+            );
+          }
+
+          if (key === 'responsibles') {
+            // Ha a 'responsibles' oszlopról van szó, ellenőrizzük, hogy bármelyik felelős benne van-e
+            if (Array.isArray(filterValue) && filterValue.length > 0) {
+              return filterValue.some((responsibleId) =>
+                task.responsibles.includes(responsibleId)
+              );
+            }
+            return true; // Ha nincs szűrés, minden elem megjelenik
+          }
+
+          if (Array.isArray(filterValue)) {
+            // Ha az összes lehetséges típus ki van jelölve, akkor minden elem megjelenik
+            const allSelected = filterValue.length === this.taskTypes.length;
+            return allSelected || filterValue.includes(task[key]);
+          }
+
+          // Más mezők egyszerű összehasonlítása
+          return String(task[key])
+            .toLowerCase()
+            .includes(String(filterValue).toLowerCase());
+        });
+      });
+    }
+  },
+  mounted() {},
+  methods: {
+    updateTask(header, selectedItem) {
+      console.log(selectedItem);
+      this.$emit('eventToAccordion', {
+        task_id: selectedItem.id,
+        dbTable: header.dbTable,
+        dbColumn: header.dbColumn,
+        value: selectedItem['value']
+          ? selectedItem['value']
+          : selectedItem[header.dbColumn]
+      });
+    },
+    uploadTaskFile(item) {
+      this.$emit('uploadTaskFile', item);
+    }
+  }
+};
+</script>
+
+<style>
+/* .v-text-field__details {
+  display: none;
+} */
+td.text-start .v-input__slot {
+  box-shadow: none !important;
+}
+/* .v-chip--clickable {
+  background-color: #fa9702 !important;
+} */
+/* .theme--light.v-text-field--solo > .v-input__control > .v-input__slot {
+  background-color: unset;
+}
+.theme--dark.v-text-field--solo > .v-input__control > .v-input__slot {
+  background-color: unset;
+} */
+.zip {
+  min-width: 80px !important;
+}
+.city {
+  min-width: 100px !important;
+}
+.address {
+  min-width: 200px !important;
+}
+.v-data-table
+  > .v-data-table__wrapper
+  tbody
+  tr.v-data-table__expanded__content {
+  box-shadow: none;
+}
+.v-data-table
+  > .v-data-table__wrapper
+  tbody
+  tr.v-data-table__expanded__content
+  td {
+  padding-left: 0px !important;
+  padding-right: 0px !important;
+}
+.v-data-table
+  > .v-data-table__wrapper
+  tbody
+  tr.v-data-table__expanded__content
+  .v-tabs-items {
+  padding-top: 12px !important;
+}
+.v-tab {
+  font-size: 12px;
+}
+.filterRow input {
+  min-width: 50px;
+}
+tr:hover {
+  background-color: #f07c0018 !important;
+}
+td.text-start {
+  padding: 10px !important;
+}
+</style>

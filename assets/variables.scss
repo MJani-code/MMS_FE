@@ -2,3 +2,10 @@
 //
 // The variables you want to modify
 // $font-size-root: 20px;
+
+$ehohu-base-orange: #f07b00; // Példa változó
+//$ehohu-base-orange: #d26d01; // Példa változó
+
+.app-bar-orange {
+  background-color: $ehohu-base-orange !important;
+}
