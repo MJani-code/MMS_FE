@@ -1,8 +1,8 @@
 <template>
   <div>
     <AccordionField
-      v-for="(group, statusId) in groupedTasks"
-      :key="statusId"
+      v-for="(group, statusId, index) in groupedTasks"
+      :key="index"
       :title="group.title"
       :tasks="group.tasks"
       :headers="tasks.headers"

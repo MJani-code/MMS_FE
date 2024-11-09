@@ -3,7 +3,6 @@
     <v-data-table
       :headers="headers"
       :items="filteredTasks"
-      item-key="id"
       fixed-header
       :expanded.sync="expanded"
       show-expand
@@ -12,7 +11,7 @@
       <!-- FilterRow -->
       <template v-slot:body.prepend>
         <tr class="filterRow">
-          <td v-for="header in headers" :key="header.value">
+          <td v-for="(header, index) in headers" :key="index">
             <v-select
               v-if="header.filterable && header.text === 'Típus'"
               v-model="filters[header.value]"
@@ -395,6 +394,7 @@ export default {
             }
             return true; // Ha nincs szűrés, minden elem megjelenik
           }
+
           if (key === 'taskTypes') {
             // Ha a 'responsibles' oszlopról van szó, ellenőrizzük, hogy bármelyik felelős benne van-e
             if (Array.isArray(filterValue) && filterValue.length > 0) {
