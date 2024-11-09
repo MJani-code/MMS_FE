@@ -1,6 +1,7 @@
 // prettier-ignore
 import {
   APIGET,
+  APIPOST,
   APIPOST2
 } from '~/api/apiHelper';
 
@@ -26,7 +27,7 @@ export const taskMixin = {
         }
       }
       try {
-        const response = APIPOST2('updateTask', payload);
+        const response = APIPOST('updateTask', payload);
         return response;
       } catch (error) {
         console.error('Error fetching users', error);

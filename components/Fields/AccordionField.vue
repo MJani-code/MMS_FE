@@ -9,6 +9,7 @@
             :headers="headers"
             @eventToAccordion="eventToTask"
             @uploadTaskFile="eventToTask"
+            @addFee="addFee"
           />
         </v-expansion-panel-content>
       </v-expansion-panel>
@@ -33,6 +34,9 @@ export default {
   methods: {
     eventToTask(payload) {
       this.$emit('eventToTask', payload);
+    },
+    addFee(data) {
+      this.$emit('addFee', data);
     }
   }
 };

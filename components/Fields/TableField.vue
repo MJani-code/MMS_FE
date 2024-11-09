@@ -7,8 +7,9 @@
       fixed-header
       :expanded.sync="expanded"
       show-expand
-      class="elevation-1"
+      class="elevation-1 custom"
     >
+      <!-- FilterRow -->
       <template v-slot:body.prepend>
         <tr class="filterRow">
           <td v-for="header in headers" :key="header.value">
@@ -20,7 +21,7 @@
               item-text="name"
               small-chips
               solo
-              placeholder="szűrés"
+              :placeholder="header.text"
               hide-details="auto"
               multiple
             />
@@ -32,28 +33,28 @@
               item-text="name"
               small-chips
               solo
-              placeholder="szűrés"
+              :placeholder="header.text"
               hide-details="auto"
               multiple
             />
             <v-text-field
               v-if="header.filterable && header.text === 'Zip'"
               v-model="filters[header.value]"
-              placeholder="szűrés"
+              :placeholder="header.text"
               solo
               hide-details="auto"
             />
             <v-text-field
               v-if="header.filterable && header.text === 'Település'"
               v-model="filters[header.value]"
-              placeholder="szűrés"
+              :placeholder="header.text"
               solo
               hide-details="auto"
             />
             <v-text-field
               v-if="header.filterable && header.text === 'Cím'"
               v-model="filters[header.value]"
-              placeholder="szűrés"
+              :placeholder="header.text"
               solo
               hide-details="auto"
             />
@@ -65,7 +66,7 @@
               item-text="type"
               small-chips
               solo
-              placeholder="szűrés"
+              :placeholder="header.text"
               hide-details="auto"
               multiple
             />
@@ -75,7 +76,10 @@
               "
               v-model="filters.startDatePlan"
               type="datetime-local"
+              class="datetime"
               label="Tól"
+              solo
+              hide-details="auto"
             />
             <v-text-field
               v-if="
@@ -83,7 +87,10 @@
               "
               v-model="filters.endDatePlan"
               type="datetime-local"
+              class="datetime"
               label="Ig"
+              solo
+              hide-details="auto"
             />
             <v-text-field
               v-if="
@@ -91,7 +98,10 @@
               "
               v-model="filters.startDate"
               type="datetime-local"
+              class="datetime"
               label="Tól"
+              solo
+              hide-details="auto"
             />
             <v-text-field
               v-if="
@@ -99,7 +109,10 @@
               "
               v-model="filters.endDate"
               type="datetime-local"
+              class="datetime"
               label="Ig"
+              solo
+              hide-details="auto"
             />
             <v-select
               v-if="header.filterable && header.text === 'Megbízottak'"
@@ -109,30 +122,29 @@
               item-text="name"
               small-chips
               solo
-              placeholder="szűrés"
+              :placeholder="header.text"
               hide-details="auto"
               multiple
             />
           </td>
         </tr>
       </template>
-      <template #[`item.type`]="{ header, item }">
+
+      <!-- FillCells -->
+      <template #[`item.taskTypes`]="{ header, item }">
         <v-select
-          v-model="item.type"
+          v-model="item.taskTypes"
           :items="taskTypes"
           item-value="id"
           item-text="name"
           small-chips
           solo
           hide-details="auto"
-          @change="updateTask(header, { id: item.id, value: item.type })"
+          multiple
+          @change="updateTask(header, { id: item.id, value: item.taskTypes })"
         >
-          <template #selection="{ item: selectedItem, index }">
-            <v-chip
-              v-if="index === 0"
-              small
-              :style="{ 'background-color': selectedItem.color }"
-            >
+          <template #selection="{ item: selectedItem }">
+            <v-chip small :style="{ 'background-color': selectedItem.color }">
               <span>{{ selectedItem.name }}</span>
             </v-chip>
           </template>
@@ -220,6 +232,7 @@
           solo
           hide-details="auto"
           type="datetime-local"
+          class="datetime"
           @change="updateTask(header, item)"
         ></v-text-field>
       </template>
@@ -227,6 +240,7 @@
         <v-text-field
           v-model="item.planned_delivery_date"
           type="datetime-local"
+          class="datetime"
           solo
           hide-details="auto"
           @change="updateTask(header, item)"
@@ -273,13 +287,17 @@
         >
         </v-select>
       </template>
+
+      <!-- FillExpandedField -->
       <template #expanded-item="{ item }">
         <TableExpandedField
           :item="item"
           :headers="headers"
+          :taskTypes="taskTypes"
           :rules="rules"
           @updateTask="updateTask"
           @uploadTaskFile="uploadTaskFile"
+          @addFee="addFee"
         />
       </template>
     </v-data-table>
@@ -317,7 +335,8 @@ export default {
       ],
       taskTypes: [
         { id: 3, name: 'telepítés', color: '#f07b00' },
-        { id: 2, name: 'javítás', color: '#9e9e9e' }
+        { id: 2, name: 'javítás', color: '#9e9e9e' },
+        { id: 1, name: 'karbantartás', color: '#988904' }
       ],
       users: [
         { id: 1, name: 'John Doe' },
@@ -376,6 +395,15 @@ export default {
             }
             return true; // Ha nincs szűrés, minden elem megjelenik
           }
+          if (key === 'taskTypes') {
+            // Ha a 'responsibles' oszlopról van szó, ellenőrizzük, hogy bármelyik felelős benne van-e
+            if (Array.isArray(filterValue) && filterValue.length > 0) {
+              return filterValue.some((taskTypeId) =>
+                task.taskTypes.includes(taskTypeId)
+              );
+            }
+            return true; // Ha nincs szűrés, minden elem megjelenik
+          }
 
           if (Array.isArray(filterValue)) {
             // Ha az összes lehetséges típus ki van jelölve, akkor minden elem megjelenik
@@ -406,12 +434,15 @@ export default {
     },
     uploadTaskFile(item) {
       this.$emit('uploadTaskFile', item);
+    },
+    addFee(data) {
+      this.$emit('addFee', data);
     }
   }
 };
 </script>
 
-<style>
+<style lang="scss">
 /* .v-text-field__details {
   display: none;
 } */
@@ -466,7 +497,22 @@ td.text-start .v-input__slot {
 tr:hover {
   background-color: #f07c0018 !important;
 }
+.filterRow {
+  background-color: rgba(128, 128, 128, 0.497) !important;
+}
+.filterRow:hover {
+  background-color: rgba(128, 128, 128, 0.497) !important;
+}
 td.text-start {
   padding: 10px !important;
+}
+.datetime {
+  padding: 10px 0px 10px 0px !important;
+}
+
+@media (max-width: 600px) {
+  .filterRow {
+    display: grid;
+  }
 }
 </style>

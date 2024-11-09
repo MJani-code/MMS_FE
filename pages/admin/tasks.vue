@@ -7,6 +7,7 @@
       :tasks="group.tasks"
       :headers="tasks.headers"
       @eventToTask="handleUpdatedTask"
+      @addFee="addFee"
     >
     </AccordionField>
   </div>
@@ -95,6 +96,9 @@ export default {
           console.error('Nem található a task_id:', taskId);
         }
       }
+    },
+    addFee(data) {
+      console.log(data);
     }
   }
 };
