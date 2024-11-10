@@ -33,6 +33,15 @@ export const taskMixin = {
         console.error('Error fetching users', error);
         return [];
       }
+    },
+    addFee(payload) {
+      try {
+        const response = APIPOST('addFee', payload);
+        return response;
+      } catch (error) {
+        console.error('Error fetching users', error);
+        return [];
+      }
     }
   }
 };

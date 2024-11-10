@@ -7,7 +7,7 @@
       :tasks="group.tasks"
       :headers="tasks.headers"
       @eventToTask="handleUpdatedTask"
-      @addFee="addFee"
+      @addFee="handleAddFee"
     >
     </AccordionField>
   </div>
@@ -97,8 +97,20 @@ export default {
         }
       }
     },
-    addFee(data) {
-      console.log(data);
+    async handleAddFee(payload) {
+      const result = await this.addFee(payload);
+      //TODO: A DOM értékét még frissíteni kell!
+      if (result.data.status === 200) {
+        const taskId = result.data.payload.taskId;
+        const newFee = result.data.payload;
+        const task = this.tasks.data.find((item) => item.id === taskId);
+        if (task) {
+          task.taskFees.push(newFee);
+        } else {
+          console.error('Nem található a location_id:', taskId);
+        }
+        console.log(this.tasks.data);
+      }
     }
   }
 };

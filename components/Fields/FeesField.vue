@@ -51,9 +51,7 @@
             {{ addedItem.total }}
           </v-list-item-subtitle>
           <v-list-item-icon>
-            <v-icon @click="removeItem(index, addedItem.total)"
-              >mdi-delete</v-icon
-            >
+            <v-icon @click="removeItem(addedItem)">mdi-delete</v-icon>
           </v-list-item-icon>
         </v-list-item>
         <div class="d-flex">
@@ -84,7 +82,7 @@ export default {
       fees: [
         { id: 1, name: 'Szállítási díj', value: 380 },
         { id: 2, name: 'Telepítési díj', value: 38000 },
-        { id: 3, name: 'Karbantartás díj', value: 20000 },
+        { id: 3, name: 'Karbantartási díj', value: 20000 },
         { id: 4, name: 'Javítás', value: 8750 },
         { id: 5, name: 'Egyéb', value: 1 }
       ],
@@ -97,16 +95,20 @@ export default {
         }
       ],
       addedItems: this.item.taskFees,
-      addedItemsTotal: 0,
       taskId: this.item.id
     };
+  },
+  computed: {
+    addedItemsTotal() {
+      // Összegzi az addedItems tömb objektumainak "total" értékeit
+      return this.addedItems.reduce((sum, item) => sum + (item.total || 0), 0);
+    }
   },
   methods: {
     addItem(item) {
       // Kiszámítja a total értéket (quantity * fee value)
       const fee = this.fees.find((f) => f.id === item.feeId);
       const total = fee ? item.quantity * fee.value : 0;
-      this.addedItemsTotal = this.addedItemsTotal + total;
 
       const data = {
         taskId: this.taskId,
@@ -114,25 +116,18 @@ export default {
         otherItems: item.otherItems,
         quantity: item.quantity,
         total: total,
-        method: 'insert'
+        netUnitPrice: fee.value
       };
 
       this.$emit('addFee', data);
 
-      // Hozzáadja az item-et az addedItems-hez a számított total értékkel
-      // this.addedItems.push({
-      //   ...item,
-      //   total
-      // });
-
       // // Az item mezőinek kiürítése
-      // item.feeId = '';
-      // item.quantity = '';
-      // item.note = '';
+      item.feeId = '';
+      item.quantity = '';
+      item.note = '';
     },
-    removeItem(index, total) {
-      this.addedItems.splice(index, 1);
-      this.addedItemsTotal = this.addedItemsTotal - total;
+    removeItem(addedItem) {
+      console.log(addedItem);
     },
     placeholder(feeId) {
       switch (feeId) {
