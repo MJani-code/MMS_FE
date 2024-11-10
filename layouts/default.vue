@@ -51,6 +51,8 @@
     </v-app-bar>
     <v-main>
       <v-container>
+        <!-- Értesítő komponens megjelenítése -->
+        <Notification />
         <Nuxt />
       </v-container>
     </v-main>
@@ -65,10 +67,11 @@
 
 <script>
 import { routers } from '@/routers/routers.js';
+import Notification from '../components/Notification.vue';
 
 export default {
   name: 'DefaultLayout',
-  components: {},
+  components: { Notification },
   data() {
     return {
       themeChangeIcon: '',

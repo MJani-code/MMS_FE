@@ -14,7 +14,8 @@ export const config = {
     auth: host + '/build_mate_be/API/auth.php',
     getAllTask: host + '/MMS/MMS_BE/api/task/getAllTask.php',
     updateTask: host + '/MMS/MMS_BE/api/task/updateTask.php',
-    addFee: host + '/MMS/MMS_BE/api/task/addFee.php'
+    addFee: host + '/MMS/MMS_BE/api/task/addFee.php',
+    deleteFee: host + '/MMS/MMS_BE/api/task/deleteFee.php'
   }
 };
 

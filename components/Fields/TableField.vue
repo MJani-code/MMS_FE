@@ -297,6 +297,7 @@
           @updateTask="updateTask"
           @uploadTaskFile="uploadTaskFile"
           @addFee="addFee"
+          @deleteFee="deleteFee"
         />
       </template>
     </v-data-table>
@@ -437,6 +438,9 @@ export default {
     },
     addFee(data) {
       this.$emit('addFee', data);
+    },
+    deleteFee(data) {
+      this.$emit('deleteFee', data);
     }
   }
 };

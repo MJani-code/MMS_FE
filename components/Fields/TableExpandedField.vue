@@ -94,7 +94,13 @@
           </v-card>
         </v-tab-item>
         <v-tab-item class="fees">
-          <FeesField :taskTypes="taskTypes" :item="item" @addFee="addFee" />
+          <FeesField
+            :taskTypes="taskTypes"
+            :taskFees="item.taskFees"
+            :taskId="item.id"
+            @addFee="addFee"
+            @deleteFee="deleteFee"
+          />
         </v-tab-item>
       </v-tabs>
     </v-card>
@@ -140,6 +146,9 @@ export default {
     },
     addFee(data) {
       this.$emit('addFee', data);
+    },
+    deleteFee(data) {
+      this.$emit('deleteFee', data);
     }
   }
 };

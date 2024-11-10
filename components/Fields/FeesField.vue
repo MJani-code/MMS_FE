@@ -32,7 +32,7 @@
       <v-list class="transparent">
         <v-list-item-title> Hozzáadott tételek </v-list-item-title>
         <v-list-item
-          v-for="(addedItem, index) in addedItems"
+          v-for="(addedItem, index) in taskFees"
           :key="index"
           class="pa-0"
         >
@@ -72,8 +72,12 @@ export default {
       type: Array,
       required: true
     },
-    item: {
-      type: Object,
+    taskFees: {
+      type: Array,
+      required: true
+    },
+    taskId: {
+      type: Number,
       required: true
     }
   },
@@ -93,15 +97,13 @@ export default {
           otherItems: '',
           quantity: ''
         }
-      ],
-      addedItems: this.item.taskFees,
-      taskId: this.item.id
+      ]
     };
   },
   computed: {
     addedItemsTotal() {
       // Összegzi az addedItems tömb objektumainak "total" értékeit
-      return this.addedItems.reduce((sum, item) => sum + (item.total || 0), 0);
+      return this.taskFees.reduce((sum, item) => sum + (item.total || 0), 0);
     }
   },
   methods: {
@@ -126,8 +128,8 @@ export default {
       item.quantity = '';
       item.note = '';
     },
-    removeItem(addedItem) {
-      console.log(addedItem);
+    removeItem(data) {
+      this.$emit('deleteFee', data);
     },
     placeholder(feeId) {
       switch (feeId) {
@@ -147,9 +149,9 @@ export default {
     },
     getFeeName(feeId) {
       const fee = this.fees.find((f) => f.id === feeId);
-      const feeNote = this.addedItems.find((f) => f.feeId === feeId);
+      const feeNote = this.taskFees.find((f) => f.feeId === feeId);
       if (feeId === 5) {
-        return fee ? feeNote.note : '';
+        return fee ? feeNote.otherItems : '';
       } else {
         return fee ? fee.name : '';
       }

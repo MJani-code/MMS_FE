@@ -42,6 +42,15 @@ export const taskMixin = {
         console.error('Error fetching users', error);
         return [];
       }
+    },
+    deleteFee(payload) {
+      try {
+        const response = APIPOST('deleteFee', payload);
+        return response;
+      } catch (error) {
+        console.error('Error fetching users', error);
+        return [];
+      }
     }
   }
 };

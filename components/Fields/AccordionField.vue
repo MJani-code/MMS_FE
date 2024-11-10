@@ -10,6 +10,7 @@
             @eventToAccordion="eventToTask"
             @uploadTaskFile="eventToTask"
             @addFee="addFee"
+            @deleteFee="deleteFee"
           />
         </v-expansion-panel-content>
       </v-expansion-panel>
@@ -37,6 +38,9 @@ export default {
     },
     addFee(data) {
       this.$emit('addFee', data);
+    },
+    deleteFee(data) {
+      this.$emit('deleteFee', data);
     }
   }
 };
