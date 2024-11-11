@@ -9,9 +9,9 @@ if (window.location.hostname === 'localhost') {
 
 export const config = {
   apiUrl: {
-    login: host + '/build_mate_be/API/login.php',
-    logout: host + '/build_mate_be/API/logout.php',
-    auth: host + '/build_mate_be/API/auth.php',
+    login: host + '/MMS/MMS_BE/api/login.php',
+    logout: host + '/MMS/MMS_BE/api/logout.php',
+    auth: host + '/MMS/MMS_BE/api/auth.php',
     getAllTask: host + '/MMS/MMS_BE/api/task/getAllTask.php',
     updateTask: host + '/MMS/MMS_BE/api/task/updateTask.php',
     addFee: host + '/MMS/MMS_BE/api/task/addFee.php',

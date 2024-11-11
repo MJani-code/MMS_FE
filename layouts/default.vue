@@ -9,7 +9,9 @@
     >
       <v-list>
         <v-list-item>
-          <v-list-item-title><b>Szia,</b></v-list-item-title>
+          <v-list-item-title
+            ><b>Szia, {{ firstName }}</b></v-list-item-title
+          >
         </v-list-item>
         <v-list-item
           v-for="(item, index) in routers"
@@ -82,11 +84,13 @@ export default {
       miniVariant: false,
       right: true,
       rightDrawer: false,
-      firstName: '',
+      firstName: this.$store.state.firstName,
       showConfirmLogoutModal: false
     };
   },
-  created() {},
+  created() {
+    console.log(this.$store);
+  },
   methods: {}
 };
 </script>

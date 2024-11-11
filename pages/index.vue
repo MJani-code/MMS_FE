@@ -1,9 +1,6 @@
 <template>
   <v-row class="mt-2">
-    <v-col cols="12" class="justify-center">
-      <ProcessLoading :is-loading="isLoading" />
-      <response-handler-modal></response-handler-modal>
-    </v-col>
+    <v-col cols="12" class="justify-center"> </v-col>
     <v-col cols="12">
       <h1>MMS</h1>
     </v-col>
@@ -22,7 +19,7 @@
             />
           </span>
           <v-sheet width="300" class="mx-auto">
-            <v-form ref="form" @submit.prevent="onSubmit">
+            <v-form ref="form" @submit.prevent="login">
               <v-text-field
                 :style="{ '--v-background-base': 'white' }"
                 type="email"
@@ -54,6 +51,8 @@
 </template>
 
 <script>
+import { APIPOST } from '../api/apiHelper';
+
 export default {
   name: 'login',
   components: {},
@@ -66,6 +65,7 @@ export default {
     return {
       isLoading: false,
       show: false,
+      error: '',
       email: '',
       password: '',
       response: [],
@@ -79,20 +79,31 @@ export default {
   computed: {},
   watch: {},
   methods: {
-    async onSubmit() {
-      // const isValid = await this.$refs.form.validate();
-      // if (!isValid) {
-      //   return;
-      // } else {
-      //   this.login();
-      // }
+    async login() {
+      try {
+        const user = {
+          email: this.email,
+          password: this.password
+        };
+        const response = await APIPOST('login', user);
+        if (response.data.status === 200) {
+          this.$store.commit('setToken', response.data);
+          this.$router.push('/admin/home');
+        } else {
+          this.error = response.data.message;
+          this.showNotification('error', this.error);
+        }
+      } catch (err) {
+        this.error = 'Hiba történt a művelet során. ' + err;
+        this.showNotification('error', this.error);
+      }
     },
-    login() {
-      // const user = {
-      //   email: this.email,
-      //   password: this.password,
-      // };
-      // this.$store.dispatch('login', user);
+    showNotification($type, $message) {
+      this.$store.dispatch('notification/addNotification', {
+        type: $type,
+        message: $message,
+        timeout: 5000
+      });
     }
   }
 };

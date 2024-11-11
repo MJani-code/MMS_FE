@@ -2,6 +2,7 @@
   <v-app>
     <v-main class="background">
       <v-container>
+        <Notification />
         <Nuxt />
       </v-container>
     </v-main>
@@ -9,21 +10,15 @@
 </template>
 
 <script>
+import Notification from '../components/Notification.vue';
+
 export default {
   name: 'login',
+  components: { Notification },
   layout: 'login',
   props: {
     //
   },
-  // async beforeMount() {
-  //   await APIGET('http://build_mate_be/public/index.php/filestorage', null, true)
-  //     .then((res) => {
-  //       console.log(res)
-  //     })
-  //     .catch((err) => {
-  //       console.log(err)
-  //     })
-  // },
   data() {
     return {
       //
