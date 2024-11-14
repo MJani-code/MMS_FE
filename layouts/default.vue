@@ -55,6 +55,7 @@
       <v-container>
         <!-- Értesítő komponens megjelenítése -->
         <Notification />
+        <Modal />
         <Nuxt />
       </v-container>
     </v-main>
@@ -70,10 +71,11 @@
 <script>
 import { routers } from '@/routers/routers.js';
 import Notification from '../components/Notification.vue';
+import Modal from '../components/Modal.vue';
 
 export default {
   name: 'DefaultLayout',
-  components: { Notification },
+  components: { Notification, Modal },
   data() {
     return {
       themeChangeIcon: '',

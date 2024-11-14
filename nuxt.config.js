@@ -37,12 +37,12 @@ export default {
     }]
   },
   router: {
-    mode: 'history'
+    mode: 'history',
+    middleware: ['auth']
   },
 
 
-  css: ['@/assets/styles.scss'
-  ],
+  css: ['@/assets/styles.scss'],
 
 
   plugins: [],

@@ -1,6 +1,11 @@
 /*prettier-ignore*/
 export const state = () => ({
-  notifications: []
+  notifications: [],
+  modal: {
+    visible: false,
+    message: '',
+    buttons: []
+  }
 });
 
 export const mutations = {
@@ -9,6 +14,15 @@ export const mutations = {
   },
   REMOVE_NOTIFICATION(state, index) {
     state.notifications.splice(index, 1);
+  },
+  SHOW_MODAL(state, modalData) {
+    state.modal = {
+      ...modalData,
+      visible: true
+    };
+  },
+  HIDE_MODAL(state) {
+    state.modal.visible = false;
   }
 };
 
@@ -22,4 +36,14 @@ export const actions = {
       commit("REMOVE_NOTIFICATION", 0);
     }, notification.timeout || 3000);
   },
+  showModal({
+    commit
+  }, modalData) {
+    commit("SHOW_MODAL", modalData);
+  },
+  hideModal({
+    commit
+  }) {
+    commit("HIDE_MODAL");
+  }
 };

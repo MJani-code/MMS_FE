@@ -1,8 +1,6 @@
 <template>
   <div>
-    <!-- <v-btn @click="showNotification('error', 'üzenet')"
-      >Show Success Notification</v-btn
-    > -->
+    <v-btn @click="showModal">Show Modal</v-btn>
     <AccordionField
       v-for="(group, statusId, index) in groupedTasks"
       :key="index"
@@ -63,6 +61,20 @@ export default {
     await this.getTasks();
   },
   methods: {
+    showModal() {
+      this.$store.dispatch('notification/showModal', {
+        message: 'Biztosan törölni szeretnéd?',
+        buttons: [
+          { text: 'Igen', style: 'primary', action: '' },
+          {
+            text: 'Mégse',
+            style: 'secondary',
+            action: () => this.$store.dispatch('notification/hideModal')
+          }
+        ]
+      });
+      console.log(this.$store.state.notification);
+    },
     async getTasks() {
       const result = await this.fetchTasks();
       if (result.status === 200) {
