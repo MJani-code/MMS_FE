@@ -1,6 +1,5 @@
 <template>
-  <div>
-    <v-btn @click="showModal">Show Modal</v-btn>
+  <div class="mt-6">
     <AccordionField
       v-for="(group, statusId, index) in groupedTasks"
       :key="index"

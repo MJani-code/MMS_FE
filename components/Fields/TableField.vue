@@ -513,6 +513,9 @@ td.text-start {
 .datetime {
   padding: 10px 0px 10px 0px !important;
 }
+.v-list-item__title {
+  font-size: inherit;
+}
 
 @media (max-width: 600px) {
   .filterRow {

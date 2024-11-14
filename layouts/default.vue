@@ -28,7 +28,7 @@
             </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item href="" to="" class="v-list-item--link">
+        <v-list-item href="" to="" class="v-list-item--link" @click="logout">
           <v-list-item-action>
             <v-icon>mdi-logout</v-icon>
           </v-list-item-action>
@@ -93,7 +93,30 @@ export default {
   created() {
     console.log(this.$store);
   },
-  methods: {}
+  methods: {
+    logout() {
+      this.$store.dispatch('notification/showModal', {
+        message: 'Biztosan törölni szeretnéd?',
+        buttons: [
+          {
+            text: 'Igen',
+            style: 'primary',
+            action: () => this.logOutConfirm()
+          },
+          {
+            text: 'Mégse',
+            style: 'secondary',
+            action: () => this.$store.dispatch('notification/hideModal')
+          }
+        ]
+      });
+      console.log(this.$store.state.notification);
+    },
+    logOutConfirm() {
+      this.$router.push('/');
+      localStorage.removeItem('data');
+    }
+  }
 };
 </script>
 
