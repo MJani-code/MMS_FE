@@ -4,7 +4,7 @@
       <v-tabs vertical>
         <v-tab class="location_photos_tab">Helyszín képek</v-tab>
         <v-tab class="location_details_tab">Helyszín részletek</v-tab>
-        <v-tab class="fees">Díjak</v-tab>
+        <v-tab v-if="this.$store.state.roleId < 3" class="fees">Díjak</v-tab>
 
         <v-tab-item class="location_photos_item">
           <v-card flat>
