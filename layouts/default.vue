@@ -90,13 +90,11 @@ export default {
       showConfirmLogoutModal: false
     };
   },
-  created() {
-    console.log(this.$store);
-  },
+  created() {},
   methods: {
     logout() {
       this.$store.dispatch('notification/showModal', {
-        message: 'Biztosan törölni szeretnéd?',
+        message: 'Biztosan kijelentkezel?',
         buttons: [
           {
             text: 'Igen',
@@ -113,6 +111,7 @@ export default {
       console.log(this.$store.state.notification);
     },
     logOutConfirm() {
+      this.$store.dispatch('notification/hideModal');
       this.$router.push('/');
       localStorage.removeItem('data');
     }

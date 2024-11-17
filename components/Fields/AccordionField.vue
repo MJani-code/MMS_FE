@@ -7,6 +7,10 @@
           <TableField
             :tasks="tasks"
             :headers="headers"
+            :statuses="statuses"
+            :locationTypes="locationTypes"
+            :taskTypes="taskTypes"
+            :users="users"
             @eventToAccordion="eventToTask"
             @uploadTaskFile="eventToTask"
             @addFee="addFee"
@@ -26,7 +30,11 @@ export default {
   props: {
     title: String,
     tasks: Array,
-    headers: Array
+    headers: Array,
+    statuses: Array,
+    locationTypes: Array,
+    taskTypes: Array,
+    users: Array
   },
   data: () => ({
     panel: [],

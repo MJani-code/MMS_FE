@@ -18,11 +18,12 @@ export const config = {
     deleteFee: host + '/MMS/MMS_BE/api/task/deleteFee.php'
   }
 };
-
 const API = axios.create({
   // baseURL: process.env.API_URL ?? 'http://',
   timeout: 3000
-  // headers: {'Authorization': `Bearer ${token}`}
+  // headers: {
+  //   'Authorization': `Bearer ${token}`
+  // }
 });
 
 export const APIPOST = async (endpoint, data) => {
@@ -40,9 +41,13 @@ export const APIPOST2 = async (endpoint, data, token) => {
   });
 };
 
-export const APIGET = async (endpoint) => {
+export const APIGET = async (endpoint, token) => {
   const url = config.apiUrl[endpoint];
-  return await API.get(url);
+  return await API.get(url, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
 };
 
 export const APIPUT = async (url, data) => {

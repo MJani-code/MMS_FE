@@ -9,7 +9,8 @@ export const taskMixin = {
   methods: {
     async fetchTasks() {
       try {
-        const response = await APIGET('getAllTask');
+        const token = this.$store.state.token;
+        const response = await APIGET('getAllTask', token);
         return await response;
       } catch (error) {
         console.error('Error fetching users', error);

@@ -249,8 +249,8 @@
         <v-select
           v-model="item.location_type"
           :items="locationTypes"
-          item-value="type"
-          item-text="type"
+          item-value="id"
+          item-text="name"
           small-chips
           solo
           hide-details="auto"
@@ -264,7 +264,7 @@
               small
               :style="{ 'background-color': selectedItem.color }"
             >
-              <span>{{ selectedItem.type }}</span>
+              <span>{{ selectedItem.name }}</span>
             </v-chip>
           </template>
         </v-select>
@@ -317,32 +317,27 @@ export default {
     headers: {
       type: Array,
       required: true
+    },
+    statuses: {
+      type: Array,
+      required: true
+    },
+    locationTypes: {
+      type: Array,
+      required: true
+    },
+    taskTypes: {
+      type: Array,
+      required: true
+    },
+    users: {
+      type: Array,
+      required: true
     }
   },
   data() {
     return {
       filters: {},
-      statuses: [
-        { id: 4, name: 'Új', color: '#f07b00' },
-        { id: 5, name: 'Folyamatban', color: '#ffa64d' },
-        { id: 6, name: 'Teljesítve', color: '#4caf50' },
-        { id: 7, name: 'Felfüggesztve', color: '#ffeb3b' },
-        { id: 8, name: 'Törölve', color: '#9e9e9e' }
-      ],
-      locationTypes: [
-        { type: 'Beltéri', color: '#9e9e9e' },
-        { type: 'Kültéri', color: '#f07b00' }
-      ],
-      taskTypes: [
-        { id: 3, name: 'telepítés', color: '#f07b00' },
-        { id: 2, name: 'javítás', color: '#9e9e9e' },
-        { id: 1, name: 'karbantartás', color: '#988904' }
-      ],
-      users: [
-        { id: 1, name: 'John Doe' },
-        { id: 2, name: 'Jane Doe' },
-        { id: 3, name: 'Mike Doe' }
-      ],
       expanded: [],
       taskFiles: [],
       rules: [

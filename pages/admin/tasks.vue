@@ -6,6 +6,11 @@
       :title="group.title"
       :tasks="group.tasks"
       :headers="tasks.headers"
+      :statuses="tasks.statuses"
+      :locationTypes="tasks.locationTypes"
+      :taskTypes="tasks.taskTypes"
+      :users="tasks.users"
+      :disabled="isDisabled(statusId)"
       @eventToTask="handleUpdatedTask"
       @addFee="handleAddFee"
       @deleteFee="handleDeleteFee"
@@ -26,19 +31,19 @@ export default {
     return {
       tasks: {
         data: [],
-        headers: []
+        headers: [],
+        statuses: [],
+        locationTypes: [],
+        users: []
       }
     };
   },
   computed: {
     groupedTasks() {
-      const statusMap = {
-        4: 'Új',
-        5: 'Folyamatban',
-        6: 'Teljesítve',
-        7: 'Felfüggesztve',
-        8: 'Törölve'
-      };
+      const statusMap = this.tasks.statuses.reduce((map, status) => {
+        map[status.id] = status.name;
+        return map;
+      }, {});
 
       return this.tasks.data.reduce((groups, task) => {
         const statusId = task.status_exohu_id;
@@ -60,6 +65,7 @@ export default {
     await this.getTasks();
   },
   methods: {
+    isDisabled(statusId) {},
     showModal() {
       this.$store.dispatch('notification/showModal', {
         message: 'Biztosan törölni szeretnéd?',

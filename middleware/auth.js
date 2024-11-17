@@ -5,6 +5,7 @@ import {
 
 // prettier-ignore
 export default async function ({
+  store,
   redirect,
   route
 }) {
@@ -17,8 +18,16 @@ export default async function ({
   const parsedData = dataFromLocalStorage ? JSON.parse(dataFromLocalStorage) : null;
 
   if (parsedData) {
+
     if (parsedData?.data.isLoggedIn) {
       const token = parsedData.data.token;
+      const roleId = parsedData.data.roleId;
+      const userId = parsedData.data.userId;
+      const email = parsedData.data.email;
+
+      if (store.state.token === null) {
+        store.commit('setToken', parsedData);
+      }
 
       try {
         // Token validálása a backenddel
