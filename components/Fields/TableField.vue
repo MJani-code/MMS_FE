@@ -140,6 +140,7 @@
           solo
           hide-details="auto"
           multiple
+          :disabled="isToDisable(item)"
           @change="updateTask(header, { id: item.id, value: item.taskTypes })"
         >
           <template #selection="{ item: selectedItem }">
@@ -183,6 +184,7 @@
           small-chips
           solo
           hide-details="auto"
+          :disabled="isToDisable(item)"
           @change="
             updateTask(header, { id: item.id, value: item.status_exohu_id })
           "
@@ -204,6 +206,7 @@
           solo
           hide-details="auto"
           class="zip"
+          :disabled="isToDisable(item)"
           @change="updateTask(header, item)"
         ></v-text-field>
       </template>
@@ -213,6 +216,7 @@
           solo
           hide-details="auto"
           class="city"
+          :disabled="isToDisable(item)"
           @change="updateTask(header, item)"
         ></v-text-field>
       </template>
@@ -222,6 +226,7 @@
           solo
           hide-details="auto"
           class="address"
+          :disabled="isToDisable(item)"
           @change="updateTask(header, item)"
         ></v-text-field>
       </template>
@@ -232,6 +237,7 @@
           hide-details="auto"
           type="datetime-local"
           class="datetime"
+          :disabled="isToDisable(item)"
           @change="updateTask(header, item)"
         ></v-text-field>
       </template>
@@ -242,6 +248,7 @@
           class="datetime"
           solo
           hide-details="auto"
+          :disabled="isToDisable(item)"
           @change="updateTask(header, item)"
         ></v-text-field>
       </template>
@@ -254,6 +261,7 @@
           small-chips
           solo
           hide-details="auto"
+          :disabled="isToDisable(item)"
           @change="
             updateTask(header, { id: item.id, value: item.location_type })
           "
@@ -280,6 +288,7 @@
           solo
           hide-details="auto"
           deletable-chips
+          :disabled="isToDisable(item)"
           @change="
             updateTask(header, { id: item.id, value: item.responsibles })
           "
@@ -417,6 +426,14 @@ export default {
   },
   mounted() {},
   methods: {
+    isToDisable(item) {
+      if (
+        item.status_exohu_id === 10 &&
+        !this.$store.getters['hasPermission']('Edit_closed_task')
+      ) {
+        return true;
+      }
+    },
     updateTask(header, selectedItem) {
       console.log(selectedItem);
       this.$emit('eventToAccordion', {

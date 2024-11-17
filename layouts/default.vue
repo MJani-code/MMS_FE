@@ -97,14 +97,14 @@ export default {
         message: 'Biztosan kijelentkezel?',
         buttons: [
           {
-            text: 'Igen',
-            style: 'primary',
-            action: () => this.logOutConfirm()
-          },
-          {
             text: 'Mégse',
             style: 'secondary',
             action: () => this.$store.dispatch('notification/hideModal')
+          },
+          {
+            text: 'Igen',
+            style: 'primary',
+            action: () => this.logOutConfirm()
           }
         ]
       });

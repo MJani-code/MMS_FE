@@ -4,7 +4,8 @@ export const state = () => ({
   roleId: null,
   userId: null,
   email: '',
-  firstName: ''
+  firstName: '',
+  permissions: []
 });
 
 export const mutations = {
@@ -15,10 +16,17 @@ export const mutations = {
     state.roleId = response.data.roleId;
     state.userId = response.data.userId;
     state.email = response.data.email;
+    state.permissions = response.data.permissions;
     localStorage.setItem('data', jsonData); // opcionális: token tárolása localStorage-ban
   },
   clearToken(state) {
     state.token = null;
     localStorage.removeItem('data');
+  }
+};
+
+export const getters = {
+  hasPermission: (state) => (permission) => {
+    return state.permissions.includes(permission);
   }
 };

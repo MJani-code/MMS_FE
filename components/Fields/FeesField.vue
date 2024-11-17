@@ -11,11 +11,13 @@
             small-chips
             solo
             hide-details="auto"
+            :disabled="disabled"
           />
           <v-text-field
             type="number"
             v-model="item.quantity"
             :label="placeholder(item.feeId)"
+            :disabled="disabled"
           />
           <v-text-field
             v-if="item.feeId === 5"
@@ -23,7 +25,7 @@
             label="Megjegyzés"
             required
           />
-          <v-btn type="submit">Hozzáad</v-btn>
+          <v-btn type="submit" :disabled="disabled">Hozzáad</v-btn>
         </v-form>
       </div>
     </v-col>
@@ -51,7 +53,9 @@
             {{ addedItem.total }}
           </v-list-item-subtitle>
           <v-list-item-icon>
-            <v-icon @click="removeItem(addedItem)">mdi-delete</v-icon>
+            <v-icon @click="removeItem(addedItem)" :disabled="disabled"
+              >mdi-delete</v-icon
+            >
           </v-list-item-icon>
         </v-list-item>
         <div class="d-flex">
@@ -79,6 +83,9 @@ export default {
     taskId: {
       type: Number,
       required: true
+    },
+    disabled: {
+      Boolean
     }
   },
   data() {
@@ -102,6 +109,7 @@ export default {
   },
   computed: {
     addedItemsTotal() {
+      console.log(this.disabled);
       // Összegzi az addedItems tömb objektumainak "total" értékeit
       return this.taskFees.reduce((sum, item) => sum + (item.total || 0), 0);
     }

@@ -4,7 +4,9 @@
       <v-tabs vertical>
         <v-tab class="location_photos_tab">Helyszín képek</v-tab>
         <v-tab class="location_details_tab">Helyszín részletek</v-tab>
-        <v-tab v-if="this.$store.state.roleId < 3" class="fees">Díjak</v-tab>
+        <v-tab v-if="$store.getters['hasPermission']('View_fees')" class="fees"
+          >Díjak</v-tab
+        >
 
         <v-tab-item class="location_photos_item">
           <v-card flat>
@@ -50,8 +52,11 @@
                       label="File input"
                       outlined
                       required
+                      :disabled="isToDisable(item)"
                     ></v-file-input>
-                    <v-btn type="submit">Feltöltés</v-btn>
+                    <v-btn type="submit" :disabled="isToDisable(item)"
+                      >Feltöltés</v-btn
+                    >
                   </form>
                 </template>
               </v-col>
@@ -68,6 +73,7 @@
               <v-text-field
                 v-model="fixingMethod"
                 label="Rögzítési mód"
+                :disabled="isToDisable(item)"
                 @change="
                   updateData(
                     item,
@@ -81,6 +87,7 @@
               <v-text-field
                 v-model="sitePreparation"
                 label="Helyszín kialakítási feladat"
+                :disabled="isToDisable(item)"
                 @change="
                   updateData(
                     item,
@@ -98,6 +105,7 @@
             :taskTypes="taskTypes"
             :taskFees="item.taskFees"
             :taskId="item.id"
+            :disabled="isToDisable(item)"
             @addFee="addFee"
             @deleteFee="deleteFee"
           />
@@ -125,6 +133,14 @@ export default {
     };
   },
   methods: {
+    isToDisable(item) {
+      if (
+        item.status_exohu_id === 10 &&
+        !this.$store.getters['hasPermission']('Edit_closed_task')
+      ) {
+        return true;
+      }
+    },
     uploadTaskFile(data) {
       console.log(data);
       this.$emit('uploadTaskFile', {
