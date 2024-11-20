@@ -16,7 +16,7 @@ export const mutations = {
     state.roleId = response.data.roleId;
     state.userId = response.data.userId;
     state.email = response.data.email;
-    state.permissions = response.data.permissions;
+    state.permissions = response.data.xtg;
     localStorage.setItem('data', jsonData); // opcionális: token tárolása localStorage-ban
   },
   clearToken(state) {

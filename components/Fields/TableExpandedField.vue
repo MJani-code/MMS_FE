@@ -4,7 +4,7 @@
       <v-tabs vertical>
         <v-tab class="location_photos_tab">Helyszín képek</v-tab>
         <v-tab class="location_details_tab">Helyszín részletek</v-tab>
-        <v-tab v-if="$store.getters['hasPermission']('View_fees')" class="fees"
+        <v-tab v-if="$store.getters['hasPermission']('6')" class="fees"
           >Díjak</v-tab
         >
 
@@ -136,7 +136,7 @@ export default {
     isToDisable(item) {
       if (
         item.status_exohu_id === 10 &&
-        !this.$store.getters['hasPermission']('Edit_closed_task')
+        !this.$store.getters['hasPermission']('7')
       ) {
         return true;
       }
