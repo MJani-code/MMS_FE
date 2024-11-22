@@ -8,6 +8,7 @@
             :tasks="tasks"
             :headers="headers"
             :statuses="statuses"
+            :allowedStatuses="allowedStatuses"
             :locationTypes="locationTypes"
             :taskTypes="taskTypes"
             :users="users"
@@ -32,6 +33,7 @@ export default {
     tasks: Array,
     headers: Array,
     statuses: Array,
+    allowedStatuses: Array,
     locationTypes: Array,
     taskTypes: Array,
     users: Array

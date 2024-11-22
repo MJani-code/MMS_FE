@@ -178,7 +178,7 @@
       <template #[`item.status_exohu_id`]="{ header, item }">
         <v-select
           v-model="item.status_exohu_id"
-          :items="statuses"
+          :items="getStatuses(item.status_exohu_id, isToDisable(item))"
           item-value="id"
           item-text="name"
           small-chips
@@ -331,6 +331,10 @@ export default {
       type: Array,
       required: true
     },
+    allowedStatuses: {
+      type: Array,
+      required: true
+    },
     locationTypes: {
       type: Array,
       required: true
@@ -426,10 +430,23 @@ export default {
   },
   mounted() {},
   methods: {
+    getStatuses(statusId, isSelectionDisabled) {
+      if (!isSelectionDisabled) {
+        return this.allowedStatuses;
+      } else {
+        return this.statuses;
+      }
+    },
     isToDisable(item) {
       if (
         item.status_exohu_id === 10 &&
         !this.$store.getters['hasPermission']('7')
+      ) {
+        return true;
+      }
+      if (
+        item.status_exohu_id === 9 &&
+        !this.$store.getters['hasPermission']('8')
       ) {
         return true;
       }

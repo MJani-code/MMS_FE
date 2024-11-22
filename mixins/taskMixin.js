@@ -20,7 +20,8 @@ export const taskMixin = {
     updateTask(payload) {
       if (payload.file) {
         try {
-          const response = APIPOST2('updateTask', payload, 'token');
+          const token = this.$store.state.token;
+          const response = APIPOST2('updateTask', payload, token);
           return response;
         } catch (error) {
           console.error('Error fetching users', error);
@@ -28,7 +29,8 @@ export const taskMixin = {
         }
       }
       try {
-        const response = APIPOST('updateTask', payload);
+        const token = this.$store.state.token;
+        const response = APIPOST('updateTask', payload, token);
         return response;
       } catch (error) {
         console.error('Error fetching users', error);

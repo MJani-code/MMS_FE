@@ -7,10 +7,10 @@
       :tasks="group.tasks"
       :headers="tasks.headers"
       :statuses="tasks.statuses"
+      :allowedStatuses="tasks.allowedStatuses"
       :locationTypes="tasks.locationTypes"
       :taskTypes="tasks.taskTypes"
       :users="tasks.users"
-      :disabled="isDisabled(statusId)"
       @eventToTask="handleUpdatedTask"
       @addFee="handleAddFee"
       @deleteFee="handleDeleteFee"
@@ -40,25 +40,28 @@ export default {
   },
   computed: {
     groupedTasks() {
-      const statusMap = this.tasks.statuses.reduce((map, status) => {
-        map[status.id] = status.name;
-        return map;
-      }, {});
+      if (this.tasks.data) {
+        const statusMap = this.tasks.statuses.reduce((map, status) => {
+          map[status.id] = status.name;
+          return map;
+        }, {});
 
-      return this.tasks.data.reduce((groups, task) => {
-        const statusId = task.status_exohu_id;
-        const statusText = statusMap[statusId] || 'Ismeretlen státusz';
+        return this.tasks.data.reduce((groups, task) => {
+          const statusId = task.status_exohu_id;
+          const statusText = statusMap[statusId] || 'Ismeretlen státusz';
 
-        if (!groups[statusId]) {
-          groups[statusId] = {
-            title: statusText,
-            tasks: []
-          };
-        }
+          if (!groups[statusId]) {
+            groups[statusId] = {
+              title: statusText,
+              tasks: []
+            };
+          }
 
-        groups[statusId].tasks.push(task);
-        return groups;
-      }, {});
+          groups[statusId].tasks.push(task);
+          return groups;
+        }, {});
+      }
+      return {};
     }
   },
   async mounted() {
@@ -83,7 +86,7 @@ export default {
     },
     async getTasks() {
       const result = await this.fetchTasks();
-      if (result.status === 200) {
+      if (result.data.status === 200) {
         this.tasks = result.data;
         this.tasks.headers.unshift({ text: '', value: 'data-table-expand' });
         console.log(this.tasks);
@@ -120,6 +123,9 @@ export default {
           const error = 'Nem található a task_Id: ' + taskId;
           this.showNotification('error', error);
         }
+      }
+      if (result.data.status !== 200) {
+        this.showNotification('error', result.data.message);
       }
     },
     async handleAddFee(payload) {

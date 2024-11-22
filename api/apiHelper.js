@@ -26,9 +26,13 @@ const API = axios.create({
   // }
 });
 
-export const APIPOST = async (endpoint, data) => {
+export const APIPOST = async (endpoint, data, token) => {
   const url = config.apiUrl[endpoint];
-  return await API.post(url, data);
+  return await API.post(url, data, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
 };
 
 export const APIPOST2 = async (endpoint, data, token) => {

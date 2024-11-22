@@ -140,6 +140,12 @@ export default {
       ) {
         return true;
       }
+      if (
+        item.status_exohu_id === 9 &&
+        !this.$store.getters['hasPermission']('8')
+      ) {
+        return true;
+      }
     },
     uploadTaskFile(data) {
       console.log(data);
