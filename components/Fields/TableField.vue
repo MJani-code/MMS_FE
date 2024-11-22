@@ -61,8 +61,8 @@
               v-if="header.filterable && header.text === 'Lokáció típus'"
               v-model="filters[header.value]"
               :items="locationTypes"
-              item-value="type"
-              item-text="type"
+              item-value="id"
+              item-text="name"
               small-chips
               solo
               :placeholder="header.text"
