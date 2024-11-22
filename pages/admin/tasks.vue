@@ -63,6 +63,7 @@ export default {
   },
   async mounted() {
     await this.getTasks();
+    console.log(this.tasks);
   },
   methods: {
     isDisabled(statusId) {},

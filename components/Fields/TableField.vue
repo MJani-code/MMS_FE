@@ -429,7 +429,7 @@ export default {
     isToDisable(item) {
       if (
         item.status_exohu_id === 10 &&
-        !this.$store.getters['hasPermission']('Edit_closed_task')
+        !this.$store.getters['hasPermission']('7')
       ) {
         return true;
       }

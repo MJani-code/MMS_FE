@@ -39,7 +39,7 @@
           class="pa-0"
         >
           <v-list-item-subtitle class="text-wrap">{{
-            getFeeName(addedItem.feeId)
+            getFeeName(addedItem.feeId, addedItem.id)
           }}</v-list-item-subtitle>
 
           <v-list-item-subtitle>
@@ -135,6 +135,7 @@ export default {
       item.feeId = '';
       item.quantity = '';
       item.note = '';
+      item.otherItems = '';
     },
     removeItem(data) {
       this.$emit('deleteFee', data);
@@ -155,9 +156,9 @@ export default {
           return '';
       }
     },
-    getFeeName(feeId) {
+    getFeeName(feeId, id) {
       const fee = this.fees.find((f) => f.id === feeId);
-      const feeNote = this.taskFees.find((f) => f.feeId === feeId);
+      const feeNote = this.taskFees.find((f) => f.id === id);
       if (feeId === 5) {
         return fee ? feeNote.otherItems : '';
       } else {
