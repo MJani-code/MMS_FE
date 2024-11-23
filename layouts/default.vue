@@ -1,5 +1,6 @@
 <template>
   <v-app :dark="false">
+    <BounceLoader :loading="loading" />
     <v-navigation-drawer
       v-model="drawer"
       :mini-variant="miniVariant"
@@ -72,10 +73,11 @@
 import { routers } from '@/routers/routers.js';
 import Notification from '../components/Notification.vue';
 import Modal from '../components/Modal.vue';
+import BounceLoader from '../components/BounceLoader.vue';
 
 export default {
   name: 'DefaultLayout',
-  components: { Notification, Modal },
+  components: { Notification, Modal, BounceLoader },
   data() {
     return {
       themeChangeIcon: '',
@@ -90,7 +92,11 @@ export default {
       showConfirmLogoutModal: false
     };
   },
-  created() {},
+  computed: {
+    loading() {
+      return this.$store.state.loading;
+    }
+  },
   methods: {
     logout() {
       this.$store.dispatch('notification/showModal', {

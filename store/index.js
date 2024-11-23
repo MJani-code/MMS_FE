@@ -5,7 +5,8 @@ export const state = () => ({
   userId: null,
   email: '',
   firstName: '',
-  permissions: []
+  permissions: [],
+  loading: false
 });
 
 export const mutations = {
@@ -22,6 +23,12 @@ export const mutations = {
   clearToken(state) {
     state.token = null;
     localStorage.removeItem('data');
+  },
+  turnOnLoading(state) {
+    state.loading = true;
+  },
+  turnOffLoading(state) {
+    state.loading = false;
   }
 };
 

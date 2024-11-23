@@ -69,6 +69,12 @@ export default {
     console.log(this.tasks);
   },
   methods: {
+    turnOnLoading() {
+      this.$store.commit('turnOnLoading');
+    },
+    turnOffLoading() {
+      this.$store.commit('turnOffLoading');
+    },
     isDisabled(statusId) {},
     showModal() {
       this.$store.dispatch('notification/showModal', {

@@ -47,6 +47,8 @@ export default {
 
   plugins: [],
 
+  // loading: '~/components/BounceLoader.vue',
+
 
   components: true,
 
@@ -82,7 +84,6 @@ export default {
       }
     }
   },
-
 
   build: {},
   server: {
