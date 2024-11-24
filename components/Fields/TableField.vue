@@ -125,6 +125,20 @@
               hide-details="auto"
               multiple
             />
+            <v-text-field
+              v-if="header.filterable && header.text === 'Tof Shop Id'"
+              v-model="filters[header.value]"
+              :placeholder="header.text"
+              solo
+              hide-details="auto"
+            />
+            <v-text-field
+              v-if="header.filterable && header.text === 'Serial'"
+              v-model="filters['lockerSerials']"
+              :placeholder="header.text"
+              solo
+              hide-details="auto"
+            />
           </td>
         </tr>
       </template>
@@ -295,6 +309,43 @@
         >
         </v-select>
       </template>
+      <template #[`item.tof_shop_id`]="{ header, item }">
+        <v-text-field
+          v-model="item.tof_shop_id"
+          solo
+          hide-details="auto"
+          class="tof_shop_id"
+          :disabled="isToDisable(item)"
+          @change="updateTask(header, item)"
+        ></v-text-field>
+      </template>
+      <template #[`item.serial`]="{ header, item }">
+        <v-combobox
+          v-model="item.lockerSerials"
+          chips
+          multiple
+          solo
+          :disabled="isToDisable(item)"
+          @change="
+            updateTask(header, {
+              id: item.id,
+              value: item.lockerSerials.slice(-1)
+            })
+          "
+        >
+          <template v-slot:selection="{ attrs, item, select, selected }">
+            <v-chip
+              v-bind="attrs"
+              :input-value="selected"
+              close
+              @click="select"
+              @click:close="remove(item)"
+            >
+              <strong>{{ item }}</strong>
+            </v-chip>
+          </template>
+        </v-combobox>
+      </template>
 
       <!-- FillExpandedField -->
       <template #expanded-item="{ item }">
@@ -350,6 +401,7 @@ export default {
   },
   data() {
     return {
+      serials: [],
       filters: {},
       expanded: [],
       taskFiles: [],
@@ -491,7 +543,8 @@ td.text-start .v-input__slot {
 .theme--dark.v-text-field--solo > .v-input__control > .v-input__slot {
   background-color: unset;
 } */
-.zip {
+.zip,
+.tof_shop_id {
   min-width: 80px !important;
 }
 .city {
