@@ -15,7 +15,9 @@
             @eventToAccordion="eventToTask"
             @uploadTaskFile="eventToTask"
             @addFee="addFee"
+            @addLocker="addLocker"
             @deleteFee="deleteFee"
+            @removeLocker="removeLocker"
           />
         </v-expansion-panel-content>
       </v-expansion-panel>
@@ -48,6 +50,12 @@ export default {
     },
     addFee(data) {
       this.$emit('addFee', data);
+    },
+    addLocker(data) {
+      this.$emit('addLocker', data);
+    },
+    removeLocker(data) {
+      this.$emit('removeLocker', data);
     },
     deleteFee(data) {
       this.$emit('deleteFee', data);

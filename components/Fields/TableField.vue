@@ -327,9 +327,10 @@
           solo
           :disabled="isToDisable(item)"
           @change="
-            updateTask(header, {
+            addLocker(header, {
               id: item.id,
-              value: item.lockerSerials.slice(-1)
+              tof_shop_id: item.tof_shop_id,
+              value: item.lockerSerials.slice(-1).join()
             })
           "
         >
@@ -339,7 +340,7 @@
               :input-value="selected"
               close
               @click="select"
-              @click:close="remove(item)"
+              @click:close="removeLocker(item)"
             >
               <strong>{{ item }}</strong>
             </v-chip>
@@ -504,7 +505,6 @@ export default {
       }
     },
     updateTask(header, selectedItem) {
-      console.log(selectedItem);
       this.$emit('eventToAccordion', {
         task_id: selectedItem.id,
         dbTable: header.dbTable,
@@ -513,6 +513,20 @@ export default {
           ? selectedItem['value']
           : selectedItem[header.dbColumn]
       });
+    },
+    addLocker(header, selectedItem) {
+      this.$emit('addLocker', {
+        task_id: selectedItem.id,
+        tof_shop_id: selectedItem.tof_shop_id,
+        dbTable: header.dbTable,
+        dbColumn: header.dbColumn,
+        value: selectedItem['value']
+          ? selectedItem['value']
+          : selectedItem[header.dbColumn]
+      });
+    },
+    removeLocker(item) {
+      this.$emit('removeLocker', { value: item });
     },
     uploadTaskFile(item) {
       this.$emit('uploadTaskFile', item);
@@ -597,6 +611,12 @@ td.text-start {
 }
 .v-list-item__title {
   font-size: inherit;
+}
+.v-text-field__details {
+  display: none;
+}
+.v-input__slot {
+  margin-bottom: unset;
 }
 
 @media (max-width: 600px) {

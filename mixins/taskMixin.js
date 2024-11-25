@@ -46,9 +46,29 @@ export const taskMixin = {
         return [];
       }
     },
+    addLocker(payload) {
+      try {
+        const token = this.$store.state.token;
+        const response = APIPOST('addLocker', payload, token);
+        return response;
+      } catch (error) {
+        console.error('Error fetching users', error);
+        return [];
+      }
+    },
     deleteFee(payload) {
       try {
         const response = APIPOST('deleteFee', payload);
+        return response;
+      } catch (error) {
+        console.error('Error fetching users', error);
+        return [];
+      }
+    },
+    removeLocker(payload) {
+      try {
+        const token = this.$store.state.token;
+        const response = APIPOST('removeLocker', payload, token);
         return response;
       } catch (error) {
         console.error('Error fetching users', error);

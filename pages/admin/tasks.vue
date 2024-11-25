@@ -13,7 +13,9 @@
       :users="tasks.users"
       @eventToTask="handleUpdatedTask"
       @addFee="handleAddFee"
+      @addLocker="handleAddLocker"
       @deleteFee="handleDeleteFee"
+      @removeLocker="handleRemoveLocker"
     >
     </AccordionField>
   </div>
@@ -75,7 +77,6 @@ export default {
     turnOffLoading() {
       this.$store.commit('turnOffLoading');
     },
-    isDisabled(statusId) {},
     showModal() {
       this.$store.dispatch('notification/showModal', {
         message: 'Biztosan törölni szeretnéd?',
@@ -147,6 +148,29 @@ export default {
           const error = 'Nem található a task_id: ' + taskId;
           this.showNotification('error', error);
         }
+      }
+    },
+    async handleAddLocker(payload) {
+      const result = await this.addLocker(payload);
+      const message = result.data.message;
+      if (result.data.status !== 200) {
+        this.showNotification('error', message);
+      }
+    },
+    async handleRemoveLocker(payload) {
+      const result = await this.removeLocker(payload);
+      const message = result.data.message;
+      if (result.data.status !== 200) {
+        this.showNotification('error', message);
+      } else {
+        this.tasks.data.forEach((item) => {
+          // Ha van találat a lockerSerials tömbben
+          const index = item.lockerSerials.indexOf(payload.value);
+          if (index !== -1) {
+            // Eltávolítjuk az adott lockerSerial-t
+            item.lockerSerials.splice(index, 1);
+          }
+        });
       }
     },
     async handleDeleteFee(payload) {
