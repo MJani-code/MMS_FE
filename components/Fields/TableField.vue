@@ -6,7 +6,8 @@
       fixed-header
       :expanded.sync="expanded"
       show-expand
-      class="elevation-1 custom"
+      :item-class="tableClass"
+      class="elevation-1 custom table"
     >
       <!-- FilterRow -->
       <template v-slot:body.prepend>
@@ -326,13 +327,7 @@
           multiple
           solo
           :disabled="isToDisable(item)"
-          @change="
-            addLocker(header, {
-              id: item.id,
-              tof_shop_id: item.tof_shop_id,
-              value: item.lockerSerials.slice(-1).join()
-            })
-          "
+          @change="addLocker(header, item)"
         >
           <template v-slot:selection="{ attrs, item, select, selected }">
             <v-chip
@@ -402,6 +397,7 @@ export default {
   },
   data() {
     return {
+      previousLengths: {},
       serials: [],
       filters: {},
       expanded: [],
@@ -514,16 +510,59 @@ export default {
           : selectedItem[header.dbColumn]
       });
     },
-    addLocker(header, selectedItem) {
-      this.$emit('addLocker', {
-        task_id: selectedItem.id,
-        tof_shop_id: selectedItem.tof_shop_id,
-        dbTable: header.dbTable,
-        dbColumn: header.dbColumn,
-        value: selectedItem['value']
-          ? selectedItem['value']
-          : selectedItem[header.dbColumn]
-      });
+    addLocker(header, item) {
+      const itemId = item.id; // Egyedi azonosító az itemhez
+      const currentLength = item.lockerSerials.length;
+      console.log('currentLength: ' + currentLength);
+
+      // Ha nincs előző hossz tárolva, inicializáljuk
+      if (!(itemId in this.previousLengths)) {
+        this.previousLengths[itemId] = currentLength;
+        console.log(this.previousLengths);
+        return; // Első futáskor még nem dolgozunk fel semmit
+      }
+
+      const previousLength = this.previousLengths[itemId];
+      console.log('previousLenght: ' + previousLength);
+      // Ha a hossz nem változott, duplikált esemény, ignoráljuk
+      if (previousLength < currentLength) {
+        console.log('duplikált esemény');
+        return;
+      }
+
+      // const newValue = items.slice(-1)[0]; // Az utolsó elem
+      // const isDuplicate =
+      //   items.indexOf(newValue) !== items.lastIndexOf(newValue);
+
+      // if (isDuplicate) {
+      //   console.log('duplikált');
+      //   return;
+      // }
+
+      //const lastAddedSerial = this.input();
+      // if (Items.length === 0) {
+      //   return false;
+      // }
+      // if (Items.includes(selectedItem['value'])) {
+      //   this.$store.dispatch('notification/addNotification', {
+      //     type: 'error',
+      //     message: 'ez az elem már szerepel a listában',
+      //     timeout: 5000
+      //   });
+      // } else {
+      //   this.$emit('addLocker', {
+      //     task_id: selectedItem.id,
+      //     tof_shop_id: selectedItem.tof_shop_id,
+      //     dbTable: header.dbTable,
+      //     dbColumn: header.dbColumn,
+      //     value: selectedItem['value']
+      //       ? selectedItem['value']
+      //       : selectedItem[header.dbColumn]
+      //   });
+      // }
+    },
+    hasDuplicates(array) {
+      return new Set(array).size !== array.length;
     },
     removeLocker(item) {
       this.$emit('removeLocker', { value: item });
@@ -536,6 +575,9 @@ export default {
     },
     deleteFee(data) {
       this.$emit('deleteFee', data);
+    },
+    tableClass() {
+      return 'table-row';
     }
   }
 };
@@ -612,10 +654,10 @@ td.text-start {
 .v-list-item__title {
   font-size: inherit;
 }
-.v-text-field__details {
+.table-row .v-text-field__details {
   display: none;
 }
-.v-input__slot {
+.table-row .v-input__slot {
   margin-bottom: unset;
 }
 

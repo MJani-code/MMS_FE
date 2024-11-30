@@ -2,30 +2,50 @@
   <v-row>
     <v-col class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
       <div v-for="(item, index) in taskItemsToInvoice" :key="index">
-        <v-form @submit.prevent="addItem(item)">
+        <v-form ref="form" @submit.prevent="addItem(item)">
+          <v-select
+            v-model="serial"
+            :items="lockerSerials"
+            :rules="rules.lockerSerials"
+            small-chips
+            solo
+            hide-details="auto"
+            :disabled="disabled"
+            placeholder="serial"
+            class="mb-4 ml-2"
+          />
           <v-select
             v-model="item.feeId"
             :items="fees"
+            :rules="rules.fees"
             item-value="id"
             item-text="name"
             small-chips
             solo
             hide-details="auto"
             :disabled="disabled"
+            placeholder="díj"
+            class="mb-4 ml-2"
           />
           <v-text-field
             type="number"
             v-model="item.quantity"
             :label="placeholder(item.feeId)"
+            :rules="rules.quantity"
             :disabled="disabled"
+            placeholder="mennyiség"
+            class="mb-4 ml-2"
           />
           <v-text-field
             v-if="item.feeId === 5"
             v-model="item.otherItems"
             label="Megjegyzés"
             required
+            class="mb-4 ml-2"
           />
-          <v-btn type="submit" :disabled="disabled">Hozzáad</v-btn>
+          <v-btn type="submit" :disabled="disabled" class="mt-4 mb-4 ml-2"
+            >Hozzáad</v-btn
+          >
         </v-form>
       </div>
     </v-col>
@@ -33,23 +53,26 @@
     <v-col class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
       <v-list class="transparent">
         <v-list-item-title> Hozzáadott tételek </v-list-item-title>
+        <v-list-item class="pa-0">
+          <v-list-item-subtitle>Megnevezés</v-list-item-subtitle>
+          <v-list-item-subtitle>Mennyiség</v-list-item-subtitle>
+          <v-list-item-subtitle>Érték</v-list-item-subtitle>
+        </v-list-item>
         <v-list-item
           v-for="(addedItem, index) in taskFees"
           :key="index"
           class="pa-0"
         >
-          <v-list-item-subtitle class="text-wrap">{{
-            getFeeName(addedItem.feeId, addedItem.id)
-          }}</v-list-item-subtitle>
+          <v-list-item-subtitle class="text-wrap"
+            >{{ getFeeName(addedItem.feeId, addedItem.id) }}
+            <p>{{ addedItem.lockerSerial }}</p>
+          </v-list-item-subtitle>
 
           <v-list-item-subtitle>
             {{ addedItem.quantity }}
           </v-list-item-subtitle>
 
-          <v-list-item-subtitle
-            class="text-right text-break"
-            style="overflow: visible"
-          >
+          <v-list-item-subtitle class="text-break" style="overflow: visible">
             {{ addedItem.total }}
           </v-list-item-subtitle>
           <v-list-item-icon>
@@ -80,6 +103,10 @@ export default {
       type: Array,
       required: true
     },
+    lockerSerials: {
+      type: Array,
+      required: true
+    },
     taskId: {
       type: Number,
       required: true
@@ -90,6 +117,13 @@ export default {
   },
   data() {
     return {
+      rules: {
+        lockerSerials: [(v) => !!v || 'Kötelező megadni locker azonosítót'],
+        fees: [(v) => !!v || 'Kötelező megadni díjat'],
+        quantity: [(v) => !!v || 'Kötelező megadni mennyiséget']
+      },
+      serial: '',
+      serials: ['1', '2'],
       fees: [
         { id: 1, name: 'Szállítási díj', value: 380 },
         { id: 2, name: 'Telepítési díj', value: 38000 },
@@ -109,33 +143,40 @@ export default {
   },
   computed: {
     addedItemsTotal() {
-      console.log(this.disabled);
       // Összegzi az addedItems tömb objektumainak "total" értékeit
       return this.taskFees.reduce((sum, item) => sum + (item.total || 0), 0);
     }
   },
   methods: {
-    addItem(item) {
-      // Kiszámítja a total értéket (quantity * fee value)
-      const fee = this.fees.find((f) => f.id === item.feeId);
-      const total = fee ? item.quantity * fee.value : 0;
+    async addItem(item) {
+      const isValid = await this.$refs.form[0].validate();
+      if (!isValid) {
+        return;
+      } else {
+        // Kiszámítja a total értéket (quantity * fee value)
+        const fee = this.fees.find((f) => f.id === item.feeId);
+        const total = fee ? item.quantity * fee.value : 0;
 
-      const data = {
-        taskId: this.taskId,
-        feeId: item.feeId,
-        otherItems: item.otherItems,
-        quantity: item.quantity,
-        total: total,
-        netUnitPrice: fee.value
-      };
+        const data = {
+          taskId: this.taskId,
+          feeId: item.feeId,
+          otherItems: item.otherItems,
+          quantity: item.quantity,
+          total: total,
+          netUnitPrice: fee.value,
+          lockerSerial: this.serial
+        };
 
-      this.$emit('addFee', data);
+        this.$emit('addFee', data);
 
-      // // Az item mezőinek kiürítése
-      item.feeId = '';
-      item.quantity = '';
-      item.note = '';
-      item.otherItems = '';
+        // // Az item mezőinek kiürítése
+        item.feeId = '';
+        item.quantity = '';
+        item.note = '';
+        item.otherItems = '';
+        this.serial = '';
+        this.$refs.form[0].reset();
+      }
     },
     removeItem(data) {
       this.$emit('deleteFee', data);

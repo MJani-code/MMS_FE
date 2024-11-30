@@ -49,12 +49,15 @@
                       prepend-icon="mdi-camera"
                       color="primary"
                       counter
-                      label="File input"
+                      label="Kép feltöltés"
                       outlined
                       required
                       :disabled="isToDisable(item)"
                     ></v-file-input>
-                    <v-btn type="submit" :disabled="isToDisable(item)"
+                    <v-btn
+                      type="submit"
+                      :disabled="isToDisable(item)"
+                      class="mt-4 mb-4"
                       >Feltöltés</v-btn
                     >
                   </form>
@@ -105,6 +108,7 @@
             :taskTypes="taskTypes"
             :taskFees="item.taskFees"
             :taskId="item.id"
+            :lockerSerials="item.lockerSerials"
             :disabled="isToDisable(item)"
             @addFee="addFee"
             @deleteFee="deleteFee"
