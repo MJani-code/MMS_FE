@@ -68,11 +68,14 @@
             <p>{{ addedItem.lockerSerial }}</p>
           </v-list-item-subtitle>
 
-          <v-list-item-subtitle>
+          <v-list-item-subtitle class="text-center">
             {{ addedItem.quantity }}
           </v-list-item-subtitle>
 
-          <v-list-item-subtitle class="text-break" style="overflow: visible">
+          <v-list-item-subtitle
+            class="text-break text-center"
+            style="overflow: visible"
+          >
             {{ addedItem.total }}
           </v-list-item-subtitle>
           <v-list-item-icon>
