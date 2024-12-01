@@ -5,12 +5,14 @@
         <v-form ref="form" @submit.prevent="addItem(item)">
           <v-select
             v-model="serial"
-            :items="lockerSerials"
+            :items="lockers"
+            item-value="id"
+            item-text="serial"
             :rules="rules.lockerSerials"
+            :disabled="disabled"
             small-chips
             solo
             hide-details="auto"
-            :disabled="disabled"
             placeholder="serial"
             class="mb-4 ml-2"
           />
@@ -106,7 +108,7 @@ export default {
       type: Array,
       required: true
     },
-    lockerSerials: {
+    lockers: {
       type: Array,
       required: true
     },

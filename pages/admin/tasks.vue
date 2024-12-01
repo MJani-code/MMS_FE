@@ -153,7 +153,17 @@ export default {
     async handleAddLocker(payload) {
       const result = await this.addLocker(payload);
       const message = result.data.message;
-      if (result.data.status !== 200) {
+
+      if (result.data.status === 200) {
+        const tofShopId = result.data.payload[0].tofShopId;
+        const lockers = result.data.payload;
+        const task = this.tasks.data.find(
+          (item) => item.tof_shop_id === tofShopId
+        );
+        if (task) {
+          task.lockers = lockers;
+        }
+      } else {
         this.showNotification('error', message);
       }
     },
@@ -164,11 +174,12 @@ export default {
         this.showNotification('error', message);
       } else {
         this.tasks.data.forEach((item) => {
-          // Ha van találat a lockerSerials tömbben
-          const index = item.lockerSerials.indexOf(payload.value);
+          const index = item.lockers.findIndex(
+            (locker) => locker.serial === payload.value // Feltétel: 'value' mező egyezése
+          );
           if (index !== -1) {
             // Eltávolítjuk az adott lockerSerial-t
-            item.lockerSerials.splice(index, 1);
+            item.lockers.splice(index, 1);
           }
         });
       }

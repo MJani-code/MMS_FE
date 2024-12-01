@@ -7,6 +7,13 @@
         <v-tab v-if="$store.getters['hasPermission']('6')" class="fees"
           >Díjak</v-tab
         >
+        <v-tab
+          v-for="locker in item.lockers"
+          v-bind:key="locker.id"
+          class="locker_tab"
+        >
+          {{ locker.serial }}
+        </v-tab>
 
         <v-tab-item class="location_photos_item">
           <v-card flat>
@@ -108,11 +115,18 @@
             :taskTypes="taskTypes"
             :taskFees="item.taskFees"
             :taskId="item.id"
-            :lockerSerials="item.lockerSerials"
+            :lockers="item.lockers"
             :disabled="isToDisable(item)"
             @addFee="addFee"
             @deleteFee="deleteFee"
           />
+        </v-tab-item>
+        <v-tab-item
+          v-for="locker in item.lockers"
+          v-bind:key="locker.id"
+          class="locker_item"
+        >
+          <LockerField :locker="locker" />
         </v-tab-item>
       </v-tabs>
     </v-card>
@@ -121,8 +135,10 @@
 
 <script>
 import FeesField from './FeesField.vue';
+import LockerField from './LockerField.vue';
+
 export default {
-  components: { FeesField },
+  components: { FeesField, LockerField },
   props: {
     item: Object,
     taskTypes: Array,

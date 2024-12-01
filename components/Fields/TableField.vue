@@ -322,12 +322,12 @@
       </template>
       <template #[`item.serial`]="{ header, item }">
         <v-combobox
-          v-model="item.lockerSerials"
+          v-model="item.lockers"
           chips
           multiple
           solo
           :disabled="isToDisable(item)"
-          @focus="getLengthOfSerials(item.lockerSerials)"
+          @focus="getLengthOfSerials(item.lockers)"
           @change="addLocker(header, item)"
         >
           <template v-slot:selection="{ attrs, item, select, selected }">
@@ -336,9 +336,9 @@
               :input-value="selected"
               close
               @click="select"
-              @click:close="removeLocker(item)"
+              @click:close="removeLocker(item.serial)"
             >
-              <strong>{{ item }}</strong>
+              <strong>{{ item.serial }}</strong>
             </v-chip>
           </template>
         </v-combobox>
@@ -398,7 +398,6 @@ export default {
   },
   data() {
     return {
-      lockerSerialsLengths: null,
       serials: [],
       filters: {},
       expanded: [],
@@ -512,7 +511,7 @@ export default {
       });
     },
     addLocker(header, item) {
-      if (item.lockerSerials.length < this.lockerSerialsLengths) {
+      if (item.lockers.length < this.lockerSerialsLengths) {
         this.$store.dispatch('notification/addNotification', {
           type: 'error',
           message: 'ez az elem már szerepel a listában',
@@ -520,7 +519,8 @@ export default {
         });
         return;
       } else {
-        const newValue = item.lockerSerials.slice(-1)[0];
+        console.log(item);
+        const newValue = item.lockers.slice(-1)[0];
         console.log(newValue);
         this.$emit('addLocker', {
           task_id: item.id,
@@ -532,9 +532,10 @@ export default {
       }
     },
     getLengthOfSerials(value) {
-      const lockerSerialsLengths = value.length;
-      this.lockerSerialsLengths = lockerSerialsLengths;
-      console.log(this.lockerSerialsLengths);
+      if (value != undefined) {
+        const lockerSerialsLengths = value.length;
+        this.lockerSerialsLengths = lockerSerialsLengths;
+      }
     },
     removeLocker(item) {
       this.$emit('removeLocker', { value: item });

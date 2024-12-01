@@ -42,7 +42,7 @@ export const taskMixin = {
         const response = APIPOST('addFee', payload);
         return response;
       } catch (error) {
-        console.error('Error fetching users', error);
+        console.error('Error fetching Fees', error);
         return [];
       }
     },
@@ -52,16 +52,17 @@ export const taskMixin = {
         const response = APIPOST('addLocker', payload, token);
         return response;
       } catch (error) {
-        console.error('Error fetching users', error);
+        console.error('Error fetching Lockers', error);
         return [];
       }
     },
     deleteFee(payload) {
       try {
-        const response = APIPOST('deleteFee', payload);
+        const token = this.$store.state.token;
+        const response = APIPOST('deleteFee', payload, token);
         return response;
       } catch (error) {
-        console.error('Error fetching users', error);
+        console.error('Error fetching Fees', error);
         return [];
       }
     },
