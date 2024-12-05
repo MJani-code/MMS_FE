@@ -1,5 +1,6 @@
 <template>
   <div class="mt-6">
+    <AddTaskField />
     <AccordionField
       v-for="(group, statusId, index) in groupedTasks"
       :key="index"
@@ -24,10 +25,11 @@
 <script>
 import { taskMixin } from '@/mixins/taskMixin.js';
 import AccordionField from '../../components/Fields/AccordionField.vue';
+import AddTaskField from '../../components/Fields/AddTaskField.vue';
 
 export default {
   name: 'AdminTasks',
-  components: { AccordionField },
+  components: { AccordionField, AddTaskField },
   mixins: [taskMixin],
   data() {
     return {

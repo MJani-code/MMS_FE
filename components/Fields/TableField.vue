@@ -155,7 +155,7 @@
           solo
           hide-details="auto"
           multiple
-          :disabled="isToDisable(item)"
+          :disabled="isToDisable(header, item)"
           @change="updateTask(header, { id: item.id, value: item.taskTypes })"
         >
           <template #selection="{ item: selectedItem }">
@@ -193,13 +193,13 @@
       <template #[`item.status_exohu_id`]="{ header, item }">
         <v-select
           v-model="item.status_exohu_id"
-          :items="getStatuses(item.status_exohu_id, isToDisable(item))"
+          :items="getStatuses(item.status_exohu_id, isToDisable(header, item))"
           item-value="id"
           item-text="name"
           small-chips
           solo
           hide-details="auto"
-          :disabled="isToDisable(item)"
+          :disabled="isToDisable(header, item)"
           @change="
             updateTask(header, { id: item.id, value: item.status_exohu_id })
           "
@@ -221,7 +221,7 @@
           solo
           hide-details="auto"
           class="zip"
-          :disabled="isToDisable(item)"
+          :disabled="isToDisable(header, item)"
           @change="updateTask(header, item)"
         ></v-text-field>
       </template>
@@ -231,7 +231,7 @@
           solo
           hide-details="auto"
           class="city"
-          :disabled="isToDisable(item)"
+          :disabled="isToDisable(header, item)"
           @change="updateTask(header, item)"
         ></v-text-field>
       </template>
@@ -241,7 +241,7 @@
           solo
           hide-details="auto"
           class="address"
-          :disabled="isToDisable(item)"
+          :disabled="isToDisable(header, item)"
           @change="updateTask(header, item)"
         ></v-text-field>
       </template>
@@ -252,7 +252,7 @@
           hide-details="auto"
           type="datetime-local"
           class="datetime"
-          :disabled="isToDisable(item)"
+          :disabled="isToDisable(header, item)"
           @change="updateTask(header, item)"
         ></v-text-field>
       </template>
@@ -263,7 +263,7 @@
           class="datetime"
           solo
           hide-details="auto"
-          :disabled="isToDisable(item)"
+          :disabled="isToDisable(header, item)"
           @change="updateTask(header, item)"
         ></v-text-field>
       </template>
@@ -276,7 +276,7 @@
           small-chips
           solo
           hide-details="auto"
-          :disabled="isToDisable(item)"
+          :disabled="isToDisable(header, item)"
           @change="
             updateTask(header, { id: item.id, value: item.location_type })
           "
@@ -303,7 +303,7 @@
           solo
           hide-details="auto"
           deletable-chips
-          :disabled="isToDisable(item)"
+          :disabled="isToDisable(header, item)"
           @change="
             updateTask(header, { id: item.id, value: item.responsibles })
           "
@@ -316,7 +316,7 @@
           solo
           hide-details="auto"
           class="tof_shop_id"
-          :disabled="isToDisable(item)"
+          :disabled="isToDisable(header, item)"
           @change="updateTask(header, item)"
         ></v-text-field>
       </template>
@@ -326,7 +326,7 @@
           chips
           multiple
           solo
-          :disabled="isToDisable(item)"
+          :disabled="isToDisable(header, item)"
           @focus="getLengthOfSerials(item.lockers)"
           @change="addLocker(header, item)"
         >
@@ -486,7 +486,7 @@ export default {
         return this.statuses;
       }
     },
-    isToDisable(item) {
+    isToDisable(header, item) {
       if (
         item.status_exohu_id === 10 &&
         !this.$store.getters['hasPermission']('7')
@@ -497,6 +497,9 @@ export default {
         item.status_exohu_id === 9 &&
         !this.$store.getters['hasPermission']('8')
       ) {
+        return true;
+      }
+      if (header.value === 'tof_shop_id') {
         return true;
       }
     },

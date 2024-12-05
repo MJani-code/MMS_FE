@@ -32,7 +32,7 @@ export default {
   position: fixed;
   top: 20px;
   right: 10px;
-  z-index: 1000;
+  z-index: 10;
   display: flex;
   flex-direction: column;
   gap: 0px;
