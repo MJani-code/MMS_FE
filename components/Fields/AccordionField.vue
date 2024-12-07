@@ -13,6 +13,7 @@
             :taskTypes="taskTypes"
             :users="users"
             @eventToAccordion="eventToTask"
+            @updateLockerData="updateLockerData"
             @uploadTaskFile="eventToTask"
             @addFee="addFee"
             @addLocker="addLocker"
@@ -59,6 +60,9 @@ export default {
     },
     deleteFee(data) {
       this.$emit('deleteFee', data);
+    },
+    updateLockerData(data) {
+      this.$emit('updateLockerData', data);
     }
   }
 };

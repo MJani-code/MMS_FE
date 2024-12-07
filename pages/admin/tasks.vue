@@ -13,6 +13,7 @@
       :taskTypes="tasks.taskTypes"
       :users="tasks.users"
       @eventToTask="handleUpdatedTask"
+      @updateLockerData="handleUpdatedLockerData"
       @addFee="handleAddFee"
       @addLocker="handleAddLocker"
       @deleteFee="handleDeleteFee"
@@ -103,6 +104,27 @@ export default {
         this.showNotification('error', result.data.message);
       }
     },
+    async handleUpdatedLockerData(payload) {
+      const result = await this.updateTask(payload);
+      if (result.data.status === 200) {
+        const newValue = result.data.payload.value;
+        const lockerId = result.data.payload.id;
+        const column = result.data.payload.column;
+        const taskId = result.data.payload.taskId;
+
+        const task = this.tasks.data.find((item) => item.id === taskId);
+        const locker = task.lockers.find((item) => item.id === lockerId);
+
+        if (task && locker) {
+          locker[column] = newValue;
+        } else {
+          const error = 'Nem található a ' + lockerId + ' locker';
+          this.showNotification('error', error);
+        }
+      } else {
+        this.showNotification('error', result.data.message);
+      }
+    },
     async handleUpdatedTask(payload) {
       const result = await this.updateTask(payload);
       const isPhotoUpload = result.data.payload?.photoUpload;
@@ -124,6 +146,7 @@ export default {
         const taskId = result.data.payload.taskId;
         const column = result.data.payload.column;
         const newValue = result.data.payload.value;
+        const lockerId = result.data.payload.id;
 
         const task = this.tasks.data.find((item) => item.id === taskId);
         if (task) {

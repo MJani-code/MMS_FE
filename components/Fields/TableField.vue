@@ -134,6 +134,13 @@
               hide-details="auto"
             />
             <v-text-field
+              v-if="header.filterable && header.text === 'Box Id'"
+              v-model="filters[header.value]"
+              :placeholder="header.text"
+              solo
+              hide-details="auto"
+            />
+            <v-text-field
               v-if="header.filterable && header.text === 'Serial'"
               v-model="filters['lockerSerials']"
               :placeholder="header.text"
@@ -320,6 +327,16 @@
           @change="updateTask(header, item)"
         ></v-text-field>
       </template>
+      <template #[`item.box_id`]="{ header, item }">
+        <v-text-field
+          v-model="item.box_id"
+          solo
+          hide-details="auto"
+          class="box_id"
+          :disabled="isToDisable(header, item)"
+          @change="updateTask(header, item)"
+        ></v-text-field>
+      </template>
       <template #[`item.serial`]="{ header, item }">
         <v-combobox
           v-model="item.lockers"
@@ -352,6 +369,7 @@
           :taskTypes="taskTypes"
           :rules="rules"
           @updateTask="updateTask"
+          @updateLockerData="updateLockerData"
           @uploadTaskFile="uploadTaskFile"
           @addFee="addFee"
           @deleteFee="deleteFee"
@@ -499,7 +517,7 @@ export default {
       ) {
         return true;
       }
-      if (header.value === 'tof_shop_id') {
+      if (header.value === 'tof_shop_id' || header.value === 'box_id') {
         return true;
       }
     },
@@ -512,6 +530,9 @@ export default {
           ? selectedItem['value']
           : selectedItem[header.dbColumn]
       });
+    },
+    updateLockerData(data) {
+      this.$emit('updateLockerData', data);
     },
     addLocker(header, item) {
       if (item.lockers.length < this.lockerSerialsLengths) {
@@ -576,7 +597,8 @@ td.text-start .v-input__slot {
   background-color: unset;
 } */
 .zip,
-.tof_shop_id {
+.tof_shop_id,
+.box_id {
   min-width: 80px !important;
 }
 .city {

@@ -76,7 +76,6 @@
 
           <!-- </v-col> -->
         </v-tab-item>
-
         <v-tab-item class="location_details">
           <v-card flat>
             <v-col cols="12" sm="3">
@@ -85,7 +84,7 @@
                 label="Rögzítési mód"
                 :disabled="isToDisable(item)"
                 @change="
-                  updateData(
+                  updateLocationData(
                     item,
                     'Task_locations',
                     'fixing_method',
@@ -99,7 +98,7 @@
                 label="Helyszín kialakítási feladat"
                 :disabled="isToDisable(item)"
                 @change="
-                  updateData(
+                  updateLocationData(
                     item,
                     'Task_locations',
                     'required_site_preparation',
@@ -107,6 +106,19 @@
                   )
                 "
               ></v-text-field>
+              <v-textarea
+                v-model="comment"
+                label="Megjegyzés"
+                :disabled="isToDisable(item)"
+                @change="
+                  updateLocationData(
+                    item,
+                    'Task_locations',
+                    'comment',
+                    'comment'
+                  )
+                "
+              ></v-textarea>
             </v-col>
           </v-card>
         </v-tab-item>
@@ -126,7 +138,11 @@
           v-bind:key="locker.id"
           class="locker_item"
         >
-          <LockerField :locker="locker" />
+          <LockerField
+            :locker="locker"
+            :taskId="item.id"
+            @updateLockerData="updateLockerData"
+          />
         </v-tab-item>
       </v-tabs>
     </v-card>
@@ -149,6 +165,7 @@ export default {
     return {
       fixingMethod: this.item.fixing_method,
       sitePreparation: this.item.required_site_preparation,
+      comment: this.item.comment,
       taskFiles: []
     };
   },
@@ -176,7 +193,7 @@ export default {
         file: this.taskFiles
       });
     },
-    updateData(item, dbTable, dbColumn, key) {
+    updateLocationData(item, dbTable, dbColumn, key) {
       this.$emit(
         'updateTask',
         {
@@ -185,6 +202,9 @@ export default {
         },
         { id: item.id, value: this[key] }
       );
+    },
+    updateLockerData(data) {
+      this.$emit('updateLockerData', data);
     },
     addFee(data) {
       this.$emit('addFee', data);
