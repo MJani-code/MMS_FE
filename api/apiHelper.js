@@ -19,7 +19,8 @@ export const config = {
     deleteFee: host + '/MMS/MMS_BE/api/task/deleteFee.php',
     removeLocker: host + '/MMS/MMS_BE/api/task/deleteLocker.php',
     getUser: host + '/MMS/MMS_BE/api/task/getUser.php',
-    updateUser: host + '/MMS/MMS_BE/api/task/updateUser.php'
+    updateUser: host + '/MMS/MMS_BE/api/task/updateUser.php',
+    createTaskBatch: host + '/MMS/MMS_BE/api/task/createTaskBatch.php'
   }
 };
 const API = axios.create({

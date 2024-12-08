@@ -30,7 +30,7 @@
             </template>
           </v-file-input>
           <v-card-actions>
-            <v-btn @click="isOpen = false">Mégsem</v-btn>
+            <v-btn @click="closeModal">Mégsem</v-btn>
             <v-btn type="submit" class="primary">Feltöltés</v-btn>
           </v-card-actions>
         </v-form>
@@ -44,7 +44,6 @@ export default {
   props: { loading: { type: Boolean, default: false } },
   data() {
     return {
-      isOpen: false,
       files: [],
       rules: [
         (value) =>
@@ -54,9 +53,14 @@ export default {
       ]
     };
   },
+  computed: {
+    isOpen() {
+      return this.$store.state.isModalUploadOpen;
+    }
+  },
   methods: {
-    open() {
-      this.isOpen = true;
+    closeModal() {
+      this.$store.commit('closeUploadModal');
     },
     async onSubmit() {
       const isValid = await this.$refs.addTask.validate();
@@ -67,7 +71,12 @@ export default {
       }
     },
     addTask() {
-      this.$emit('uploadTasks', this.files);
+      //this.$store.commit('turnOnLoading');
+      // FormData objektum létrehozása
+      const formData = new FormData();
+      formData.append('file', this.files);
+
+      this.$emit('uploadBatchTasks', formData);
     }
   }
 };

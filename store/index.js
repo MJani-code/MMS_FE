@@ -6,7 +6,8 @@ export const state = () => ({
   email: '',
   firstName: '',
   permissions: [],
-  loading: false
+  loading: false,
+  isModalUploadOpen: false
 });
 
 export const mutations = {
@@ -29,6 +30,12 @@ export const mutations = {
   },
   turnOffLoading(state) {
     state.loading = false;
+  },
+  openUploadModal(state) {
+    state.isModalUploadOpen = true;
+  },
+  closeUploadModal(state) {
+    state.isModalUploadOpen = false;
   }
 };
 

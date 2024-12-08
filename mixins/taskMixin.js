@@ -102,6 +102,16 @@ export const taskMixin = {
         console.error('Error fetching users', error);
         return [];
       }
+    },
+    uploadBatchTasks(payload) {
+      try {
+        const token = this.$store.state.token;
+        const response = APIPOST2('createTaskBatch', payload, token);
+        return response;
+      } catch (error) {
+        console.error('Error fetching tasks', error);
+        return [];
+      }
     }
   }
 };

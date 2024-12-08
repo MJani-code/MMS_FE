@@ -1,6 +1,6 @@
 <template>
   <div class="mt-6">
-    <AddTaskField />
+    <AddTaskField @uploadBatchTasks="handleUploadBatchTasks" />
     <AccordionField
       v-for="(group, statusId, index) in groupedTasks"
       :key="index"
@@ -94,15 +94,29 @@ export default {
       });
       console.log(this.$store.state.notification);
     },
+    async handleUploadBatchTasks(payload) {
+      try {
+        const result = await this.uploadBatchTasks(payload);
+        console.log(result);
+        if (result.data.status === 200) {
+          this.getTasks();
+        } else {
+          this.showNotification('error', result.data.message);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    },
     async getTasks() {
+      //this.turnOnLoading();
       const result = await this.fetchTasks();
       if (result.data.status === 200) {
         this.tasks = result.data;
         this.tasks.headers.unshift({ text: '', value: 'data-table-expand' });
-        console.log(this.tasks);
       } else {
         this.showNotification('error', result.data.message);
       }
+      this.turnOffLoading();
     },
     async handleUpdatedLockerData(payload) {
       const result = await this.updateTask(payload);

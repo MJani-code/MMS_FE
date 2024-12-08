@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <AddTaskModal ref="childModal" @uploadTasks="uploadTask" />
+    <AddTaskModal ref="childModal" @uploadBatchTasks="uploadBatchTasks" />
     <v-row>
       <v-col cols="12" md="3">
         <v-btn color="blue-grey" class="ma-2 white--text" @click="openModal">
@@ -31,10 +31,12 @@ export default {
   }),
   methods: {
     openModal() {
-      this.$refs.childModal.open();
+      //this.$refs.childModal.open();
+      this.$store.commit('openUploadModal');
     },
-    uploadTask(files) {
+    uploadBatchTasks(files) {
       //this.$store.commit('turnOnLoading');
+      this.$emit('uploadBatchTasks', files);
       console.log(files);
     }
   }
