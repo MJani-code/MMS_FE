@@ -360,6 +360,12 @@
           </template>
         </v-combobox>
       </template>
+      <template
+        v-if="filteredTasks[0].status_exohu_id === 6"
+        v-slot:footer.prepend
+      >
+        <v-btn color="primary" dark class="ma-2">TIG letöltés</v-btn>
+      </template>
 
       <!-- FillExpandedField -->
       <template #expanded-item="{ item }">
