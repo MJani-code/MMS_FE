@@ -1,6 +1,9 @@
 <template>
   <div class="mt-6">
-    <AddTaskField @uploadBatchTasks="handleUploadBatchTasks" />
+    <AddTaskField
+      @uploadBatchTasks="handleUploadBatchTasks"
+      @searchedValue="filteredTasks"
+    />
     <AccordionField
       v-for="(group, statusId, index) in groupedTasks"
       :key="index"
@@ -40,33 +43,51 @@ export default {
         statuses: [],
         locationTypes: [],
         users: []
-      }
+      },
+      searchQuery: '',
+      expandedAccordions: [] // Nyitott accordionok ID-jai
     };
+  },
+  watch: {
+    groupedTasks(newValue) {
+      this.expandedAccordions = Object.keys(newValue).map(Number);
+    }
   },
   computed: {
     groupedTasks() {
-      if (this.tasks.data) {
-        const statusMap = this.tasks.statuses.reduce((map, status) => {
-          map[status.id] = status.name;
-          return map;
-        }, {});
-
-        return this.tasks.data.reduce((groups, task) => {
-          const statusId = task.status_exohu_id;
-          const statusText = statusMap[statusId] || 'Ismeretlen státusz';
-
-          if (!groups[statusId]) {
-            groups[statusId] = {
-              title: statusText,
-              tasks: []
-            };
-          }
-
-          groups[statusId].tasks.push(task);
-          return groups;
-        }, {});
+      if (!this.tasks.data || !this.tasks.statuses) {
+        return {};
       }
-      return {};
+
+      if (this.searchQuery) {
+        var query = this.searchQuery.toLowerCase();
+      }
+
+      const filteredTasks = !query
+        ? this.tasks.data
+        : this.tasks.data.filter((task) =>
+            this.objectContainsQuery(task, query)
+          );
+
+      const statusMap = this.tasks.statuses.reduce((map, status) => {
+        map[status.id] = status.name;
+        return map;
+      }, {});
+
+      return filteredTasks.reduce((groups, task) => {
+        const statusId = task.status_exohu_id;
+        const statusText = statusMap[statusId] || 'Ismeretlen státusz';
+
+        if (!groups[statusId]) {
+          groups[statusId] = {
+            title: statusText,
+            tasks: []
+          };
+        }
+
+        groups[statusId].tasks.push(task);
+        return groups;
+      }, {});
     }
   },
   async mounted() {
@@ -74,6 +95,24 @@ export default {
     console.log(this.tasks);
   },
   methods: {
+    objectContainsQuery(obj, query) {
+      // Ellenőrizzük az összes kulcsot és értéket
+      return Object.entries(obj).some(([key, value]) => {
+        if (Array.isArray(value)) {
+          // Ha a kulcs értéke tömb, rekurzívan végigmegyünk minden elemén
+          return value.some((item) =>
+            typeof item === 'object'
+              ? this.objectContainsQuery(item, query)
+              : String(item).toLowerCase().includes(query)
+          );
+        }
+        // Ha szöveges érték, alapértelmezett keresés
+        return String(value).toLowerCase().includes(query);
+      });
+    },
+    filteredTasks(searchedValue) {
+      this.searchQuery = searchedValue; // Frissítjük a keresési értéket
+    },
     turnOnLoading() {
       this.$store.commit('turnOnLoading');
     },
@@ -97,15 +136,15 @@ export default {
     async handleUploadBatchTasks(payload) {
       try {
         const result = await this.uploadBatchTasks(payload);
-        console.log(result);
         if (result.data.status === 200) {
           this.getTasks();
         } else {
           this.showNotification('error', result.data.message);
         }
       } catch (error) {
-        console.log(error);
+        this.showNotification('error', error);
       }
+      this.turnOffLoading();
     },
     async getTasks() {
       //this.turnOnLoading();

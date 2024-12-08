@@ -30,7 +30,7 @@ export default {
 <style>
 .notification-container {
   position: fixed;
-  top: 20px;
+  top: 70px;
   right: 10px;
   z-index: 10;
   display: flex;

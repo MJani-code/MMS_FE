@@ -71,8 +71,7 @@ export default {
       }
     },
     addTask() {
-      //this.$store.commit('turnOnLoading');
-      // FormData objektum létrehozása
+      this.$store.commit('turnOnLoading');
       const formData = new FormData();
       formData.append('file', this.files);
 

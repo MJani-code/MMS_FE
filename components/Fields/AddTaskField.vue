@@ -9,12 +9,7 @@
         </v-btn>
       </v-col>
       <v-col cols="12" md="4">
-        <v-text-field
-          v-model="search"
-          label="Keresés"
-          clear-icon="mdi-close-circle"
-          clearable
-        ></v-text-field>
+        <SearchField @search="search" />
       </v-col>
     </v-row>
   </v-container>
@@ -22,12 +17,12 @@
 
 <script>
 import AddTaskModal from './AddTaskModal.vue';
+import SearchField from './SearchField.vue';
 
 export default {
-  components: { AddTaskModal },
+  components: { AddTaskModal, SearchField },
   data: () => ({
-    isModalOpen: false,
-    search: ''
+    isModalOpen: false
   }),
   methods: {
     openModal() {
@@ -38,6 +33,9 @@ export default {
       //this.$store.commit('turnOnLoading');
       this.$emit('uploadBatchTasks', files);
       console.log(files);
+    },
+    search(data) {
+      this.$emit('searchedValue', data);
     }
   }
 };
