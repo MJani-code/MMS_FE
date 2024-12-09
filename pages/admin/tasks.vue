@@ -4,25 +4,27 @@
       @uploadBatchTasks="handleUploadBatchTasks"
       @searchedValue="filteredTasks"
     />
-    <AccordionField
-      v-for="(group, statusId, index) in groupedTasks"
-      :key="index"
-      :title="group.title"
-      :tasks="group.tasks"
-      :headers="tasks.headers"
-      :statuses="tasks.statuses"
-      :allowedStatuses="tasks.allowedStatuses"
-      :locationTypes="tasks.locationTypes"
-      :taskTypes="tasks.taskTypes"
-      :users="tasks.users"
-      @eventToTask="handleUpdatedTask"
-      @updateLockerData="handleUpdatedLockerData"
-      @addFee="handleAddFee"
-      @addLocker="handleAddLocker"
-      @deleteFee="handleDeleteFee"
-      @removeLocker="handleRemoveLocker"
-    >
-    </AccordionField>
+    <v-expansion-panels v-model="expandedAccordions" multiple>
+      <AccordionField
+        v-for="(group, statusId, index) in groupedTasks"
+        :key="index"
+        :title="group.title"
+        :tasks="group.tasks"
+        :headers="tasks.headers"
+        :statuses="tasks.statuses"
+        :allowedStatuses="tasks.allowedStatuses"
+        :locationTypes="tasks.locationTypes"
+        :taskTypes="tasks.taskTypes"
+        :users="tasks.users"
+        @eventToTask="handleUpdatedTask"
+        @updateLockerData="handleUpdatedLockerData"
+        @addFee="handleAddFee"
+        @addLocker="handleAddLocker"
+        @deleteFee="handleDeleteFee"
+        @removeLocker="handleRemoveLocker"
+      >
+      </AccordionField>
+    </v-expansion-panels>
   </div>
 </template>
 
@@ -49,9 +51,9 @@ export default {
     };
   },
   watch: {
-    groupedTasks(newValue) {
-      this.expandedAccordions = Object.keys(newValue).map(Number);
-    }
+    // groupedTasks(newValue) {
+    //   this.expandedAccordions = Object.keys(newValue).map(Number);
+    // }
   },
   computed: {
     groupedTasks() {
