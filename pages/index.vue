@@ -2,7 +2,7 @@
   <v-row class="mt-2">
     <v-col cols="12" class="justify-center"> </v-col>
     <v-col cols="12">
-      <h1>MMS</h1>
+      <h1>Maintenance Management System</h1>
     </v-col>
     <v-col cols="12" class="text-center">
       <button v-if="!show" v-on:click="show = !show">

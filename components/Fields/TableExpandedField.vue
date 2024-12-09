@@ -7,6 +7,13 @@
         <v-tab v-if="$store.getters['hasPermission']('6')" class="fees"
           >Díjak</v-tab
         >
+        <v-tab
+          v-for="locker in item.lockers"
+          v-bind:key="locker.id"
+          class="locker_tab"
+        >
+          {{ locker.serial }}
+        </v-tab>
 
         <v-tab-item class="location_photos_item">
           <v-card flat>
@@ -49,12 +56,15 @@
                       prepend-icon="mdi-camera"
                       color="primary"
                       counter
-                      label="File input"
+                      label="Kép feltöltés"
                       outlined
                       required
                       :disabled="isToDisable(item)"
                     ></v-file-input>
-                    <v-btn type="submit" :disabled="isToDisable(item)"
+                    <v-btn
+                      type="submit"
+                      :disabled="isToDisable(item)"
+                      class="mt-4 mb-4"
                       >Feltöltés</v-btn
                     >
                   </form>
@@ -66,7 +76,6 @@
 
           <!-- </v-col> -->
         </v-tab-item>
-
         <v-tab-item class="location_details">
           <v-card flat>
             <v-col cols="12" sm="3">
@@ -75,7 +84,7 @@
                 label="Rögzítési mód"
                 :disabled="isToDisable(item)"
                 @change="
-                  updateData(
+                  updateLocationData(
                     item,
                     'Task_locations',
                     'fixing_method',
@@ -89,7 +98,7 @@
                 label="Helyszín kialakítási feladat"
                 :disabled="isToDisable(item)"
                 @change="
-                  updateData(
+                  updateLocationData(
                     item,
                     'Task_locations',
                     'required_site_preparation',
@@ -97,6 +106,19 @@
                   )
                 "
               ></v-text-field>
+              <v-textarea
+                v-model="comment"
+                label="Megjegyzés"
+                :disabled="isToDisable(item)"
+                @change="
+                  updateLocationData(
+                    item,
+                    'Task_locations',
+                    'comment',
+                    'comment'
+                  )
+                "
+              ></v-textarea>
             </v-col>
           </v-card>
         </v-tab-item>
@@ -105,9 +127,21 @@
             :taskTypes="taskTypes"
             :taskFees="item.taskFees"
             :taskId="item.id"
+            :lockers="item.lockers"
             :disabled="isToDisable(item)"
             @addFee="addFee"
             @deleteFee="deleteFee"
+          />
+        </v-tab-item>
+        <v-tab-item
+          v-for="locker in item.lockers"
+          v-bind:key="locker.id"
+          class="locker_item"
+        >
+          <LockerField
+            :locker="locker"
+            :taskId="item.id"
+            @updateLockerData="updateLockerData"
           />
         </v-tab-item>
       </v-tabs>
@@ -117,8 +151,10 @@
 
 <script>
 import FeesField from './FeesField.vue';
+import LockerField from './LockerField.vue';
+
 export default {
-  components: { FeesField },
+  components: { FeesField, LockerField },
   props: {
     item: Object,
     taskTypes: Array,
@@ -129,6 +165,7 @@ export default {
     return {
       fixingMethod: this.item.fixing_method,
       sitePreparation: this.item.required_site_preparation,
+      comment: this.item.comment,
       taskFiles: []
     };
   },
@@ -156,7 +193,7 @@ export default {
         file: this.taskFiles
       });
     },
-    updateData(item, dbTable, dbColumn, key) {
+    updateLocationData(item, dbTable, dbColumn, key) {
       this.$emit(
         'updateTask',
         {
@@ -165,6 +202,9 @@ export default {
         },
         { id: item.id, value: this[key] }
       );
+    },
+    updateLockerData(data) {
+      this.$emit('updateLockerData', data);
     },
     addFee(data) {
       this.$emit('addFee', data);

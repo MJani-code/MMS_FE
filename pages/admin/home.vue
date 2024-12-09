@@ -128,6 +128,15 @@
   </v-row>
 </template>
 
+<script>
+export default {
+  data() {
+    return {
+      show: true
+    };
+  }
+};
+</script>
 <style>
 .custom > div {
   border-bottom: unset !important;

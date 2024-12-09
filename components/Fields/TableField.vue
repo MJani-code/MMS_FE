@@ -6,7 +6,8 @@
       fixed-header
       :expanded.sync="expanded"
       show-expand
-      class="elevation-1 custom"
+      :item-class="tableClass"
+      class="elevation-1 custom table"
     >
       <!-- FilterRow -->
       <template v-slot:body.prepend>
@@ -133,6 +134,13 @@
               hide-details="auto"
             />
             <v-text-field
+              v-if="header.filterable && header.text === 'Box Id'"
+              v-model="filters[header.value]"
+              :placeholder="header.text"
+              solo
+              hide-details="auto"
+            />
+            <v-text-field
               v-if="header.filterable && header.text === 'Serial'"
               v-model="filters['lockerSerials']"
               :placeholder="header.text"
@@ -154,7 +162,7 @@
           solo
           hide-details="auto"
           multiple
-          :disabled="isToDisable(item)"
+          :disabled="isToDisable(header, item)"
           @change="updateTask(header, { id: item.id, value: item.taskTypes })"
         >
           <template #selection="{ item: selectedItem }">
@@ -192,13 +200,13 @@
       <template #[`item.status_exohu_id`]="{ header, item }">
         <v-select
           v-model="item.status_exohu_id"
-          :items="getStatuses(item.status_exohu_id, isToDisable(item))"
+          :items="getStatuses(item.status_exohu_id, isToDisable(header, item))"
           item-value="id"
           item-text="name"
           small-chips
           solo
           hide-details="auto"
-          :disabled="isToDisable(item)"
+          :disabled="isToDisable(header, item)"
           @change="
             updateTask(header, { id: item.id, value: item.status_exohu_id })
           "
@@ -220,7 +228,7 @@
           solo
           hide-details="auto"
           class="zip"
-          :disabled="isToDisable(item)"
+          :disabled="isToDisable(header, item)"
           @change="updateTask(header, item)"
         ></v-text-field>
       </template>
@@ -230,7 +238,7 @@
           solo
           hide-details="auto"
           class="city"
-          :disabled="isToDisable(item)"
+          :disabled="isToDisable(header, item)"
           @change="updateTask(header, item)"
         ></v-text-field>
       </template>
@@ -240,7 +248,7 @@
           solo
           hide-details="auto"
           class="address"
-          :disabled="isToDisable(item)"
+          :disabled="isToDisable(header, item)"
           @change="updateTask(header, item)"
         ></v-text-field>
       </template>
@@ -251,7 +259,7 @@
           hide-details="auto"
           type="datetime-local"
           class="datetime"
-          :disabled="isToDisable(item)"
+          :disabled="isToDisable(header, item)"
           @change="updateTask(header, item)"
         ></v-text-field>
       </template>
@@ -262,7 +270,7 @@
           class="datetime"
           solo
           hide-details="auto"
-          :disabled="isToDisable(item)"
+          :disabled="isToDisable(header, item)"
           @change="updateTask(header, item)"
         ></v-text-field>
       </template>
@@ -275,7 +283,7 @@
           small-chips
           solo
           hide-details="auto"
-          :disabled="isToDisable(item)"
+          :disabled="isToDisable(header, item)"
           @change="
             updateTask(header, { id: item.id, value: item.location_type })
           "
@@ -302,7 +310,7 @@
           solo
           hide-details="auto"
           deletable-chips
-          :disabled="isToDisable(item)"
+          :disabled="isToDisable(header, item)"
           @change="
             updateTask(header, { id: item.id, value: item.responsibles })
           "
@@ -315,23 +323,29 @@
           solo
           hide-details="auto"
           class="tof_shop_id"
-          :disabled="isToDisable(item)"
+          :disabled="isToDisable(header, item)"
+          @change="updateTask(header, item)"
+        ></v-text-field>
+      </template>
+      <template #[`item.box_id`]="{ header, item }">
+        <v-text-field
+          v-model="item.box_id"
+          solo
+          hide-details="auto"
+          class="box_id"
+          :disabled="isToDisable(header, item)"
           @change="updateTask(header, item)"
         ></v-text-field>
       </template>
       <template #[`item.serial`]="{ header, item }">
         <v-combobox
-          v-model="item.lockerSerials"
+          v-model="item.lockers"
           chips
           multiple
           solo
-          :disabled="isToDisable(item)"
-          @change="
-            updateTask(header, {
-              id: item.id,
-              value: item.lockerSerials.slice(-1)
-            })
-          "
+          :disabled="isToDisable(header, item)"
+          @focus="getLengthOfSerials(item.lockers)"
+          @change="addLocker(header, item)"
         >
           <template v-slot:selection="{ attrs, item, select, selected }">
             <v-chip
@@ -339,12 +353,18 @@
               :input-value="selected"
               close
               @click="select"
-              @click:close="remove(item)"
+              @click:close="removeLocker(item.serial)"
             >
-              <strong>{{ item }}</strong>
+              <strong>{{ item.serial }}</strong>
             </v-chip>
           </template>
         </v-combobox>
+      </template>
+      <template
+        v-if="filteredTasks[0].status_exohu_id === 6"
+        v-slot:footer.prepend
+      >
+        <v-btn color="primary" dark class="ma-2">TIG letöltés</v-btn>
       </template>
 
       <!-- FillExpandedField -->
@@ -355,6 +375,7 @@
           :taskTypes="taskTypes"
           :rules="rules"
           @updateTask="updateTask"
+          @updateLockerData="updateLockerData"
           @uploadTaskFile="uploadTaskFile"
           @addFee="addFee"
           @deleteFee="deleteFee"
@@ -489,7 +510,7 @@ export default {
         return this.statuses;
       }
     },
-    isToDisable(item) {
+    isToDisable(header, item) {
       if (
         item.status_exohu_id === 10 &&
         !this.$store.getters['hasPermission']('7')
@@ -502,9 +523,11 @@ export default {
       ) {
         return true;
       }
+      if (header.value === 'tof_shop_id' || header.value === 'box_id') {
+        return true;
+      }
     },
     updateTask(header, selectedItem) {
-      console.log(selectedItem);
       this.$emit('eventToAccordion', {
         task_id: selectedItem.id,
         dbTable: header.dbTable,
@@ -514,6 +537,39 @@ export default {
           : selectedItem[header.dbColumn]
       });
     },
+    updateLockerData(data) {
+      this.$emit('updateLockerData', data);
+    },
+    addLocker(header, item) {
+      if (item.lockers.length < this.lockerSerialsLengths) {
+        this.$store.dispatch('notification/addNotification', {
+          type: 'error',
+          message: 'ez az elem már szerepel a listában',
+          timeout: 5000
+        });
+        return;
+      } else {
+        console.log(item);
+        const newValue = item.lockers.slice(-1)[0];
+        console.log(newValue);
+        this.$emit('addLocker', {
+          task_id: item.id,
+          tof_shop_id: item.tof_shop_id,
+          dbTable: header.dbTable,
+          dbColumn: header.dbColumn,
+          value: newValue
+        });
+      }
+    },
+    getLengthOfSerials(value) {
+      if (value != undefined) {
+        const lockerSerialsLengths = value.length;
+        this.lockerSerialsLengths = lockerSerialsLengths;
+      }
+    },
+    removeLocker(item) {
+      this.$emit('removeLocker', { value: item });
+    },
     uploadTaskFile(item) {
       this.$emit('uploadTaskFile', item);
     },
@@ -522,6 +578,9 @@ export default {
     },
     deleteFee(data) {
       this.$emit('deleteFee', data);
+    },
+    tableClass() {
+      return 'table-row';
     }
   }
 };
@@ -544,7 +603,8 @@ td.text-start .v-input__slot {
   background-color: unset;
 } */
 .zip,
-.tof_shop_id {
+.tof_shop_id,
+.box_id {
   min-width: 80px !important;
 }
 .city {
@@ -597,6 +657,12 @@ td.text-start {
 }
 .v-list-item__title {
   font-size: inherit;
+}
+.table-row .v-text-field__details {
+  display: none;
+}
+.table-row .v-input__slot {
+  margin-bottom: unset;
 }
 
 @media (max-width: 600px) {
