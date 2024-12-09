@@ -1,26 +1,25 @@
 <template>
-  <div>
-    <v-expansion-panels v-model="panel" multiple class="accordion">
-      <v-expansion-panel>
-        <v-expansion-panel-header>{{ title }}</v-expansion-panel-header>
-        <v-expansion-panel-content>
-          <TableField
-            :tasks="tasks"
-            :headers="headers"
-            :statuses="statuses"
-            :allowedStatuses="allowedStatuses"
-            :locationTypes="locationTypes"
-            :taskTypes="taskTypes"
-            :users="users"
-            @eventToAccordion="eventToTask"
-            @uploadTaskFile="eventToTask"
-            @addFee="addFee"
-            @deleteFee="deleteFee"
-          />
-        </v-expansion-panel-content>
-      </v-expansion-panel>
-    </v-expansion-panels>
-  </div>
+  <v-expansion-panel class="accordion">
+    <v-expansion-panel-header>{{ title }}</v-expansion-panel-header>
+    <v-expansion-panel-content>
+      <TableField
+        :tasks="tasks"
+        :headers="headers"
+        :statuses="statuses"
+        :allowedStatuses="allowedStatuses"
+        :locationTypes="locationTypes"
+        :taskTypes="taskTypes"
+        :users="users"
+        @eventToAccordion="eventToTask"
+        @updateLockerData="updateLockerData"
+        @uploadTaskFile="eventToTask"
+        @addFee="addFee"
+        @addLocker="addLocker"
+        @deleteFee="deleteFee"
+        @removeLocker="removeLocker"
+      />
+    </v-expansion-panel-content>
+  </v-expansion-panel>
 </template>
 
 <script>
@@ -39,7 +38,7 @@ export default {
     users: Array
   },
   data: () => ({
-    panel: [],
+    panel: [0],
     readonly: false
   }),
   methods: {
@@ -49,8 +48,17 @@ export default {
     addFee(data) {
       this.$emit('addFee', data);
     },
+    addLocker(data) {
+      this.$emit('addLocker', data);
+    },
+    removeLocker(data) {
+      this.$emit('removeLocker', data);
+    },
     deleteFee(data) {
       this.$emit('deleteFee', data);
+    },
+    updateLockerData(data) {
+      this.$emit('updateLockerData', data);
     }
   }
 };
@@ -58,6 +66,6 @@ export default {
 
 <style>
 .accordion {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 </style>

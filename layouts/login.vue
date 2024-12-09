@@ -33,9 +33,9 @@ h1 {
 }
 
 body {
-  background-color: #359756;
+  background-color: #f07b00;
 }
 .background {
-  background-color: #359756;
+  background-color: #f07b00;
 }
 </style>
