@@ -142,7 +142,7 @@
             />
             <v-text-field
               v-if="header.filterable && header.text === 'Serial'"
-              v-model="filters['lockerSerials']"
+              v-model="filters[header.value]"
               :placeholder="header.text"
               solo
               hide-details="auto"
@@ -479,8 +479,22 @@ export default {
             return true; // Ha nincs szűrés, minden elem megjelenik
           }
 
-          if (key === 'taskTypes') {
+          if (key === 'serial') {
             // Ha a 'responsibles' oszlopról van szó, ellenőrizzük, hogy bármelyik felelős benne van-e
+            if (filterValue.length > 0) {
+              return task.lockers.some(
+                (locker) =>
+                  locker.serial &&
+                  locker.serial
+                    .toLowerCase()
+                    .includes(filterValue.toLowerCase())
+              );
+            }
+            return true; // Ha nincs szűrés, minden elem megjelenik
+          }
+
+          if (key === 'taskTypes') {
+            // Ha a 'tasTypes' oszlopról van szó, ellenőrizzük, hogy bármelyik típus benne van-e
             if (Array.isArray(filterValue) && filterValue.length > 0) {
               return filterValue.some((taskTypeId) =>
                 task.taskTypes.includes(taskTypeId)

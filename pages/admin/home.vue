@@ -1,6 +1,7 @@
 <template>
   <v-row>
-    <v-col class="pa-2 col-12 col-sm-3 col-md-3 col-lg-3 col-xl-3">
+    Home
+    <!-- <v-col class="pa-2 col-12 col-sm-3 col-md-3 col-lg-3 col-xl-3">
       <v-card elevation="12" outlined tile height="100%">
         <router-link
           to="documents"
@@ -124,7 +125,7 @@
           </v-list-item>
         </router-link>
       </v-card>
-    </v-col>
+    </v-col> -->
   </v-row>
 </template>
 
