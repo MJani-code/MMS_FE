@@ -69,6 +69,7 @@ export default {
       } else {
         this.addTask(this.files);
       }
+      this.files = null;
     },
     addTask() {
       this.$store.commit('turnOnLoading');

@@ -93,6 +93,7 @@ export default {
     }
   },
   async mounted() {
+    this.turnOnLoading();
     await this.getTasks();
   },
   methods: {
@@ -139,16 +140,17 @@ export default {
         const result = await this.uploadBatchTasks(payload);
         if (result.data.status === 200) {
           this.getTasks();
+          this.showNotification('success', result.data.message);
         } else {
           this.showNotification('error', result.data.message);
         }
       } catch (error) {
         this.showNotification('error', error);
       }
+      this.$store.commit('closeUploadModal');
       this.turnOffLoading();
     },
     async getTasks() {
-      //this.turnOnLoading();
       const result = await this.fetchTasks();
       if (result.data.status === 200) {
         this.tasks = result.data;

@@ -30,9 +30,8 @@ export default {
       this.$store.commit('openUploadModal');
     },
     uploadBatchTasks(files) {
-      //this.$store.commit('turnOnLoading');
+      this.$store.commit('turnOnLoading');
       this.$emit('uploadBatchTasks', files);
-      console.log(files);
     },
     search(data) {
       this.$emit('searchedValue', data);

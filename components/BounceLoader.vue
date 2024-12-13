@@ -1,10 +1,12 @@
 <template>
-  <div class="v-spinner" v-show="loading">
-    <div class="v-bounce v-bounce1" v-bind:style="spinnerBasicStyle">
-      <div class="v-bounce v-bounce2" v-bind:style="spinnerStyle"></div>
-      <div class="v-bounce v-bounce3" v-bind:style="spinnerStyle"></div>
+  <v-overlay :value="loading" :z-index="200">
+    <div class="v-spinner" v-show="loading">
+      <div class="v-bounce v-bounce1" v-bind:style="spinnerBasicStyle">
+        <div class="v-bounce v-bounce2" v-bind:style="spinnerStyle"></div>
+        <div class="v-bounce v-bounce3" v-bind:style="spinnerStyle"></div>
+      </div>
     </div>
-  </div>
+  </v-overlay>
 </template>
 
 <script>
