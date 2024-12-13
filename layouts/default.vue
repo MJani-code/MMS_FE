@@ -114,7 +114,6 @@ export default {
           }
         ]
       });
-      console.log(this.$store.state.notification);
     },
     logOutConfirm() {
       this.$store.dispatch('notification/hideModal');

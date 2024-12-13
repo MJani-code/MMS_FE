@@ -163,6 +163,8 @@ export default {
       const result = await this.getUser();
       if (result.data.status === 200) {
         this.user = result.data.payload[0];
+      } else {
+        this.showNotification('error', result.data.message);
       }
     },
     async onSubmit() {
@@ -183,6 +185,13 @@ export default {
         this.showNotification('success', message);
       }
       this.editMode = false;
+    },
+    showNotification($type, $message) {
+      this.$store.dispatch('notification/addNotification', {
+        type: $type,
+        message: $message,
+        timeout: 5000
+      });
     }
   }
 };

@@ -2,25 +2,25 @@ import axios from 'axios';
 
 let host = '';
 if (window.location.hostname === 'localhost') {
-  host = 'http://localhost:5000';
+  host = 'http://localhost:5000/MMS';
 } else {
   host = window.location.origin;
 }
 
 export const config = {
   apiUrl: {
-    login: host + '/MMS/MMS_BE/api/login.php',
-    logout: host + '/MMS/MMS_BE/api/logout.php',
-    auth: host + '/MMS/MMS_BE/api/auth.php',
-    getAllTask: host + '/MMS/MMS_BE/api/task/getAllTask.php',
-    updateTask: host + '/MMS/MMS_BE/api/task/updateTask.php',
-    addFee: host + '/MMS/MMS_BE/api/task/addFee.php',
-    addLocker: host + '/MMS/MMS_BE/api/task/addLocker.php',
-    deleteFee: host + '/MMS/MMS_BE/api/task/deleteFee.php',
-    removeLocker: host + '/MMS/MMS_BE/api/task/deleteLocker.php',
-    getUser: host + '/MMS/MMS_BE/api/task/getUser.php',
-    updateUser: host + '/MMS/MMS_BE/api/task/updateUser.php',
-    createTaskBatch: host + '/MMS/MMS_BE/api/task/createTaskBatch.php'
+    login: host + '/MMS_BE/api/login.php',
+    logout: host + '/MMS_BE/api/logout.php',
+    auth: host + '/MMS_BE/api/auth.php',
+    getAllTask: host + '/MMS_BE/api/task/getAllTask.php',
+    updateTask: host + '/MMS_BE/api/task/updateTask.php',
+    addFee: host + '/MMS_BE/api/task/addFee.php',
+    addLocker: host + '/MMS_BE/api/task/addLocker.php',
+    deleteFee: host + '/MMS_BE/api/task/deleteFee.php',
+    removeLocker: host + '/MMS_BE/api/task/deleteLocker.php',
+    getUser: host + '/MMS_BE/api/task/getUser.php',
+    updateUser: host + '/MMS_BE/api/task/updateUser.php',
+    createTaskBatch: host + '/MMS_BE/api/task/createTaskBatch.php'
   }
 };
 const API = axios.create({

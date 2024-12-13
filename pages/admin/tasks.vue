@@ -94,7 +94,6 @@ export default {
   },
   async mounted() {
     await this.getTasks();
-    console.log(this.tasks);
   },
   methods: {
     objectContainsQuery(obj, query) {
