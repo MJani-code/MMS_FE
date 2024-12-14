@@ -36,6 +36,6 @@ body {
   background-color: #f07b00;
 }
 .background {
-  background-color: #f07b00;
+  background-image: url('../static/vecteezy_white-background-with-orange-geometric_11171111-1.jpg');
 }
 </style>

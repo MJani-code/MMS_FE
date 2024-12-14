@@ -21,24 +21,20 @@
           <v-sheet width="300" class="mx-auto">
             <v-form ref="form" @submit.prevent="login">
               <v-text-field
-                :style="{ '--v-background-base': 'white' }"
                 type="email"
+                label="email"
                 v-model="email"
                 :rules="emailRule"
+                color="primary"
               >
-                <template v-slot:label>
-                  <span style="color: white"> Email </span>
-                </template>
               </v-text-field>
               <v-text-field
-                :style="{ '--v-background-base': 'white' }"
                 type="password"
+                label="jelszó"
                 v-model="password"
                 :rules="passwordRule"
+                color="primary"
               >
-                <template v-slot:label>
-                  <span style="color: white"> Jelszó </span>
-                </template>
               </v-text-field>
               <v-btn type="submit" block class="mt-2"> Bejelentkezés </v-btn>
             </v-form>
@@ -188,7 +184,7 @@ h1 {
   display: block;
   margin: 9px auto;
   font-size: 17px;
-  color: #fff;
+
   padding: 8px;
   border-radius: 6px;
   border: none;
@@ -205,14 +201,14 @@ input:focus {
   background: rgba(3, 3, 3, 0.18);
 }
 
-label.primary--text {
+/* label.primary--text {
   color: white !important;
 }
 
 .v-application .primary--text {
   color: #e0e0e0 !important;
   caret-color: #e0e0e0 !important;
-}
+} */
 
 .fade-enter-active,
 .fade-leave-active {
@@ -224,7 +220,7 @@ label.primary--text {
   opacity: 0;
 }
 
-.v-text-field >>> input {
+/* .v-text-field >>> input {
   color: white;
-}
+} */
 </style>
