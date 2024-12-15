@@ -126,8 +126,10 @@
           <FeesField
             :taskTypes="taskTypes"
             :taskFees="item.taskFees"
+            :fees="fees"
             :taskId="item.id"
             :lockers="item.lockers"
+            :lockerSerials="item.lockerSerials"
             :disabled="isToDisable(item)"
             @addFee="addFee"
             @deleteFee="deleteFee"
@@ -159,7 +161,8 @@ export default {
     item: Object,
     taskTypes: Array,
     headers: Array,
-    rules: Array
+    rules: Array,
+    fees: Array
   },
   data() {
     return {

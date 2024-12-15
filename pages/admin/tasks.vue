@@ -12,9 +12,11 @@
         :tasks="group.tasks"
         :headers="tasks.headers"
         :statuses="tasks.statuses"
+        :fees="tasks.fees"
         :allowedStatuses="tasks.allowedStatuses"
         :locationTypes="tasks.locationTypes"
         :taskTypes="tasks.taskTypes"
+        :lockerSerials="tasks.lockerSerials"
         :users="tasks.users"
         @eventToTask="handleUpdatedTask"
         @updateLockerData="handleUpdatedLockerData"
@@ -44,7 +46,8 @@ export default {
         headers: [],
         statuses: [],
         locationTypes: [],
-        users: []
+        users: [],
+        fees: []
       },
       searchQuery: '',
       expandedAccordions: [] // Nyitott accordionok ID-jai

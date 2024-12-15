@@ -465,6 +465,8 @@
           :item="item"
           :headers="headers"
           :taskTypes="taskTypes"
+          :lockerSerials="lockerSerials"
+          :fees="fees"
           :rules="rules"
           @updateTask="updateTask"
           @updateLockerData="updateLockerData"
@@ -495,6 +497,9 @@ export default {
       type: Array,
       required: true
     },
+    fees: {
+      type: Array
+    },
     allowedStatuses: {
       type: Array,
       required: true
@@ -506,6 +511,9 @@ export default {
     taskTypes: {
       type: Array,
       required: true
+    },
+    lockerSerials: {
+      type: Array
     },
     users: {
       type: Array,
@@ -698,7 +706,6 @@ export default {
     },
     checkMobile() {
       this.isMobile = window.innerWidth <= 768;
-      console.log(this.isMobile);
     }
   }
 };

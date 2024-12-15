@@ -46,7 +46,8 @@ export const taskMixin = {
     },
     addFee(payload) {
       try {
-        const response = APIPOST('addFee', payload);
+        const token = this.$store.state.token;
+        const response = APIPOST('addFee', payload, token);
         return response;
       } catch (error) {
         console.error('Error fetching Fees', error);

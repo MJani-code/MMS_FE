@@ -5,7 +5,7 @@
         <v-form ref="form" @submit.prevent="addItem(item)">
           <v-select
             v-model="serial"
-            :items="lockers"
+            :items="lockerSerials"
             item-value="id"
             item-text="serial"
             :rules="rules.lockerSerials"
@@ -104,6 +104,9 @@ export default {
       type: Array,
       required: true
     },
+    fees: {
+      type: Array
+    },
     taskFees: {
       type: Array,
       required: true
@@ -115,6 +118,9 @@ export default {
     taskId: {
       type: Number,
       required: true
+    },
+    lockerSerials: {
+      type: Array
     },
     disabled: {
       Boolean
@@ -129,13 +135,6 @@ export default {
       },
       serial: '',
       serials: ['1', '2'],
-      fees: [
-        { id: 1, name: 'Szállítási díj', value: 380 },
-        { id: 2, name: 'Telepítési díj', value: 38000 },
-        { id: 3, name: 'Karbantartási díj', value: 20000 },
-        { id: 4, name: 'Javítás', value: 8750 },
-        { id: 5, name: 'Egyéb', value: 1 }
-      ],
       taskItemsToInvoice: [
         {
           taskId: '',

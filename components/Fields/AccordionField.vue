@@ -6,9 +6,11 @@
         :tasks="tasks"
         :headers="headers"
         :statuses="statuses"
+        :fees="fees"
         :allowedStatuses="allowedStatuses"
         :locationTypes="locationTypes"
         :taskTypes="taskTypes"
+        :lockerSerials="lockerSerials"
         :users="users"
         @eventToAccordion="eventToTask"
         @updateLockerData="updateLockerData"
@@ -32,9 +34,11 @@ export default {
     tasks: Array,
     headers: Array,
     statuses: Array,
+    fees: Array,
     allowedStatuses: Array,
     locationTypes: Array,
     taskTypes: Array,
+    lockerSerials: Array,
     users: Array
   },
   data: () => ({
