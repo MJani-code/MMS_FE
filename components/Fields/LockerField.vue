@@ -1,7 +1,7 @@
 <template>
   <v-container class="ml-0">
     <v-row justify="space-between">
-      <v-col cols="12" md="4" class="mt-0">
+      <v-col class="col-12 col-sm-2 col-md-3 col-lg-3 col-xl-3 col mt-0">
         <v-form ref="form">
           <v-text-field
             v-model="brand"
@@ -46,8 +46,6 @@
           ></v-textarea>
         </v-form>
       </v-col>
-
-      <v-col cols="12" md="6"> </v-col>
     </v-row>
   </v-container>
 </template>

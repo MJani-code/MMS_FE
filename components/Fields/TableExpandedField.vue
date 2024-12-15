@@ -2,17 +2,30 @@
   <td :colspan="headers.length" class="table-expanded-field">
     <v-card>
       <v-tabs vertical>
-        <v-tab class="location_photos_tab">Helyszín képek</v-tab>
-        <v-tab class="location_details_tab">Helyszín részletek</v-tab>
-        <v-tab v-if="$store.getters['hasPermission']('6')" class="fees"
-          >Díjak</v-tab
+        <v-tab class="location_photos_tab">
+          <v-icon v-if="isMobile">mdi-image-marker</v-icon>
+          <span v-else>Helyszín fotók</span>
+        </v-tab>
+        <v-tab class="location_details_tab">
+          <v-icon v-if="isMobile">mdi-map-marker-alert</v-icon>
+          <span v-else>Helyszín részletek</span>
+        </v-tab>
+        <v-tab v-if="$store.getters['hasPermission']('6')" class="fees">
+          <v-icon v-if="isMobile">mdi-cash-check</v-icon>
+          <span v-else>Díjak</span></v-tab
         >
         <v-tab
           v-for="locker in item.lockers"
           v-bind:key="locker.id"
           class="locker_tab"
         >
-          {{ locker.serial }}
+          <v-icon v-if="isMobile && locker.type === 'Master'"
+            >mdi-locker</v-icon
+          >
+          <v-icon v-else-if="isMobile && locker.type === 'Slave'"
+            >mdi-locker-multiple</v-icon
+          >
+          <span v-else>{{ locker.serial }}</span>
         </v-tab>
 
         <v-tab-item class="location_photos_item">
@@ -21,7 +34,7 @@
               <v-col
                 v-for="(photo, index) in item.location_photos"
                 :key="index"
-                class="col-12 col-sm-3 col-md-3 col-lg-2 col-xl-2"
+                :class="colClass"
               >
                 <a :href="photo.url" target="_blank" rel="noopener noreferrer">
                   <v-img
@@ -86,7 +99,7 @@
                 @change="
                   updateLocationData(
                     item,
-                    'Task_locations',
+                    'task_locations',
                     'fixing_method',
                     'fixingMethod'
                   )
@@ -100,7 +113,7 @@
                 @change="
                   updateLocationData(
                     item,
-                    'Task_locations',
+                    'task_locations',
                     'required_site_preparation',
                     'sitePreparation'
                   )
@@ -113,7 +126,7 @@
                 @change="
                   updateLocationData(
                     item,
-                    'Task_locations',
+                    'task_locations',
                     'comment',
                     'comment'
                   )
@@ -169,8 +182,23 @@ export default {
       fixingMethod: this.item.fixing_method,
       sitePreparation: this.item.required_site_preparation,
       comment: this.item.comment,
-      taskFiles: []
+      taskFiles: [],
+      isMobile: false
     };
+  },
+  mounted() {
+    this.checkMobile();
+    window.addEventListener('resize', this.checkMobile);
+  },
+  computed: {
+    colClass() {
+      return this.isMobile
+        ? 'col-5 col-md-3 col-lg-2 col-xl-2'
+        : 'col-12 col-sm-2 col-md-3 col-lg-2 col-xl-2';
+    }
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.checkMobile);
   },
   methods: {
     isToDisable(item) {
@@ -214,6 +242,9 @@ export default {
     },
     deleteFee(data) {
       this.$emit('deleteFee', data);
+    },
+    checkMobile() {
+      this.isMobile = window.innerWidth <= 480;
     }
   }
 };

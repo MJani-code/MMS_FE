@@ -1,6 +1,6 @@
 <template>
   <v-row>
-    <v-col class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+    <v-col class="col-12 col-sm-2 col-md-3 col-lg-3 col-xl-3 col">
       <div v-for="(item, index) in taskItemsToInvoice" :key="index">
         <v-form ref="form" @submit.prevent="addItem(item)">
           <v-select
@@ -52,7 +52,7 @@
       </div>
     </v-col>
 
-    <v-col class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+    <v-col class="col-12 col-sm-3 col-md-3 col-lg-3 col-xl-3 col">
       <v-list class="transparent">
         <v-list-item-title> Hozzáadott tételek </v-list-item-title>
         <v-list-item class="pa-0">

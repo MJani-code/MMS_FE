@@ -645,7 +645,13 @@ export default {
       ) {
         return true;
       }
-      if (header.value === 'tof_shop_id' || header.value === 'box_id') {
+      if (
+        header.value === 'box_id' &&
+        !this.$store.getters['hasPermission']('15')
+      ) {
+        return true;
+      }
+      if (header.value === 'tof_shop_id') {
         return true;
       }
     },
@@ -671,9 +677,7 @@ export default {
         });
         return;
       } else {
-        console.log(item);
         const newValue = item.lockers.slice(-1)[0];
-        console.log(newValue);
         this.$emit('addLocker', {
           task_id: item.id,
           tof_shop_id: item.tof_shop_id,
@@ -705,7 +709,7 @@ export default {
       return 'table-row';
     },
     checkMobile() {
-      this.isMobile = window.innerWidth <= 768;
+      this.isMobile = window.innerWidth <= 480;
     }
   }
 };
