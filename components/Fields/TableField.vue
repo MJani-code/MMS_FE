@@ -9,26 +9,14 @@
       :item-class="tableClass"
       class="elevation-1 custom table"
     >
-      <!-- FilterRow -->
+      <!-- FilterRow in Desktop view-->
       <template v-slot:body.prepend>
-        <tr class="filterRow">
+        <tr v-if="!isMobile" class="filterRow">
           <td v-for="(header, index) in headers" :key="index">
             <v-select
               v-if="header.filterable && header.text === 'Típus'"
               v-model="filters[header.value]"
               :items="taskTypes"
-              item-value="id"
-              item-text="name"
-              small-chips
-              solo
-              :placeholder="header.text"
-              hide-details="auto"
-              multiple
-            />
-            <v-select
-              v-if="header.filterable && header.text === 'Státusz(partner)'"
-              v-model="filters[header.value]"
-              :items="statuses"
               item-value="id"
               item-text="name"
               small-chips
@@ -78,7 +66,6 @@
               type="datetime-local"
               class="datetime"
               label="Tól"
-              solo
               hide-details="auto"
             />
             <v-text-field
@@ -89,7 +76,6 @@
               type="datetime-local"
               class="datetime"
               label="Ig"
-              solo
               hide-details="auto"
             />
             <v-text-field
@@ -100,7 +86,6 @@
               type="datetime-local"
               class="datetime"
               label="Tól"
-              solo
               hide-details="auto"
             />
             <v-text-field
@@ -111,7 +96,6 @@
               type="datetime-local"
               class="datetime"
               label="Ig"
-              solo
               hide-details="auto"
             />
             <v-select
@@ -149,6 +133,112 @@
             />
           </td>
         </tr>
+
+        <!-- FilterRow in Mobile view-->
+        <v-expansion-panels v-else v-model="filtersAccordion">
+          <v-expansion-panel class="accordion">
+            <v-expansion-panel-header>Szűrők</v-expansion-panel-header>
+            <v-expansion-panel-content>
+              <v-row>
+                <v-col cols="4" md="4" sm="2">
+                  <v-select
+                    v-model="filters['type']"
+                    :items="taskTypes"
+                    item-value="id"
+                    item-text="name"
+                    small-chips
+                    solo
+                    placeholder="Típus"
+                    hide-details="auto"
+                    multiple
+                  />
+                </v-col>
+                <v-col cols="4" md="4" sm="2">
+                  <v-text-field
+                    v-model="filters['zip']"
+                    placeholder="Zip"
+                    solo
+                    hide-details="auto"
+                  />
+                </v-col>
+                <v-col cols="4" md="4" sm="2">
+                  <v-text-field
+                    v-model="filters['city']"
+                    placeholder="City"
+                    solo
+                    hide-details="auto"
+                  />
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="4" md="4" sm="2">
+                  <v-text-field
+                    v-model="filters['tof_shop_id']"
+                    placeholder="Tof ShopId"
+                    solo
+                    hide-details="auto"
+                  />
+                </v-col>
+                <v-col cols="4" md="4" sm="2">
+                  <v-text-field
+                    v-model="filters['box_id']"
+                    placeholder="Box Id"
+                    solo
+                    hide-details="auto"
+                  />
+                </v-col>
+                <v-col cols="12" md="4" sm="2">
+                  <v-text-field
+                    v-model="filters['serial']"
+                    placeholder="Serial"
+                    solo
+                    hide-details="auto"
+                  />
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="6" md="4" sm="2">
+                  <v-text-field
+                    v-model="filters.startDatePlan"
+                    type="datetime-local"
+                    class="datetime"
+                    label="Tól (tervezett)"
+                    hide-details="auto"
+                  />
+                </v-col>
+                <v-col cols="6" md="4" sm="2">
+                  <v-text-field
+                    v-model="filters.endDatePlan"
+                    type="datetime-local"
+                    class="datetime"
+                    label="Ig (tervezett)"
+                    hide-details="auto"
+                  />
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="6" md="4" sm="2">
+                  <v-text-field
+                    v-model="filters.startDate"
+                    type="datetime-local"
+                    class="datetime"
+                    label="Tól (tény)"
+                    hide-details="auto"
+                  />
+                </v-col>
+                <v-col cols="6" md="4" sm="2">
+                  <v-text-field
+                    v-model="filters.endDate"
+                    type="datetime-local"
+                    class="datetime"
+                    label="Ig (tény)"
+                    hide-details="auto"
+                  />
+                </v-col>
+              </v-row>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+        </v-expansion-panels>
       </template>
 
       <!-- FillCells -->
@@ -428,12 +518,14 @@ export default {
       filters: {},
       expanded: [],
       taskFiles: [],
+      filtersAccordion: [],
       rules: [
         (value) =>
           !value ||
           value.size < 2000000 ||
           'Avatar size should be less than 20 MB!'
-      ]
+      ],
+      isMobile: false
     };
   },
   computed: {
@@ -517,7 +609,13 @@ export default {
       });
     }
   },
-  mounted() {},
+  mounted() {
+    this.checkMobile();
+    window.addEventListener('resize', this.checkMobile);
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.checkMobile);
+  },
   methods: {
     getStatuses(statusId, isSelectionDisabled) {
       if (!isSelectionDisabled) {
@@ -597,6 +695,10 @@ export default {
     },
     tableClass() {
       return 'table-row';
+    },
+    checkMobile() {
+      this.isMobile = window.innerWidth <= 768;
+      console.log(this.isMobile);
     }
   }
 };
@@ -679,6 +781,9 @@ td.text-start {
 }
 .table-row .v-input__slot {
   margin-bottom: unset;
+}
+.v-data-table__mobile-row {
+  padding-bottom: 10px !important;
 }
 
 @media (max-width: 600px) {
