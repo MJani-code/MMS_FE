@@ -242,6 +242,16 @@
       </template>
 
       <!-- FillCells -->
+      <template #[`item.name`]="{ header, item }">
+        <v-text-field
+          v-model="item.name"
+          solo
+          hide-details="auto"
+          class="partner_name"
+          :disabled="isToDisable(header, item)"
+          @change="updateTask(header, item)"
+        ></v-text-field>
+      </template>
       <template #[`item.taskTypes`]="{ header, item }">
         <v-select
           v-model="item.taskTypes"
@@ -298,7 +308,10 @@
           hide-details="auto"
           :disabled="isToDisable(header, item)"
           @change="
-            updateTask(header, { id: item.id, value: item.status_exohu_id })
+            updateTask(header, {
+              id: item.id,
+              value: item.status_exohu_id
+            })
           "
         >
           <template #selection="{ item: selectedItem, index }">
@@ -658,14 +671,22 @@ export default {
       }
     },
     updateTask(header, selectedItem) {
+      let color = '';
+      if (header.dbColumn === 'status_by_exohu_id') {
+        color = this.getColorOfSelectedStatus(selectedItem['value']);
+      }
       this.$emit('eventToAccordion', {
         task_id: selectedItem.id,
         dbTable: header.dbTable,
         dbColumn: header.dbColumn,
         value: selectedItem['value']
           ? selectedItem['value']
-          : selectedItem[header.dbColumn]
+          : selectedItem[header.dbColumn],
+        color: color
       });
+    },
+    getColorOfSelectedStatus(statusId) {
+      return this.statuses.find((status) => status.id === statusId).color;
     },
     updateLockerData(data) {
       this.$emit('updateLockerData', data);
@@ -744,8 +765,66 @@ td.text-start .v-input__slot {
 .city {
   min-width: 100px !important;
 }
-.address {
+.address,
+.partner_name {
   min-width: 200px !important;
+}
+thead.v-data-table-header th:nth-child(1),
+thead.v-data-table-header th:nth-child(2) {
+  position: sticky;
+  z-index: 20 !important; /* Biztosítsd, hogy a sticky oszlop a többi fölött legyen */
+}
+thead.v-data-table-header th:nth-child(1) {
+  left: 0;
+}
+thead.v-data-table-header th:nth-child(2) {
+  left: 40px;
+}
+.theme--light thead.v-data-table-header th:nth-child(1),
+.theme--light thead.v-data-table-header th:nth-child(2) {
+  background: white; /* Állítsd be a háttérszínt világos témához */
+}
+tr.table-row td:nth-child(1),
+tr.table-row td:nth-child(2) {
+  position: sticky;
+  z-index: 1; /* Biztosítsd, hogy a sticky oszlop a többi fölött legyen */
+}
+.theme--dark tr.table-row td:nth-child(1) {
+  left: 0;
+}
+.theme--light tr.table-row td:nth-child(1) {
+  left: 0;
+  background: white;
+}
+.theme--dark tr.table-row td:nth-child(2) {
+  left: 40px;
+}
+.theme--light tr.table-row td:nth-child(2) {
+  left: 40px;
+  background: white;
+}
+tr.filterRow td:nth-child(1),
+tr.filterRow td:nth-child(2) {
+  position: sticky;
+  z-index: 1; /* Biztosítsd, hogy a sticky oszlop a többi fölött legyen */
+}
+tr.filterRow td:nth-child(1) {
+  left: 0;
+}
+tr.filterRow td:nth-child(2) {
+  left: 40px;
+}
+.theme--dark tr.table-row td:nth-child(1),
+.theme--dark tr.table-row td:nth-child(2) {
+  background: #1e1e1e; /* Állítsd be a háttérszínt sötét témához */
+}
+.theme--dark tr.filterRow td:nth-child(1),
+.theme--dark tr.filterRow td:nth-child(2) {
+  background: #4f4e4e; /* Állítsd be a háttérszínt sötét témához */
+}
+.theme--light tr.filterRow td:nth-child(1),
+.theme--light tr.filterRow td:nth-child(2) {
+  background: #c3c1c1;
 }
 .v-data-table
   > .v-data-table__wrapper

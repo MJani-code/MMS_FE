@@ -76,7 +76,14 @@ export default {
     }
   },
 
-  build: {},
+  build: {
+    devtools: true,
+    extend(config, ctx) {
+      if (ctx.isDev && ctx.isClient) {
+        config.devtool = ctx.isClient ? 'source-map' : 'inline-source-map';
+      }
+    }
+  },
   server: {
     host: '0.0.0.0',
     port: 3002

@@ -1,6 +1,12 @@
 <template>
-  <v-expansion-panel class="accordion">
-    <v-expansion-panel-header>{{ title }}</v-expansion-panel-header>
+  <v-expansion-panel
+    class="accordion"
+    :style="'borderLeft: 4px solid' + tasks[0].status_color"
+  >
+    <v-expansion-panel-header
+      >{{ title }}
+      <span class="text-left ml-2">{{ tasks.length }}</span>
+    </v-expansion-panel-header>
     <v-expansion-panel-content>
       <TableField
         :tasks="tasks"
@@ -46,6 +52,7 @@ export default {
     panel: [0],
     readonly: false
   }),
+  mounted() {},
   methods: {
     eventToTask(payload) {
       this.$emit('eventToTask', payload);
@@ -75,5 +82,8 @@ export default {
 <style>
 .accordion {
   margin-bottom: 10px;
+}
+.custom-border {
+  border-left: 4px solid #42b983; /* Állítsd be a kívánt színt és vastagságot */
 }
 </style>

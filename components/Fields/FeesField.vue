@@ -2,6 +2,7 @@
   <v-row>
     <v-col class="col-12 col-sm-2 col-md-3 col-lg-3 col-xl-3 col">
       <div v-for="(item, index) in taskItemsToInvoice" :key="index">
+        <v-list-item-title class="mb-2">Tételek hozzáadása </v-list-item-title>
         <v-form ref="form" @submit.prevent="addItem(item)">
           <v-select
             v-model="serial"
@@ -13,7 +14,7 @@
             small-chips
             solo
             hide-details="auto"
-            placeholder="serial"
+            placeholder="Locker"
             class="mb-4 ml-2"
           />
           <v-select
@@ -26,7 +27,7 @@
             solo
             hide-details="auto"
             :disabled="disabled"
-            placeholder="díj"
+            placeholder="Tételek"
             class="mb-4 ml-2"
           />
           <v-text-field
@@ -35,7 +36,7 @@
             :label="placeholder(item.feeId)"
             :rules="rules.quantity"
             :disabled="disabled"
-            placeholder="mennyiség"
+            placeholder="Mennyiség"
             class="mb-4 ml-2"
           />
           <v-text-field
@@ -51,7 +52,7 @@
         </v-form>
       </div>
     </v-col>
-
+    <v-divider vertical class="mx-4"></v-divider>
     <v-col class="col-12 col-sm-3 col-md-3 col-lg-3 col-xl-3 col">
       <v-list class="transparent">
         <v-list-item-title> Hozzáadott tételek </v-list-item-title>

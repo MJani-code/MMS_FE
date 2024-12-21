@@ -189,6 +189,7 @@ export default {
     async handleUpdatedTask(payload) {
       const result = await this.updateTask(payload);
       const isPhotoUpload = result.data.payload?.photoUpload;
+      const color = payload.color;
 
       if (result.data.status === 200 && isPhotoUpload) {
         const locationId = result.data.payload.locationId;
@@ -212,6 +213,10 @@ export default {
         const task = this.tasks.data.find((item) => item.id === taskId);
         if (task) {
           task[column] = newValue;
+          if (column == 'status_by_exohu_id') {
+            task.status_color = color;
+            console.log(task);
+          }
         } else {
           const error = 'Nem található a task_Id: ' + taskId;
           this.showNotification('error', error);
