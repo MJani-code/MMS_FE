@@ -4,15 +4,24 @@
       <v-tabs vertical>
         <v-tab class="location_photos_tab">
           <v-icon v-if="isMobile">mdi-image-marker</v-icon>
-          <span v-else>Helyszín fotók</span>
+          <span v-else>
+            <v-icon>mdi-image-marker</v-icon>
+            Helyszín fotók</span
+          >
         </v-tab>
         <v-tab class="location_details_tab">
           <v-icon v-if="isMobile">mdi-map-marker-alert</v-icon>
-          <span v-else>Helyszín részletek</span>
+          <span v-else>
+            <v-icon>mdi-map-marker-alert</v-icon>
+            Helyszín részletek</span
+          >
         </v-tab>
         <v-tab v-if="$store.getters['hasPermission']('6')" class="fees">
           <v-icon v-if="isMobile">mdi-cash-check</v-icon>
-          <span v-else>Díjak</span></v-tab
+          <span v-else>
+            <v-icon>mdi-cash-check</v-icon>
+            Díjak</span
+          ></v-tab
         >
         <v-tab
           v-for="locker in item.lockers"
@@ -25,7 +34,13 @@
           <v-icon v-else-if="isMobile && locker.type === 'Slave'"
             >mdi-locker-multiple</v-icon
           >
-          <span v-else>{{ locker.serial }}</span>
+          <span v-else>
+            <v-icon v-if="locker.type === 'Master'">mdi-locker</v-icon>
+            <v-icon v-else-if="locker.type === 'Slave'"
+              >mdi-locker-multiple</v-icon
+            >
+            {{ locker.serial }}</span
+          >
         </v-tab>
 
         <v-tab-item class="location_photos_item">

@@ -6,14 +6,14 @@ export default {
 
   ssr: false,
 
-
   head: {
-    titleTemplate: '%s - MMS',
+    titleTemplate: 'MMS - Maintenance Management System',
     title: 'MMS',
     htmlAttrs: {
       lang: 'en'
     },
-    meta: [{
+    meta: [
+      {
         charset: 'utf-8'
       },
       {
@@ -30,39 +30,30 @@ export default {
         content: 'telephone=no'
       }
     ],
-    link: [{
-      rel: 'icon',
-      type: 'image/x-icon',
-      href: '/favicon.ico'
-    }]
+    link: [
+      {
+        rel: 'icon',
+        type: 'image/x-icon',
+        href: '/favicon.ico'
+      }
+    ]
   },
   router: {
     mode: 'history',
     middleware: ['auth']
   },
 
-
   css: ['@/assets/styles.scss'],
-
 
   plugins: [],
 
   // loading: '~/components/BounceLoader.vue',
 
-
   components: true,
 
-
-  buildModules: [
-
-    '@nuxtjs/eslint-module',
-
-    '@nuxtjs/vuetify'
-  ],
-
+  buildModules: ['@nuxtjs/eslint-module', '@nuxtjs/vuetify'],
 
   modules: [],
-
 
   vuetify: {
     customVariables: ['~/assets/variables.scss'],
@@ -70,7 +61,7 @@ export default {
       dark: false,
       themes: {
         light: {
-          primary: '#f07b00',
+          primary: '#f07b00'
         },
         dark: {
           primary: '#d26d01',
