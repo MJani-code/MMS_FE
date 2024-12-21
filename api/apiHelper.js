@@ -2,7 +2,7 @@ import axios from 'axios';
 
 let host = '';
 if (window.location.hostname === 'localhost') {
-  host = 'http://localhost:5000/MMS';
+  host = 'http://localhost/MMS';
 } else {
   host = window.location.origin;
 }
@@ -20,7 +20,8 @@ export const config = {
     removeLocker: host + '/MMS_BE/api/task/deleteLocker.php',
     getUser: host + '/MMS_BE/api/task/getUser.php',
     updateUser: host + '/MMS_BE/api/task/updateUser.php',
-    createTaskBatch: host + '/MMS_BE/api/task/createTaskBatch.php'
+    createTaskBatch: host + '/MMS_BE/api/task/createTaskBatch.php',
+    downloadTig: host + '/MMS_BE/api/task/downloadTig.php'
   }
 };
 const API = axios.create({
@@ -74,5 +75,15 @@ export const APIUPLOAD = async (endpoint, data, token) => {
       'Content-Type': 'multipart/form-data',
       Authorization: `Bearer ${token}`
     }
+  });
+};
+
+export const APIDOWNLOAD = async (endpoint, token) => {
+  const url = config.apiUrl[endpoint];
+  return await API.get(url, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    },
+    responseType: 'blob'
   });
 };

@@ -2,7 +2,8 @@
 import {
   APIGET,
   APIPOST,
-  APIPOST2
+  APIPOST2,
+  APIDOWNLOAD
 } from '~/api/apiHelper';
 
 export const taskMixin = {
@@ -108,6 +109,16 @@ export const taskMixin = {
       try {
         const token = this.$store.state.token;
         const response = APIPOST2('createTaskBatch', payload, token);
+        return response;
+      } catch (error) {
+        console.error('Error fetching tasks', error);
+        return [];
+      }
+    },
+    downloadTig(payload) {
+      try {
+        const token = this.$store.state.token;
+        const response = APIDOWNLOAD('downloadTig', token);
         return response;
       } catch (error) {
         console.error('Error fetching tasks', error);

@@ -19,6 +19,7 @@
         @addLocker="addLocker"
         @deleteFee="deleteFee"
         @removeLocker="removeLocker"
+        @downloadTig="downloadTig"
       />
     </v-expansion-panel-content>
   </v-expansion-panel>
@@ -63,6 +64,9 @@ export default {
     },
     updateLockerData(data) {
       this.$emit('updateLockerData', data);
+    },
+    downloadTig(data) {
+      this.$emit('downloadTig', data);
     }
   }
 };

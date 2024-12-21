@@ -24,6 +24,7 @@
         @addLocker="handleAddLocker"
         @deleteFee="handleDeleteFee"
         @removeLocker="handleRemoveLocker"
+        @downloadTig="handleDownloadTig"
       >
       </AccordionField>
     </v-expansion-panels>
@@ -34,6 +35,7 @@
 import { taskMixin } from '@/mixins/taskMixin.js';
 import AccordionField from '../../components/Fields/AccordionField.vue';
 import AddTaskField from '../../components/Fields/AddTaskField.vue';
+import axios from 'axios';
 
 export default {
   name: 'AdminTasks',
@@ -285,6 +287,22 @@ export default {
             (fee) => !(fee.id === idToRemove && fee.taskId === taskIdToRemove)
           );
         }
+      }
+    },
+    async handleDownloadTig(payload) {
+      try {
+        const response = await this.downloadTig(payload);
+
+        // Létrehozunk egy URL-t a blob-hoz
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'tig.xlsx'); // Állítsd be a fájl nevét
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (error) {
+        this.showNotification('error', error);
       }
     },
     showNotification($type, $message) {

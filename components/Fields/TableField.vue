@@ -456,7 +456,9 @@
         "
         v-slot:footer.prepend
       >
-        <v-btn color="primary" dark class="ma-2">TIG letöltés</v-btn>
+        <v-btn color="primary" dark class="ma-2" @click="downloadTig"
+          >TIG letöltés</v-btn
+        >
       </template>
 
       <!-- FillExpandedField -->
@@ -701,6 +703,9 @@ export default {
     },
     addFee(data) {
       this.$emit('addFee', data);
+    },
+    downloadTig() {
+      this.$emit('downloadTig');
     },
     deleteFee(data) {
       this.$emit('deleteFee', data);
