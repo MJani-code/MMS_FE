@@ -35,7 +35,7 @@
                 isRegistered ? 1 : 0,
                 locker.id,
                 'lockers',
-                'is_active'
+                'is_registered'
               )
             "
           ></v-checkbox>
