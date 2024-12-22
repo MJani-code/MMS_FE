@@ -36,7 +36,9 @@
                 color="primary"
               >
               </v-text-field>
-              <v-btn type="submit" block class="mt-2"> Bejelentkezés </v-btn>
+              <v-btn type="submit" block class="mt-2 primary">
+                Bejelentkezés
+              </v-btn>
             </v-form>
           </v-sheet>
         </div>
@@ -111,8 +113,8 @@ h1 {
   margin-top: 0px;
   text-align: center;
   font-size: 40px;
-  color: #ddd;
-  text-shadow: 3px 3px 10px #000;
+  color: #515151;
+  text-shadow: 1px 1px 2px #000;
   margin-top: 10px;
 }
 
@@ -149,7 +151,7 @@ h1 {
   width: 360px;
   height: 260px;
   border-radius: 5px;
-  background: rgba(3, 3, 3, 0.25);
+  background: rgba(255, 255, 255, 0.8);
   box-shadow: 1px 1px 50px #000;
 }
 
