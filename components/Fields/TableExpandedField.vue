@@ -151,17 +151,19 @@
           </v-card>
         </v-tab-item>
         <v-tab-item class="fees">
-          <FeesField
-            :taskTypes="taskTypes"
-            :taskFees="item.taskFees"
-            :fees="fees"
-            :taskId="item.id"
-            :lockers="item.lockers"
-            :lockerSerials="item.lockerSerials"
-            :disabled="isToDisable(item)"
-            @addFee="addFee"
-            @deleteFee="deleteFee"
-          />
+          <v-col cols="12" sm="6" md="8" lg="8" xl="8">
+            <FeesField
+              :taskTypes="taskTypes"
+              :taskFees="item.taskFees"
+              :fees="fees"
+              :taskId="item.id"
+              :lockers="item.lockers"
+              :lockerSerials="item.lockerSerials"
+              :disabled="isToDisable(item)"
+              @addFee="addFee"
+              @deleteFee="deleteFee"
+            />
+          </v-col>
         </v-tab-item>
         <v-tab-item
           v-for="locker in item.lockers"
