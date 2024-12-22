@@ -1,6 +1,6 @@
 <template>
   <v-row>
-    <v-col class="col-12 col-sm-2 col-md-3 col-lg-3 col-xl-3 col">
+    <v-col cols="12" sm="8" md="8" lg="4" xl="6">
       <div v-for="(item, index) in taskItemsToInvoice" :key="index">
         <v-list-item-title class="mb-2">Tételek hozzáadása </v-list-item-title>
         <v-form ref="form" @submit.prevent="addItem(item)">
@@ -51,9 +51,10 @@
           >
         </v-form>
       </div>
+      <v-divider class="divider-horizontal"></v-divider>
     </v-col>
-    <v-divider vertical class="mx-4"></v-divider>
-    <v-col class="col-12 col-sm-3 col-md-3 col-lg-3 col-xl-3 col">
+    <v-divider vertical class="divider-vertical"></v-divider>
+    <v-col cols="12" sm="8" md="4" lg="6" xl="6">
       <v-list class="transparent">
         <v-list-item-title> Hozzáadott tételek </v-list-item-title>
         <v-list-item class="pa-0">
@@ -214,3 +215,21 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.divider-vertical {
+  height: auto;
+}
+
+@media (max-width: 900px) {
+  .divider-vertical {
+    display: none;
+  }
+}
+
+@media (min-width: 900px) {
+  .divider-horizontal {
+    display: none;
+  }
+}
+</style>
