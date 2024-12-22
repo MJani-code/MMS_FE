@@ -454,6 +454,7 @@
             <v-chip
               v-bind="attrs"
               :input-value="selected"
+              :color="item.is_active ? 'success' : 'error'"
               close
               @click="select"
               @click:close="removeLocker(item.serial)"
@@ -465,7 +466,7 @@
       </template>
       <template
         v-if="
-          filteredTasks.length > 0 && filteredTasks[0].status_exohu_id === 6
+          filteredTasks.length > 0 && filteredTasks[0].status_exohu_id === 9
         "
         v-slot:footer.prepend
       >
