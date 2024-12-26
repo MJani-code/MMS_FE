@@ -174,6 +174,7 @@
             :locker="locker"
             :taskId="item.id"
             @updateLockerData="updateLockerData"
+            @verifyLocker="verifyLocker"
           />
         </v-tab-item>
       </v-tabs>
@@ -259,6 +260,9 @@ export default {
     },
     deleteFee(data) {
       this.$emit('deleteFee', data);
+    },
+    verifyLocker(locker) {
+      this.$emit('verifyLocker', locker);
     },
     checkMobile() {
       this.isMobile = window.innerWidth <= 480;

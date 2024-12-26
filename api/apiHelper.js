@@ -21,12 +21,13 @@ export const config = {
     getUser: host + '/MMS_BE/api/task/getUser.php',
     updateUser: host + '/MMS_BE/api/task/updateUser.php',
     createTaskBatch: host + '/MMS_BE/api/task/createTaskBatch.php',
-    downloadTig: host + '/MMS_BE/api/task/downloadTig.php'
+    downloadTig: host + '/MMS_BE/api/task/downloadTig.php',
+    verifyLocker: host + '/MMS_BE/api/task/verifyLocker.php'
   }
 };
 const API = axios.create({
   // baseURL: process.env.API_URL ?? 'http://',
-  timeout: 3000
+  timeout: 5000
   // headers: {
   //   'Authorization': `Bearer ${token}`
   // }

@@ -25,6 +25,7 @@
         @deleteFee="handleDeleteFee"
         @removeLocker="handleRemoveLocker"
         @downloadTig="handleDownloadTig"
+        @verifyLocker="handleVerifyLocker"
       >
       </AccordionField>
     </v-expansion-panels>
@@ -308,6 +309,25 @@ export default {
         document.body.removeChild(link);
       } catch (error) {
         this.showNotification('error', error);
+      }
+    },
+    async handleVerifyLocker(payload) {
+      const result = await this.verifyLocker(payload.data);
+      if (result.data.status === 200) {
+        const lockerId = result.data.payload.id;
+        const taskId = payload.taskId;
+        const task = this.tasks.data.find((item) => item.id === taskId);
+        if (task) {
+          const lockerIndex = task.lockers.findIndex(
+            (item) => item.id === lockerId
+          );
+          if (lockerIndex !== -1) {
+            this.$set(task.lockers, lockerIndex, result.data.payload);
+            console.log(task);
+          }
+        }
+      } else {
+        this.showNotification('error', result.data.message);
       }
     },
     showNotification($type, $message) {

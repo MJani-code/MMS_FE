@@ -7,7 +7,7 @@
       :expanded.sync="expanded"
       show-expand
       :item-class="tableClass"
-      class="elevation-1 custom table"
+      class="elevation-1 custom-table"
     >
       <!-- FilterRow in Desktop view-->
       <template v-slot:body.prepend>
@@ -460,6 +460,13 @@
               @click:close="removeLocker(item.serial)"
             >
               <strong>{{ item.serial }}</strong>
+              <v-icon
+                small
+                class="ml-2"
+                @click.stop="copyToClipboard(item.serial)"
+              >
+                mdi-content-copy
+              </v-icon>
             </v-chip>
           </template>
         </v-combobox>
@@ -489,6 +496,7 @@
           @uploadTaskFile="uploadTaskFile"
           @addFee="addFee"
           @deleteFee="deleteFee"
+          @verifyLocker="verifyLocker"
         />
       </template>
     </v-data-table>
@@ -641,6 +649,16 @@ export default {
     window.removeEventListener('resize', this.checkMobile);
   },
   methods: {
+    copyToClipboard(text) {
+      navigator.clipboard
+        .writeText(text)
+        .then(() => {
+          this.showNotification('success', 'Szöveg másolva a vágólapra');
+        })
+        .catch((err) => {
+          this.showNotification('error', err);
+        });
+    },
     getStatuses(statusId, isSelectionDisabled) {
       if (!isSelectionDisabled) {
         return this.allowedStatuses;
@@ -672,10 +690,27 @@ export default {
       }
     },
     updateTask(header, selectedItem) {
+      console.log(header);
+      console.log(selectedItem);
       let color = '';
       if (header.dbColumn === 'status_by_exohu_id') {
         color = this.getColorOfSelectedStatus(selectedItem['value']);
       }
+
+      //Ha dátumot alaphelyzetbe állítjuk a backendnek 0000-00-00 00:00:00 formátumban kell elküldeni
+      if (
+        header.dbColumn === 'delivery_date' &&
+        selectedItem[header.dbColumn] === ''
+      ) {
+        selectedItem[header.dbColumn] = '0000-00-00 00:00:00';
+      }
+      if (
+        header.dbColumn === 'planned_delivery_date' &&
+        selectedItem[header.dbColumn] === ''
+      ) {
+        selectedItem[header.dbColumn] = '0000-00-00 00:00:00';
+      }
+
       this.$emit('eventToAccordion', {
         task_id: selectedItem.id,
         dbTable: header.dbTable,
@@ -732,11 +767,21 @@ export default {
     deleteFee(data) {
       this.$emit('deleteFee', data);
     },
+    verifyLocker(locker) {
+      this.$emit('verifyLocker', locker);
+    },
     tableClass() {
       return 'table-row';
     },
     checkMobile() {
       this.isMobile = window.innerWidth <= 480;
+    },
+    showNotification($type, $message) {
+      this.$store.dispatch('notification/addNotification', {
+        type: $type,
+        message: $message,
+        timeout: 5000
+      });
     }
   }
 };
@@ -881,7 +926,16 @@ td.text-start {
 .v-data-table__mobile-row {
   padding-bottom: 10px !important;
 }
-
+::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 0px;
+  height: 7px;
+}
+::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.5);
+  -webkit-box-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
+}
 @media (max-width: 600px) {
   .filterRow {
     display: grid;

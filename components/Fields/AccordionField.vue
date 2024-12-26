@@ -26,6 +26,7 @@
         @deleteFee="deleteFee"
         @removeLocker="removeLocker"
         @downloadTig="downloadTig"
+        @verifyLocker="verifyLocker"
       />
     </v-expansion-panel-content>
   </v-expansion-panel>
@@ -74,6 +75,9 @@ export default {
     },
     downloadTig(data) {
       this.$emit('downloadTig', data);
+    },
+    verifyLocker(data) {
+      this.$emit('verifyLocker', data);
     }
   }
 };

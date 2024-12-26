@@ -124,6 +124,16 @@ export const taskMixin = {
         console.error('Error fetching tasks', error);
         return [];
       }
+    },
+    verifyLocker(payload) {
+      try {
+        const token = this.$store.state.token;
+        const response = APIPOST('verifyLocker', payload, token);
+        return response;
+      } catch (error) {
+        console.error('Error fetching tasks', error);
+        return [];
+      }
     }
   }
 };
