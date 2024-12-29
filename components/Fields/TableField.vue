@@ -941,4 +941,9 @@ td.text-start {
     display: grid;
   }
 }
+@media (max-width: 480px) {
+  .v-expansion-panel-content__wrap {
+    padding: 0px 14px 16px !important;
+  }
+}
 </style>
