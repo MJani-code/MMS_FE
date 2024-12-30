@@ -134,6 +134,16 @@ export const taskMixin = {
         console.error('Error fetching tasks', error);
         return [];
       }
+    },
+    getLockerDataFromLos(payload) {
+      try {
+        const token = this.$store.state.token;
+        const response = APIPOST('getLockerFromLos', payload, token);
+        return response;
+      } catch (error) {
+        console.error('Error fetching tasks', error);
+        return [];
+      }
     }
   }
 };

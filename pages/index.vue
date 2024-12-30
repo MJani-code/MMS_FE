@@ -86,7 +86,7 @@ export default {
         const response = await APIPOST('login', user);
         if (response.data.status === 200) {
           this.$store.commit('setToken', response.data);
-          this.$router.push('/admin/home');
+          this.$router.push('/admin/lockers');
         } else {
           this.error = response.data.message;
           this.showNotification('error', this.error);

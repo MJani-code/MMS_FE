@@ -1,8 +1,8 @@
 //prettier-ignore
 export const routers = [{
     icon: 'mdi-home-account',
-    title: 'Kezdőlap',
-    to: '/admin/home'
+    title: 'Automaták',
+    to: '/admin/lockers'
   },
   {
     icon: 'mdi-file-document',
