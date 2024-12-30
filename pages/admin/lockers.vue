@@ -1,44 +1,6 @@
 <template>
   <div>
-    <v-select
-      v-model="filters['brand']"
-      :items="brands"
-      item-text="name"
-      item-value="id"
-      label="Select Brand"
-    />
-    <v-col class="px-4">
-      <v-range-slider
-        v-model="filters.range"
-        :max="max"
-        :min="min"
-        hide-details
-        class="align-center"
-      >
-        <template v-slot:prepend>
-          <v-text-field
-            :value="filters.range[0]"
-            class="mt-0 pt-0"
-            hide-details
-            single-line
-            type="number"
-            style="width: 60px"
-            @change="$set(filters.range, 0, $event)"
-          ></v-text-field>
-        </template>
-        <template v-slot:append>
-          <v-text-field
-            :value="filters.range[1]"
-            class="mt-0 pt-0"
-            hide-details
-            single-line
-            type="number"
-            style="width: 60px"
-            @change="$set(filters.range, 1, $event)"
-          ></v-text-field>
-        </template>
-      </v-range-slider>
-    </v-col>
+    <LockerFiltersField :filters="filters" @update-filter="updateFilter" />
     <LockerListFromLosField :lockers="paginatedLockers" />
     <div class="text-center">
       <v-pagination
@@ -51,17 +13,21 @@
 
 <script>
 import { taskMixin } from '@/mixins/taskMixin.js';
+import LockerListFromLosField from '../../components/Fields/LockerListFromLosField.vue';
+import LockerFiltersField from '../../components/Fields/LockerFiltersField.vue';
+
 export default {
   components: {
-    LockerListFromLosField: () =>
-      import('@/components/Fields/LockerListFromLosField.vue')
+    LockerListFromLosField,
+    LockerFiltersField
   },
   mixins: [taskMixin],
   data: () => ({
     lockers: [],
     filters: {
       brand: null,
-      range: [0, 100]
+      range: [0, 100],
+      isPassive: false
     },
     min: 0,
     max: 100,
@@ -81,7 +47,7 @@ export default {
     requestedPageSize: 50,
     currentPage: 1,
     isActive: true,
-    totalLocation: 205,
+    totalLocation: 50,
     totalLockers: 0,
     previousUrl: ''
   }),
@@ -127,6 +93,69 @@ export default {
                 locker.batteryLevel >= filterValue[0] &&
                 locker.batteryLevel <= filterValue[1]
             );
+          }
+
+          if (key === 'isPassive') {
+            // console.log(filterValue);
+            if (filterValue) {
+              return resultList.lockerList.some(
+                (locker) => locker.isPassive === false
+              );
+            } else {
+              return resultList.lockerList.some(
+                (locker) => locker.isPassive === true
+              );
+            }
+          }
+
+          //privateKey1Error szűrés
+          if (key === 'privateKey1Error') {
+            if (filterValue) {
+              return resultList.lockerList.some(
+                (locker) => locker.privateKey1Error === true
+              );
+            } else {
+              return resultList.lockerList.some(
+                (locker) => locker.privateKey1Error === false
+              );
+            }
+          }
+
+          //isConnectionError szűrés
+          if (key === 'isConnectionError') {
+            if (filterValue) {
+              console.log('isConnectionError:', filterValue);
+              //Azon lockerek listája, amelyeknél a lastConnectionTimestamp értéke 12 órával korábbi
+              return resultList.lockerList.some((locker) => {
+                const timestamp = locker.lastConnectionTimestamp;
+                return timestamp < Date.now() / 1000 - 43200;
+              });
+            } else {
+              return true;
+            }
+          }
+
+          //Szabadszöveges mezőbe bevitt érték keresése az összes kulcsban
+          if (key === 'search') {
+            const searchText = filterValue.toLowerCase();
+            return (
+              Object.values(resultList).some((value) =>
+                String(value).toLowerCase().includes(searchText)
+              ) ||
+              resultList.lockerList.some((locker) => {
+                return Object.values(locker).some((value) =>
+                  String(value).toLowerCase().includes(searchText)
+                );
+              })
+            );
+          }
+          if (key === 'search') {
+            const searchText = filterValue.toLowerCase();
+            return resultList.lockerList.some((locker) => {
+              return Object.values(locker).some((value) =>
+                String(value).toLowerCase().includes(searchText)
+              );
+            });
           }
 
           // Más mezők egyszerű összehasonlítása
@@ -181,6 +210,10 @@ export default {
       );
       console.log(totalItems);
       this.totalLockers = totalItems;
+    },
+    updateFilter({ key, value }) {
+      console.log(key, value);
+      this.$set(this.filters, key, value);
     },
     onPageChange(pageNumber) {
       //Api call to get the data
