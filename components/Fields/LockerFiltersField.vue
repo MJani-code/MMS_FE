@@ -1,7 +1,7 @@
 <template>
   <v-container class="lighten-5 mt-6 d-flex">
-    <v-row no-gutters>
-      <v-col cols="12" sm="3" md="3" lg="11">
+    <v-row no-gutters style="gap: 2rem">
+      <v-col cols="12" sm="12" md="3" lg="5">
         <v-select
           :v-model="filters.brand"
           :items="brands"
@@ -76,9 +76,7 @@
           </template>
         </v-range-slider>
       </v-col>
-    </v-row>
-    <v-row no-gutters>
-      <v-col cols="12" sm="3" md="3" lg="12">
+      <v-col cols="12" sm="12" md="3" lg="3">
         <v-switch
           v-model="isPassive"
           :label="
@@ -142,7 +140,7 @@ export default {
   data() {
     return {
       range: [0, 100],
-      isPassive: true,
+      isPassive: false,
       privateKey1Error: false,
       isConnectionError: false,
       search: '',

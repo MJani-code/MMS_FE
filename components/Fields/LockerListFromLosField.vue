@@ -1,6 +1,6 @@
 <template>
   <v-container class="lighten-5 mt-6">
-    <v-row no-gutters style="row-gap: 20px">
+    <v-row dense style="row-gap: 20px">
       <template v-for="locker in lockers">
         <v-col
           v-if="locker.lockerList.length > 0"

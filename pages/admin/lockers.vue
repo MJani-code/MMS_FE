@@ -1,7 +1,29 @@
 <template>
   <div>
-    <LockerFiltersField :filters="filters" @update-filter="updateFilter" />
-    <LockerListFromLosField :lockers="paginatedLockers" />
+    <v-sheet elevation="1" outlined rounded class="mb-10 mt-8">
+      <v-card-title class="text-h5"> Szűrők </v-card-title>
+      <LockerFiltersField :filters="filters" @update-filter="updateFilter" />
+    </v-sheet>
+    <v-sheet elevation="1" outlined rounded class="mb-4">
+      <v-card-title class="text-h5"> Automaták </v-card-title>
+      <v-card-subtitle class="text-body-2">
+        Összesen: {{ filteredLockers.length }} db
+      </v-card-subtitle>
+      <template v-if="isLoading">
+        <v-sheet class="pa-3">
+          <v-row>
+            <v-col cols="12" sm="12" md="3" lg="4" v-for="i in 18" :key="i">
+              <v-skeleton-loader
+                class="mx-auto"
+                max-width="300"
+                type="card"
+              ></v-skeleton-loader>
+            </v-col>
+          </v-row>
+        </v-sheet>
+      </template>
+      <LockerListFromLosField :lockers="paginatedLockers" />
+    </v-sheet>
     <div class="text-center">
       <v-pagination
         v-model="pageNumber"
@@ -43,7 +65,7 @@ export default {
     ],
     selectedBrand: null,
     pageNumber: 1,
-    pageSize: 20,
+    pageSize: 18,
     requestedPageSize: 50,
     currentPage: 1,
     isActive: true,
@@ -68,17 +90,12 @@ export default {
       return this.lockers.filter((resultList) => {
         return Object.keys(this.filters).every((key) => {
           const filterValue = this.filters[key];
-
           if (!filterValue || filterValue.length === 0) {
-            // Ha nincs szűrés, minden elem megjelenik
             return true;
           }
 
           //brand szűrés
           if (key === 'brand') {
-            console.log(filterValue);
-            //Miért nem működik a szűrés?
-
             if (filterValue) {
               return resultList.lockerList.some(
                 (locker) => locker.brand == filterValue
@@ -96,14 +113,14 @@ export default {
           }
 
           if (key === 'isPassive') {
-            // console.log(filterValue);
             if (filterValue) {
+              console.log(filterValue);
               return resultList.lockerList.some(
-                (locker) => locker.isPassive === false
+                (locker) => locker.isPassive === true
               );
             } else {
               return resultList.lockerList.some(
-                (locker) => locker.isPassive === true
+                (locker) => locker.isPassive === false
               );
             }
           }
@@ -165,6 +182,10 @@ export default {
         });
       });
     },
+    isLoading() {
+      //store-ból jön
+      return this.$store.state.loading;
+    },
     paginatedLockers() {
       const start = (this.pageNumber - 1) * this.pageSize;
       const end = start + this.pageSize;
@@ -208,11 +229,9 @@ export default {
         (acc, resultList) => acc + resultList.lockerList.length,
         0
       );
-      console.log(totalItems);
       this.totalLockers = totalItems;
     },
     updateFilter({ key, value }) {
-      console.log(key, value);
       this.$set(this.filters, key, value);
     },
     onPageChange(pageNumber) {
