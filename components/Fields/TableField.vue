@@ -554,7 +554,7 @@ export default {
       rules: [
         (value) =>
           !value ||
-          value.size < 2000000 ||
+          value.size < 20000000 ||
           'Avatar size should be less than 20 MB!'
       ],
       isMobile: false
