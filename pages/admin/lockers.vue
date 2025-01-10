@@ -66,7 +66,6 @@ export default {
     selectedBrand: null,
     pageNumber: 1,
     pageSize: 18,
-    requestedPageSize: 50,
     currentPage: 1,
     isActive: true,
     totalLocation: 205,
@@ -76,10 +75,12 @@ export default {
   watch: {
     pageNumber(newPage) {
       this.currentPage = newPage;
+      this.updateUrl();
     },
     filters: {
       handler() {
         this.pageNumber = 1;
+        this.updateUrl();
       },
       deep: true
     }
@@ -194,6 +195,11 @@ export default {
   },
   mounted() {
     this.previousUrl = localStorage.getItem('previousUrl');
+    const urlParams = new URLSearchParams(window.location.search);
+    const page = urlParams.get('page');
+    if (page) {
+      this.pageNumber = parseInt(page);
+    }
     if (
       !this.previousUrl.includes('/admin/locker/') ||
       !localStorage.getItem('lockers')
@@ -233,6 +239,11 @@ export default {
     },
     updateFilter({ key, value }) {
       this.$set(this.filters, key, value);
+    },
+    updateUrl() {
+      const url = new URL(window.location);
+      url.searchParams.set('page', this.pageNumber);
+      window.history.pushState({}, '', url);
     },
     onPageChange(pageNumber) {
       //Api call to get the data
