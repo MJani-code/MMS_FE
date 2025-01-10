@@ -150,7 +150,7 @@
             </v-col>
           </v-card>
         </v-tab-item>
-        <v-tab-item class="fees">
+        <v-tab-item v-if="$store.getters['hasPermission']('6')" class="fees">
           <v-col cols="12" sm="6" md="8" lg="8" xl="8">
             <FeesField
               :taskTypes="taskTypes"
