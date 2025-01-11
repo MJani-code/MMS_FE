@@ -936,6 +936,9 @@ td.text-start {
   background-color: rgba(0, 0, 0, 0.5);
   -webkit-box-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
 }
+.v-data-table__wrapper {
+  max-height: 450px;
+}
 @media (max-width: 600px) {
   .filterRow {
     display: grid;

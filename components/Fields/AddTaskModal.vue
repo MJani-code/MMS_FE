@@ -2,7 +2,7 @@
   <v-row justify="center">
     <v-dialog :value="isOpen" max-width="290">
       <v-card>
-        <v-card-title>Feladatok feltöltése</v-card-title>
+        <v-card-title>Helyszínek hozzáadása</v-card-title>
         <v-form ref="addTask" @submit.prevent="onSubmit">
           <v-file-input
             v-model="files"

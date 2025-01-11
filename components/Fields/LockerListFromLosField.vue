@@ -37,13 +37,132 @@
                 <strong>Verzió:</strong> {{ lockerListData.currentVersion }}
               </div>
             </v-card-text>
-            <v-divider class="mx-4"></v-divider>
+            <v-divider class="ma-2"></v-divider>
+            <div>
+              <strong>Locker állapot</strong>
+            </div>
+            <div class="progress-circular-container d-flex">
+              <div>
+                <v-progress-circular
+                  :rotate="-90"
+                  :size="30"
+                  :width="15"
+                  color="primary"
+                  :value="
+                    (lockerListData.compartmentList.filter(
+                      (compartment) => compartment.status !== 1
+                    ).length /
+                      lockerListData.compartmentList.length) *
+                    100
+                  "
+                >
+                  <span style="color: black; z-index: 2"
+                    >{{
+                      Math.round(
+                        (lockerListData.compartmentList.filter(
+                          (compartment) => compartment.status !== 1
+                        ).length /
+                          lockerListData.compartmentList.length) *
+                          100
+                      )
+                    }}%</span
+                  >
+                </v-progress-circular>
+              </div>
+              <div>
+                <v-progress-circular
+                  :rotate="360"
+                  :size="30"
+                  :width="5"
+                  color=""
+                  :value="
+                    (lockerListData.compartmentList.filter(
+                      (compartment) => compartment.status === 1
+                    ).length /
+                      lockerListData.compartmentList.length) *
+                    100
+                  "
+                >
+                  {{
+                    lockerListData.compartmentList.filter(
+                      (compartment) => compartment.status === 1
+                    ).length
+                  }}
+                </v-progress-circular>
+              </div>
+              <div>
+                <v-progress-circular
+                  :rotate="360"
+                  :size="30"
+                  :width="5"
+                  color="success"
+                  :value="
+                    (lockerListData.compartmentList.filter(
+                      (compartment) => compartment.status === 3
+                    ).length /
+                      lockerListData.compartmentList.length) *
+                    100
+                  "
+                >
+                  {{
+                    lockerListData.compartmentList.filter(
+                      (compartment) => compartment.status === 3
+                    ).length
+                  }}
+                </v-progress-circular>
+              </div>
+              <div>
+                <v-progress-circular
+                  :rotate="360"
+                  :size="30"
+                  :width="5"
+                  color="error"
+                  :value="
+                    (lockerListData.compartmentList.filter(
+                      (compartment) => compartment.status === 4
+                    ).length /
+                      lockerListData.compartmentList.length) *
+                    100
+                  "
+                >
+                  {{
+                    lockerListData.compartmentList.filter(
+                      (compartment) => compartment.status === 4
+                    ).length
+                  }}
+                </v-progress-circular>
+              </div>
+            </div>
+            <v-divider class="ma-2"></v-divider>
+            <div>
+              <strong>Műszaki állapot</strong>
+            </div>
             <v-card-actions>
               <v-icon :color="lockerListData.isPassive ? 'red' : 'green'"
                 >mdi-circle-medium</v-icon
               >
-              <v-icon color="success" v-if="lockerListData.batteryLevel >= 75"
+              <v-icon color="success" v-if="lockerListData.batteryLevel >= 91"
                 >mdi-battery</v-icon
+              >
+              <v-icon
+                color="success"
+                v-else-if="lockerListData.batteryLevel >= 90"
+                >mdi-battery-90</v-icon
+              >
+              <v-icon
+                color="success"
+                v-else-if="lockerListData.batteryLevel >= 80"
+                >mdi-battery-80</v-icon
+              >
+              <v-icon
+                color="success"
+                v-else-if="lockerListData.batteryLevel >= 70"
+                >mdi-battery-70</v-icon
+              >
+              <v-icon
+                color="success"
+                v-else-if="lockerListData.batteryLevel >= 60"
+                >mdi-battery-60</v-icon
               >
               <v-icon
                 color="success"
@@ -52,8 +171,23 @@
               >
               <v-icon
                 color="success"
-                v-else-if="lockerListData.batteryLevel >= 25"
-                >mdi-battery-25</v-icon
+                v-else-if="lockerListData.batteryLevel >= 40"
+                >mdi-battery-40</v-icon
+              >
+              <v-icon
+                color="success"
+                v-else-if="lockerListData.batteryLevel >= 30"
+                >mdi-battery-30</v-icon
+              >
+              <v-icon
+                color="success"
+                v-else-if="lockerListData.batteryLevel >= 20"
+                >mdi-battery-20</v-icon
+              >
+              <v-icon
+                color="success"
+                v-else-if="lockerListData.batteryLevel >= 10"
+                >mdi-battery-10</v-icon
               >
               <v-icon color="red" v-else>mdi-battery-alert</v-icon>
               <span>{{ lockerListData.batteryLevel }}%</span>
@@ -72,31 +206,6 @@
                 :color="!lockerListData.privateKey1Error ? 'success' : 'error'"
                 >mdi-key</v-icon
               >
-              <v-progress-circular
-                :rotate="-90"
-                :size="30"
-                :width="15"
-                color="primary"
-                :value="
-                  (lockerListData.compartmentList.filter(
-                    (compartment) => compartment.status !== 1
-                  ).length /
-                    lockerListData.compartmentList.length) *
-                  100
-                "
-              >
-                <span style="color: black; z-index: 2"
-                  >{{
-                    Math.round(
-                      (lockerListData.compartmentList.filter(
-                        (compartment) => compartment.status !== 1
-                      ).length /
-                        lockerListData.compartmentList.length) *
-                        100
-                    )
-                  }}%</span
-                >
-              </v-progress-circular>
             </v-card-actions>
           </v-card>
         </v-col>

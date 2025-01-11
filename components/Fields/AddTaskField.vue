@@ -4,7 +4,7 @@
     <v-row>
       <v-col v-if="$store.getters['hasPermission']('3')" cols="12" md="3">
         <v-btn color="blue-grey" class="ma-2 white--text" @click="openModal">
-          Feledatok betöltése
+          Helyszínek betöltése
           <v-icon right dark> mdi-cloud-upload </v-icon>
         </v-btn>
       </v-col>

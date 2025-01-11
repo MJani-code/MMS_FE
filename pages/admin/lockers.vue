@@ -68,7 +68,7 @@ export default {
     pageSize: 18,
     currentPage: 1,
     isActive: true,
-    totalLocation: 205,
+    totalLocation: 210,
     totalLockers: 0,
     previousUrl: ''
   }),

@@ -170,12 +170,14 @@
           v-bind:key="locker.id"
           class="locker_item"
         >
-          <LockerField
-            :locker="locker"
-            :taskId="item.id"
-            @updateLockerData="updateLockerData"
-            @verifyLocker="verifyLocker"
-          />
+          <v-col cols="12" sm="6" md="8" lg="8" xl="8">
+            <LockerField
+              :locker="locker"
+              :taskId="item.id"
+              @updateLockerData="updateLockerData"
+              @verifyLocker="verifyLocker"
+            />
+          </v-col>
         </v-tab-item>
       </v-tabs>
     </v-card>
