@@ -128,7 +128,7 @@ export default {
       this.isActive = this.locker.is_active;
       this.isRegistered = this.locker.is_registered;
       this.brand = this.locker.brand;
-      this.comment = this.locker.comment;
+      this.fault = this.locker.fault;
       this.type = this.locker.type;
     },
     verifyLocker() {

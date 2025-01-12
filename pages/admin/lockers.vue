@@ -9,6 +9,9 @@
       <v-card-subtitle class="text-body-2">
         Összesen: {{ filteredLockers.length }} db
       </v-card-subtitle>
+      <v-col cols="12" sm="12" md="3" lg="2">
+        <v-select v-model="sortKey" :items="sortOptions" label="Rendezés" />
+      </v-col>
       <template v-if="isLoading">
         <v-sheet class="pa-3">
           <v-row>
@@ -70,7 +73,14 @@ export default {
     isActive: true,
     totalLocation: 210,
     totalLockers: 0,
-    previousUrl: ''
+    previousUrl: '',
+    sortKey: 'lockerStationId',
+    sortOptions: [
+      { text: 'Locker Station ID', value: 'lockerStationId' },
+      { text: 'Hibás rekeszek', value: 'faultyCompartments' },
+      { text: 'Rekesztelítettség', value: 'compartmentOccupation' },
+      { text: 'Csatlakozási idő', value: 'lastConnectionTimestamp' }
+    ]
   }),
   watch: {
     pageNumber(newPage) {
@@ -188,9 +198,36 @@ export default {
       return this.$store.state.loading;
     },
     paginatedLockers() {
+      //Rendezés
+      const sortedLockers = [...this.filteredLockers].sort((a, b) => {
+        if (this.sortKey === 'faultyCompartments') {
+          const aFaultyCount = a.lockerList[0].compartmentList.filter(
+            (locker) => locker.status == 4
+          ).length;
+          const bFaultyCount = b.lockerList[0].compartmentList.filter(
+            (locker) => locker.status == 4
+          ).length;
+          return bFaultyCount - aFaultyCount;
+        } else if (this.sortKey === 'lastConnectionTimestamp') {
+          return (
+            a.lockerList[0].lastConnectionTimestamp -
+            b.lockerList[0].lastConnectionTimestamp
+          );
+        } else if (this.sortKey === 'compartmentOccupation') {
+          const aOccupiedCount = a.lockerList[0].compartmentList.filter(
+            (locker) => locker.status !== 1
+          ).length;
+          const bOccupiedCount = b.lockerList[0].compartmentList.filter(
+            (locker) => locker.status !== 1
+          ).length;
+          return bOccupiedCount - aOccupiedCount;
+        } else {
+          return a[this.sortKey] - b[this.sortKey];
+        }
+      });
       const start = (this.pageNumber - 1) * this.pageSize;
       const end = start + this.pageSize;
-      return this.filteredLockers.slice(start, end);
+      return sortedLockers.slice(start, end);
     }
   },
   mounted() {
