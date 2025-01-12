@@ -454,19 +454,20 @@
             <v-chip
               v-bind="attrs"
               :input-value="selected"
-              :color="item.is_active ? 'success' : 'error'"
+              :color="checkLockerCondition(item)"
               close
               @click="select"
               @click:close="removeLocker(item.serial)"
             >
-              <strong>{{ item.serial }}</strong>
+              <v-icon v-if="item.fault" small> mdi-tools </v-icon>
               <v-icon
                 small
-                class="ml-2"
+                class="mr-2"
                 @click.stop="copyToClipboard(item.serial)"
               >
                 mdi-content-copy
               </v-icon>
+              <strong>{{ item.serial }}</strong>
             </v-chip>
           </template>
         </v-combobox>
@@ -649,6 +650,20 @@ export default {
     window.removeEventListener('resize', this.checkMobile);
   },
   methods: {
+    checkLockerCondition(locker) {
+      console.log(locker);
+      if (
+        locker.fault ||
+        locker.is_registered === 0 ||
+        locker.is_active === 0 ||
+        locker.lastConnectionTimestamp < Date.now() / 1000 - 43200 ||
+        locker.privateKey1Error === 1
+      ) {
+        return 'error';
+      } else {
+        return 'success';
+      }
+    },
     copyToClipboard(text) {
       navigator.clipboard
         .writeText(text)
