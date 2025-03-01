@@ -144,6 +144,36 @@ export const taskMixin = {
         console.error('Error fetching tasks', error);
         return [];
       }
+    },
+    getDataForCreateTask(payload) {
+      try {
+        const token = this.$store.state.token;
+        const response = APIPOST('getDataForCreateTask', payload, token);
+        return response;
+      } catch (error) {
+        console.error('Error fetching tasks', error);
+        return [];
+      }
+    },
+    createTask(payload) {
+      try {
+        const token = this.$store.state.token;
+        const response = APIPOST('createTask', payload, token);
+        return response;
+      } catch (error) {
+        console.error('Error fetching tasks', error);
+        return [];
+      }
+    },
+    deletePhoto(payload) {
+      try {
+        const token = this.$store.state.token;
+        const response = APIPOST('deletePhoto', payload, token);
+        return response;
+      } catch (error) {
+        console.error('Error fetching tasks', error);
+        return [];
+      }
     }
   }
 };

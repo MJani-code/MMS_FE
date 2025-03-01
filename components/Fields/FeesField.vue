@@ -167,7 +167,7 @@ export default {
           taskId: this.taskId,
           feeId: item.feeId,
           otherItems: item.otherItems,
-          quantity: item.quantity,
+          quantity: item.feeId !== 5 ? item.quantity : 1,
           total: total,
           netUnitPrice: fee.value,
           lockerSerial: this.serial

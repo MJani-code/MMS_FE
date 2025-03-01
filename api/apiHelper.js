@@ -23,7 +23,10 @@ export const config = {
     createTaskBatch: host + '/MMS_BE/api/task/createTaskBatch.php',
     downloadTig: host + '/MMS_BE/api/task/downloadTig.php',
     verifyLocker: host + '/MMS_BE/api/task/verifyLocker.php',
-    getLockerFromLos: host + '/MMS_BE/api/task/getLockerFromLos.php'
+    getLockerFromLos: host + '/MMS_BE/api/task/getLockerFromLos.php',
+    getDataForCreateTask: host + '/MMS_BE/api/task/getDataForCreateTask.php',
+    createTask: host + '/MMS_BE/api/task/createTask.php',
+    deletePhoto: host + '/MMS_BE/api/task/deletePhoto.php'
   }
 };
 const API = axios.create({

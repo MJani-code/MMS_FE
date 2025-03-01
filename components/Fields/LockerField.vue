@@ -5,12 +5,12 @@
         <v-text-field
           v-model="brand"
           label="Brand"
-          @change="updateLockerData(brand, locker.id, 'lockers', 'brand')"
+          @change="updateLockerData(brand, locker.id, 'task_lockers', 'brand')"
         ></v-text-field>
         <v-text-field
           v-model="type"
           label="Típus"
-          @change="updateLockerData(type, locker.id, 'lockers', 'type')"
+          @change="updateLockerData(type, locker.id, 'task_lockers', 'type')"
         ></v-text-field>
         <v-checkbox
           v-model="isRegistered"
@@ -20,7 +20,7 @@
             updateLockerData(
               isRegistered ? 1 : 0,
               locker.id,
-              'lockers',
+              'task_lockers',
               'is_registered'
             )
           "
@@ -33,7 +33,7 @@
             updateLockerData(
               isActive ? 1 : 0,
               locker.id,
-              'lockers',
+              'task_lockers',
               'is_active'
             )
           "
@@ -64,7 +64,7 @@
         <v-textarea
           v-model="fault"
           label="Hiba"
-          @change="updateLockerData(fault, locker.id, 'lockers', 'fault')"
+          @change="updateLockerData(fault, locker.id, 'task_lockers', 'fault')"
         ></v-textarea>
       </v-form>
     </v-col>

@@ -51,26 +51,28 @@
                 :key="index"
                 :class="colClass"
               >
-                <a :href="photo.url" target="_blank" rel="noopener noreferrer">
-                  <v-img
-                    :src="photo.url"
-                    aspect-ratio="1"
-                    class="grey lighten-2"
+                <v-card max-width="250">
+                  <a
+                    :href="photo.url"
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
-                    <template v-slot:placeholder>
-                      <v-row
-                        class="fill-height ma-0"
-                        align="center"
-                        justify="center"
-                      >
-                        <v-progress-circular
-                          indeterminate
-                          color="grey lighten-5"
-                        ></v-progress-circular>
-                      </v-row>
-                    </template>
-                  </v-img>
-                </a>
+                    <v-img
+                      :src="photo.url"
+                      class="white--text align-end"
+                      gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
+                      height="200"
+                    >
+                      <v-card-title></v-card-title>
+                    </v-img>
+                  </a>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn icon @click="deletePhoto(photo)">
+                      <v-icon>mdi-delete</v-icon>
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
               </v-col>
             </v-row>
             <v-row>
@@ -236,7 +238,6 @@ export default {
       }
     },
     uploadTaskFile(data) {
-      console.log(data);
       this.$emit('uploadTaskFile', {
         taskId: data.id,
         locationId: data.location_id,
@@ -251,7 +252,7 @@ export default {
           dbTable: dbTable,
           dbColumn: dbColumn
         },
-        { id: item.id, value: this[key] }
+        { id: item.location_id, value: this[key] }
       );
     },
     updateLockerData(data) {
@@ -263,11 +264,32 @@ export default {
     deleteFee(data) {
       this.$emit('deleteFee', data);
     },
+    deletePhoto(photo) {
+      this.showModal(photo);
+      //this.$emit('deletePhoto', photo);
+    },
     verifyLocker(locker) {
       this.$emit('verifyLocker', locker);
     },
     checkMobile() {
       this.isMobile = window.innerWidth <= 480;
+    },
+    showModal(photo) {
+      this.$store.dispatch('notification/showModal', {
+        message: 'Biztosan törölni szeretnéd?',
+        buttons: [
+          {
+            text: 'Igen',
+            style: 'primary',
+            action: () => this.$emit('deletePhoto', photo)
+          },
+          {
+            text: 'Mégse',
+            style: 'secondary',
+            action: () => this.$store.dispatch('notification/hideModal')
+          }
+        ]
+      });
     }
   }
 };

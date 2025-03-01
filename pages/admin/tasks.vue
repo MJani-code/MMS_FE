@@ -1,8 +1,9 @@
 <template>
-  <div class="mt-6">
+  <div v-if="groupedTasks" class="mt-6">
     <AddTaskField
       @uploadBatchTasks="handleUploadBatchTasks"
       @searchedValue="filteredTasks"
+      @createTask="handleCreateTask"
     />
     <v-expansion-panels v-model="expandedAccordions" multiple>
       <AccordionField
@@ -17,7 +18,7 @@
         :locationTypes="tasks.locationTypes"
         :taskTypes="tasks.taskTypes"
         :lockerSerials="tasks.lockerSerials"
-        :users="tasks.users"
+        :companies="tasks.companies"
         @eventToTask="handleUpdatedTask"
         @updateLockerData="handleUpdatedLockerData"
         @addFee="handleAddFee"
@@ -26,10 +27,14 @@
         @removeLocker="handleRemoveLocker"
         @downloadTig="handleDownloadTig"
         @verifyLocker="handleVerifyLocker"
+        @deletePhoto="handleDeletePhoto"
       >
       </AccordionField>
     </v-expansion-panels>
   </div>
+  <v-sheet v-else>
+    <v-card-title class="text-h5">Nincs megjeleníthető adat</v-card-title>
+  </v-sheet>
 </template>
 
 <script>
@@ -139,7 +144,6 @@ export default {
           }
         ]
       });
-      console.log(this.$store.state.notification);
     },
     async handleUploadBatchTasks(payload) {
       try {
@@ -153,7 +157,22 @@ export default {
       } catch (error) {
         this.showNotification('error', error);
       }
-      this.$store.commit('closeUploadModal');
+      this.$store.commit('closeCreateTaskBatchModal');
+      this.turnOffLoading();
+    },
+    async handleCreateTask(payload) {
+      try {
+        const result = await this.createTask(payload);
+        if (result.data.status === 200) {
+          this.getTasks();
+          this.showNotification('success', result.data.message);
+        } else {
+          this.showNotification('error', result.data.message);
+        }
+      } catch (error) {
+        this.showNotification('error', error);
+      }
+      this.$store.commit('closeCreateTaskModal');
       this.turnOffLoading();
     },
     async getTasks() {
@@ -206,21 +225,35 @@ export default {
         }
       }
       if (result.data.status === 200 && !isPhotoUpload) {
-        const taskId = result.data.payload.taskId;
-        const column = result.data.payload.column;
-        const newValue = result.data.payload.value;
-        const lockerId = result.data.payload.id;
-
-        const task = this.tasks.data.find((item) => item.id === taskId);
-        if (task) {
-          task[column] = newValue;
-          if (column == 'status_by_exohu_id') {
-            task.status_color = color;
-            console.log(task);
+        if (payload.dbTable === 'task_locations') {
+          const locationId = result.data.payload.id;
+          const column = result.data.payload.column;
+          const newValue = result.data.payload.value;
+          const location = this.tasks.data.find(
+            (item) => item.location_id === locationId
+          );
+          if (location) {
+            location[column] = newValue;
+          } else {
+            const error = 'Nem található a location_id: ' + locationId;
+            this.showNotification('error', error);
           }
         } else {
-          const error = 'Nem található a task_Id: ' + taskId;
-          this.showNotification('error', error);
+          const taskId = result.data.payload.id;
+          const column = result.data.payload.column;
+          const newValue = result.data.payload.value;
+          const lockerId = result.data.payload.id;
+
+          const task = this.tasks.data.find((item) => item.id === taskId);
+          if (task) {
+            task[column] = newValue;
+            if (column == 'status_by_exohu_id') {
+              task.status_color = color;
+            }
+          } else {
+            const error = 'Nem található a task_Id: ' + taskId;
+            this.showNotification('error', error);
+          }
         }
       }
       if (result.data.status !== 200) {
@@ -247,11 +280,9 @@ export default {
       const message = result.data.message;
 
       if (result.data.status === 200) {
-        const tofShopId = result.data.payload[0].tofShopId;
+        const taskId = result.data.payload[0].taskId;
         const lockers = result.data.payload;
-        const task = this.tasks.data.find(
-          (item) => item.tof_shop_id === tofShopId
-        );
+        const task = this.tasks.data.find((item) => item.id === taskId);
         if (task) {
           task.lockers = lockers;
         }
@@ -267,10 +298,10 @@ export default {
       } else {
         this.tasks.data.forEach((item) => {
           const index = item.lockers.findIndex(
-            (locker) => locker.serial === payload.value // Feltétel: 'value' mező egyezése
+            (locker) => locker.id === payload.id
           );
           if (index !== -1) {
-            // Eltávolítjuk az adott lockerSerial-t
+            // Eltávolítjuk az adott locker ID-t
             item.lockers.splice(index, 1);
           }
         });
@@ -293,6 +324,28 @@ export default {
             (fee) => !(fee.id === idToRemove && fee.taskId === taskIdToRemove)
           );
         }
+      }
+    },
+    async handleDeletePhoto(payload) {
+      this.$store.dispatch('notification/hideModal');
+      const result = await this.deletePhoto(payload);
+      if (result.data.status === 200) {
+        const taskLocationsId = result.data.payload.taskLocationsId;
+        const photoUrl = result.data.payload.url;
+        const task = this.tasks.data.find(
+          (item) => item.location_id === taskLocationsId
+        );
+        if (task) {
+          const photoIndex = task.location_photos.findIndex(
+            (item) => item.url === photoUrl
+          );
+          if (photoIndex !== -1) {
+            task.location_photos.splice(photoIndex, 1);
+            this.showNotification('success', result.data.message);
+          }
+        }
+      } else {
+        this.showNotification('error', result.data.message);
       }
     },
     async handleDownloadTig(payload) {
@@ -323,7 +376,6 @@ export default {
           );
           if (lockerIndex !== -1) {
             this.$set(task.lockers, lockerIndex, result.data.payload);
-            console.log(task);
           }
         }
       } else {

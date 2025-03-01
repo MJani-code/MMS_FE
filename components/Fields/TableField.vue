@@ -101,7 +101,7 @@
             <v-select
               v-if="header.filterable && header.text === 'Megbízottak'"
               v-model="filters[header.value]"
-              :items="users"
+              :items="companies"
               item-value="id"
               item-text="name"
               small-chips
@@ -249,7 +249,9 @@
           hide-details="auto"
           class="partner_name"
           :disabled="isToDisable(header, item)"
-          @change="updateTask(header, item)"
+          @change="
+            updateTask(header, { id: item.location_id, value: item.name })
+          "
         ></v-text-field>
       </template>
       <template #[`item.taskTypes`]="{ header, item }">
@@ -332,7 +334,9 @@
           hide-details="auto"
           class="zip"
           :disabled="isToDisable(header, item)"
-          @change="updateTask(header, item)"
+          @change="
+            updateTask(header, { id: item.location_id, value: item.zip })
+          "
         ></v-text-field>
       </template>
       <template #[`item.city`]="{ header, item }">
@@ -342,7 +346,9 @@
           hide-details="auto"
           class="city"
           :disabled="isToDisable(header, item)"
-          @change="updateTask(header, item)"
+          @change="
+            updateTask(header, { id: item.location_id, value: item.city })
+          "
         ></v-text-field>
       </template>
       <template #[`item.address`]="{ header, item }">
@@ -352,7 +358,9 @@
           hide-details="auto"
           class="address"
           :disabled="isToDisable(header, item)"
-          @change="updateTask(header, item)"
+          @change="
+            updateTask(header, { id: item.location_id, value: item.address })
+          "
         ></v-text-field>
       </template>
       <template #[`item.delivery_date`]="{ header, item }">
@@ -363,7 +371,9 @@
           type="datetime-local"
           class="datetime"
           :disabled="isToDisable(header, item)"
-          @change="updateTask(header, item)"
+          @change="
+            updateTask(header, { id: item.id, value: item.delivery_date })
+          "
         ></v-text-field>
       </template>
       <template #[`item.planned_delivery_date`]="{ header, item }">
@@ -374,7 +384,12 @@
           solo
           hide-details="auto"
           :disabled="isToDisable(header, item)"
-          @change="updateTask(header, item)"
+          @change="
+            updateTask(header, {
+              id: item.id,
+              value: item.planned_delivery_date
+            })
+          "
         ></v-text-field>
       </template>
       <template #[`item.location_type`]="{ header, item }">
@@ -388,7 +403,10 @@
           hide-details="auto"
           :disabled="isToDisable(header, item)"
           @change="
-            updateTask(header, { id: item.id, value: item.location_type })
+            updateTask(header, {
+              id: item.location_id,
+              value: item.location_type
+            })
           "
         >
           <template #selection="{ item: selectedItem, index }">
@@ -405,7 +423,7 @@
       <template #[`item.responsibles`]="{ header, item }">
         <v-select
           v-model="item.responsibles"
-          :items="users"
+          :items="companies"
           item-value="id"
           item-text="name"
           small-chips
@@ -427,7 +445,12 @@
           hide-details="auto"
           class="tof_shop_id"
           :disabled="isToDisable(header, item)"
-          @change="updateTask(header, item)"
+          @change="
+            updateTask(header, {
+              id: item.location_id,
+              value: item.tof_shop_id
+            })
+          "
         ></v-text-field>
       </template>
       <template #[`item.box_id`]="{ header, item }">
@@ -437,7 +460,9 @@
           hide-details="auto"
           class="box_id"
           :disabled="isToDisable(header, item)"
-          @change="updateTask(header, item)"
+          @change="
+            updateTask(header, { id: item.location_id, value: item.box_id })
+          "
         ></v-text-field>
       </template>
       <template #[`item.serial`]="{ header, item }">
@@ -457,7 +482,7 @@
               :color="checkLockerCondition(item)"
               close
               @click="select"
-              @click:close="removeLocker(item.serial)"
+              @click:close="removeLocker(item)"
             >
               <v-icon v-if="item.fault" small> mdi-tools </v-icon>
               <v-icon
@@ -474,7 +499,9 @@
       </template>
       <template
         v-if="
-          filteredTasks.length > 0 && filteredTasks[0].status_exohu_id === 9
+          filteredTasks.length > 0 &&
+          filteredTasks[0].status_exohu_id === 9 &&
+          $store.getters['hasPermission']('21')
         "
         v-slot:footer.prepend
       >
@@ -498,6 +525,7 @@
           @addFee="addFee"
           @deleteFee="deleteFee"
           @verifyLocker="verifyLocker"
+          @deletePhoto="deletePhoto"
         />
       </template>
     </v-data-table>
@@ -540,7 +568,7 @@ export default {
     lockerSerials: {
       type: Array
     },
-    users: {
+    companies: {
       type: Array,
       required: true
     }
@@ -605,7 +633,7 @@ export default {
           }
 
           if (key === 'serial') {
-            // Ha a 'responsibles' oszlopról van szó, ellenőrizzük, hogy bármelyik felelős benne van-e
+            // Ha a 'serial' oszlopról van szó, ellenőrizzük, hogy bármelyik felelős benne van-e
             if (filterValue.length > 0) {
               return task.lockers.some(
                 (locker) =>
@@ -651,12 +679,10 @@ export default {
   },
   methods: {
     checkLockerCondition(locker) {
-      console.log(locker);
       if (
         locker.fault ||
         locker.is_registered === 0 ||
         locker.is_active === 0 ||
-        locker.lastConnectionTimestamp < Date.now() / 1000 - 43200 ||
         locker.privateKey1Error === 1
       ) {
         return 'error';
@@ -695,6 +721,12 @@ export default {
         return true;
       }
       if (
+        item.status_exohu_id === 9 &&
+        !this.$store.getters['hasPermission']('21')
+      ) {
+        return true;
+      }
+      if (
         header.value === 'box_id' &&
         !this.$store.getters['hasPermission']('15')
       ) {
@@ -705,8 +737,6 @@ export default {
       }
     },
     updateTask(header, selectedItem) {
-      console.log(header);
-      console.log(selectedItem);
       let color = '';
       if (header.dbColumn === 'status_by_exohu_id') {
         color = this.getColorOfSelectedStatus(selectedItem['value']);
@@ -727,12 +757,13 @@ export default {
       }
 
       this.$emit('eventToAccordion', {
-        task_id: selectedItem.id,
+        id: selectedItem.id,
         dbTable: header.dbTable,
         dbColumn: header.dbColumn,
-        value: selectedItem['value']
-          ? selectedItem['value']
-          : selectedItem[header.dbColumn],
+        value: selectedItem['value'],
+        // value: selectedItem['value']
+        //   ? selectedItem['value']
+        //   : selectedItem[header.dbColumn],
         color: color
       });
     },
@@ -755,6 +786,7 @@ export default {
         this.$emit('addLocker', {
           task_id: item.id,
           tof_shop_id: item.tof_shop_id,
+          task_locations_id: item.location_id,
           dbTable: header.dbTable,
           dbColumn: header.dbColumn,
           value: newValue
@@ -768,7 +800,7 @@ export default {
       }
     },
     removeLocker(item) {
-      this.$emit('removeLocker', { value: item });
+      this.$emit('removeLocker', { value: item.serial, id: item.id });
     },
     uploadTaskFile(item) {
       this.$emit('uploadTaskFile', item);
@@ -781,6 +813,9 @@ export default {
     },
     deleteFee(data) {
       this.$emit('deleteFee', data);
+    },
+    deletePhoto(data) {
+      this.$emit('deletePhoto', data);
     },
     verifyLocker(locker) {
       this.$emit('verifyLocker', locker);

@@ -7,7 +7,8 @@ export const state = () => ({
   firstName: '',
   permissions: [],
   loading: false,
-  isModalUploadOpen: false
+  isModalCreateTaskBatchOpen: false,
+  isModalCreateTaskOpen: false
 });
 
 export const mutations = {
@@ -31,11 +32,17 @@ export const mutations = {
   turnOffLoading(state) {
     state.loading = false;
   },
-  openUploadModal(state) {
-    state.isModalUploadOpen = true;
+  openCreateTaskBatchModal(state) {
+    state.isModalCreateTaskBatchOpen = true;
   },
-  closeUploadModal(state) {
-    state.isModalUploadOpen = false;
+  closeCreateTaskBatchModal(state) {
+    state.isModalCreateTaskBatchOpen = false;
+  },
+  openCreateTaskModal(state) {
+    state.isModalCreateTaskOpen = true;
+  },
+  closeCreateTaskModal(state) {
+    state.isModalCreateTaskOpen = false;
   }
 };
 

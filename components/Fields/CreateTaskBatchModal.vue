@@ -3,7 +3,7 @@
     <v-dialog :value="isOpen" max-width="290">
       <v-card>
         <v-card-title>Helyszínek hozzáadása</v-card-title>
-        <v-form ref="addTask" @submit.prevent="onSubmit">
+        <v-form ref="createTaskBatch" @submit.prevent="onSubmit">
           <v-file-input
             v-model="files"
             :rules="rules"
@@ -55,23 +55,23 @@ export default {
   },
   computed: {
     isOpen() {
-      return this.$store.state.isModalUploadOpen;
+      return this.$store.state.isModalCreateTaskBatchOpen;
     }
   },
   methods: {
     closeModal() {
-      this.$store.commit('closeUploadModal');
+      this.$store.commit('closeCreateTaskBatchModal');
     },
     async onSubmit() {
-      const isValid = await this.$refs.addTask.validate();
+      const isValid = await this.$refs.createTaskBatch.validate();
       if (!isValid) {
         return;
       } else {
-        this.addTask(this.files);
+        this.createTaskBatch(this.files);
       }
       this.files = null;
     },
-    addTask() {
+    createTaskBatch() {
       this.$store.commit('turnOnLoading');
       const formData = new FormData();
       formData.append('file', this.files);

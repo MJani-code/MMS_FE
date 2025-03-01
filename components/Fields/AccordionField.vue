@@ -17,7 +17,7 @@
         :locationTypes="locationTypes"
         :taskTypes="taskTypes"
         :lockerSerials="lockerSerials"
-        :users="users"
+        :companies="companies"
         @eventToAccordion="eventToTask"
         @updateLockerData="updateLockerData"
         @uploadTaskFile="eventToTask"
@@ -27,6 +27,7 @@
         @removeLocker="removeLocker"
         @downloadTig="downloadTig"
         @verifyLocker="verifyLocker"
+        @deletePhoto="deletePhoto"
       />
     </v-expansion-panel-content>
   </v-expansion-panel>
@@ -47,7 +48,7 @@ export default {
     locationTypes: Array,
     taskTypes: Array,
     lockerSerials: Array,
-    users: Array
+    companies: Array
   },
   data: () => ({
     panel: [0],
@@ -69,6 +70,9 @@ export default {
     },
     deleteFee(data) {
       this.$emit('deleteFee', data);
+    },
+    deletePhoto(data) {
+      this.$emit('deletePhoto', data);
     },
     updateLockerData(data) {
       this.$emit('updateLockerData', data);
