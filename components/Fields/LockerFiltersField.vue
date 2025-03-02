@@ -146,6 +146,10 @@ export default {
       search: '',
       brands: [
         {
+          id: 0,
+          name: 'Összes'
+        },
+        {
           id: 1,
           name: 'Arka'
         },
