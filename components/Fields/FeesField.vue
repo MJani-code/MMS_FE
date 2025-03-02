@@ -131,7 +131,15 @@ export default {
   data() {
     return {
       rules: {
-        lockerSerials: [(v) => !!v || 'Kötelező megadni locker azonosítót'],
+        lockerSerials: [
+          (v) => {
+            if (this.taskTypes.includes(4)) {
+              return true;
+            }
+            return !!v || 'Kötelező megadni locker azonosítót';
+          }
+        ],
+        //lockerSerials: [(v) => !!v || 'Kötelező megadni locker azonosítót'],
         fees: [(v) => !!v || 'Kötelező megadni díjat'],
         quantity: [(v) => !!v || 'Kötelező megadni mennyiséget']
       },
@@ -155,6 +163,7 @@ export default {
   },
   methods: {
     async addItem(item) {
+      console.log(this.taskTypes);
       const isValid = await this.$refs.form[0].validate();
       if (!isValid) {
         return;
