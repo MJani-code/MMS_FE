@@ -59,10 +59,14 @@ export default {
     brands: [
       {
         id: 1,
-        name: 'Arka'
+        name: 'Összes'
       },
       {
         id: 2,
+        name: 'Arka'
+      },
+      {
+        id: 3,
         name: 'DC'
       }
     ],
@@ -71,7 +75,7 @@ export default {
     pageSize: 18,
     currentPage: 1,
     isActive: true,
-    totalLocation: 210,
+    totalLocation: 500,
     totalLockers: 0,
     previousUrl: '',
     sortKey: 'lockerStationId',
@@ -107,12 +111,13 @@ export default {
 
           //brand szűrés
           if (key === 'brand') {
-            if (filterValue) {
+            if (filterValue !== 0) {
               return resultList.lockerList.some(
                 (locker) => locker.brand == filterValue
               );
+            } else {
+              return true;
             }
-            return true;
           }
 
           if (key === 'range') {
