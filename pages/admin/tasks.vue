@@ -5,6 +5,11 @@
       @searchedValue="filteredTasks"
       @createTask="handleCreateTask"
     />
+    <PagesTasksTaskFilter
+      :adminFilterOptions="adminFilterOptions"
+      @tofShopIdFilter="filteredTasks"
+      v-if="$store.getters['hasPermission']('22')"
+    />
     <v-expansion-panels v-model="expandedAccordions" multiple>
       <AccordionField
         v-for="(group, statusId, index) in groupedTasks"
@@ -58,6 +63,12 @@ export default {
         fees: []
       },
       searchQuery: '',
+      adminFilterOptions: [
+        { text: 'Összes tétel', value: null },
+        { text: 'Adminban aktiv', value: true },
+        { text: 'Adminban nem aktív', value: false }
+      ],
+      selectedAdminFilter: null,
       expandedAccordions: [] // Nyitott accordionok ID-jai
     };
   },
@@ -76,11 +87,17 @@ export default {
         var query = this.searchQuery.toLowerCase();
       }
 
-      const filteredTasks = !query
+      var filteredTasks = !query
         ? this.tasks.data
         : this.tasks.data.filter((task) =>
             this.objectContainsQuery(task, query)
           );
+
+      if (this.selectedAdminFilter !== null) {
+        filteredTasks = filteredTasks.filter(
+          (task) => task.isActiveInAdmin === this.selectedAdminFilter
+        );
+      }
 
       const statusMap = this.tasks.statuses.reduce((map, status) => {
         map[status.id] = status.name;
@@ -124,7 +141,11 @@ export default {
       });
     },
     filteredTasks(searchedValue) {
-      this.searchQuery = searchedValue; // Frissítjük a keresési értéket
+      if (searchedValue.key === 'tofShopIdFilter') {
+        this.selectedAdminFilter = searchedValue.value;
+      } else {
+        this.searchQuery = searchedValue;
+      }
     },
     turnOnLoading() {
       this.$store.commit('turnOnLoading');
