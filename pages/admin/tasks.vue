@@ -6,9 +6,11 @@
       @createTask="handleCreateTask"
     />
     <PagesTasksTaskFilter
-      :adminFilterOptions="adminFilterOptions"
-      @tofShopIdFilter="filteredTasks"
       v-if="$store.getters['hasPermission']('22')"
+      :admin-filter-options="adminFilterOptions"
+      :serial-filter-options="serialFilterOptions"
+      @tofShopIdFilter="filteredTasks"
+      @serialFilter="filteredTasks"
     />
     <v-expansion-panels v-model="expandedAccordions" multiple>
       <AccordionField
@@ -19,10 +21,10 @@
         :headers="tasks.headers"
         :statuses="tasks.statuses"
         :fees="tasks.fees"
-        :allowedStatuses="tasks.allowedStatuses"
-        :locationTypes="tasks.locationTypes"
-        :taskTypes="tasks.taskTypes"
-        :lockerSerials="tasks.lockerSerials"
+        :allowed-statuses="tasks.allowedStatuses"
+        :location-types="tasks.locationTypes"
+        :task-types="tasks.taskTypes"
+        :locker-serials="tasks.lockerSerials"
         :companies="tasks.companies"
         @eventToTask="handleUpdatedTask"
         @updateLockerData="handleUpdatedLockerData"
@@ -68,14 +70,15 @@ export default {
         { text: 'Adminban aktiv', value: true },
         { text: 'Adminban nem aktív', value: false }
       ],
+      serialFilterOptions: [
+        { text: 'Összes', value: null },
+        { text: 'Van serial', value: true },
+        { text: 'Nincs serial', value: false }
+      ],
       selectedAdminFilter: null,
+      selectedSerialFilter: null,
       expandedAccordions: [] // Nyitott accordionok ID-jai
     };
-  },
-  watch: {
-    // groupedTasks(newValue) {
-    //   this.expandedAccordions = Object.keys(newValue).map(Number);
-    // }
   },
   computed: {
     groupedTasks() {
@@ -97,6 +100,19 @@ export default {
         filteredTasks = filteredTasks.filter(
           (task) => task.isActiveInAdmin === this.selectedAdminFilter
         );
+      }
+
+      if (this.selectedSerialFilter !== null) {
+        console.log(this.selectedSerialFilter);
+        if (this.selectedSerialFilter === true) {
+          filteredTasks = filteredTasks.filter(
+            (task) => task.lockerSerials && task.lockerSerials.length > 0
+          );
+        } else {
+          filteredTasks = filteredTasks.filter(
+            (task) => !task.lockerSerials || task.lockerSerials.length === 0
+          );
+        }
       }
 
       const statusMap = this.tasks.statuses.reduce((map, status) => {
@@ -143,6 +159,8 @@ export default {
     filteredTasks(searchedValue) {
       if (searchedValue.key === 'tofShopIdFilter') {
         this.selectedAdminFilter = searchedValue.value;
+      } else if (searchedValue.key === 'serialFilter') {
+        this.selectedSerialFilter = searchedValue.value;
       } else {
         this.searchQuery = searchedValue;
       }
