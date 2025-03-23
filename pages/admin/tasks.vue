@@ -1,16 +1,13 @@
 <template>
   <div v-if="groupedTasks" class="mt-6">
-    <AddTaskField
-      @uploadBatchTasks="handleUploadBatchTasks"
-      @searchedValue="filteredTasks"
-      @createTask="handleCreateTask"
-    />
     <PagesTasksTaskFilter
-      v-if="$store.getters['hasPermission']('22')"
       :admin-filter-options="adminFilterOptions"
       :serial-filter-options="serialFilterOptions"
+      @searchedValue="filteredTasks"
       @tofShopIdFilter="filteredTasks"
       @serialFilter="filteredTasks"
+      @createTask="handleCreateTask"
+      @uploadBatchTasks="handleUploadBatchTasks"
     />
     <v-expansion-panels v-model="expandedAccordions" multiple>
       <AccordionField
@@ -47,12 +44,11 @@
 <script>
 import { taskMixin } from '@/mixins/taskMixin.js';
 import AccordionField from '../../components/Fields/AccordionField.vue';
-import AddTaskField from '../../components/Fields/AddTaskField.vue';
 import axios from 'axios';
 
 export default {
   name: 'AdminTasks',
-  components: { AccordionField, AddTaskField },
+  components: { AccordionField },
   mixins: [taskMixin],
   data() {
     return {
