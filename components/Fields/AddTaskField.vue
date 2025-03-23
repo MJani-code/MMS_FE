@@ -5,38 +5,31 @@
       @uploadBatchTasks="uploadBatchTasks"
     />
     <CreateTaskModal @createTask="createTask" />
-    <v-row>
-      <v-col v-if="$store.getters['hasPermission']('3')" cols="12" md="3">
-        <v-btn
-          color="blue-grey"
-          class="ma-2 white--text"
-          @click="openCreateTaskBatchModal"
-        >
-          Helyszínek betöltése
-          <v-icon right dark> mdi-cloud-upload </v-icon>
+    <v-menu offset-y>
+      <template v-slot:activator="{ on, attrs }">
+        <v-btn color="blue-grey" class="white--text" v-bind="attrs" v-on="on">
+          Új hozzáadása
+          <v-icon right dark>mdi-menu-down</v-icon>
         </v-btn>
-        <v-btn
-          color="blue-grey"
-          class="ma-2 white--text"
-          @click="openCreateTaskModal"
-        >
-          Megbízás hozzáadása
-        </v-btn>
-      </v-col>
-      <v-col cols="12" md="4">
-        <SearchField @search="search" />
-      </v-col>
-    </v-row>
+      </template>
+      <v-list>
+        <v-list-item @click="openCreateTaskBatchModal">
+          <v-list-item-title>Helyszínek betöltése</v-list-item-title>
+        </v-list-item>
+        <v-list-item @click="openCreateTaskModal">
+          <v-list-item-title>Megbízás hozzáadása</v-list-item-title>
+        </v-list-item>
+      </v-list>
+    </v-menu>
   </v-container>
 </template>
 
 <script>
 import CreateTaskBatchModal from './CreateTaskBatchModal.vue';
 import CreateTaskModal from './CreateTaskModal.vue';
-import SearchField from './SearchField.vue';
 
 export default {
-  components: { CreateTaskBatchModal, CreateTaskModal, SearchField },
+  components: { CreateTaskBatchModal, CreateTaskModal },
   data: () => ({
     isModalOpen: false
   }),
@@ -51,9 +44,6 @@ export default {
     uploadBatchTasks(files) {
       this.$store.commit('turnOnLoading');
       this.$emit('uploadBatchTasks', files);
-    },
-    search(data) {
-      this.$emit('searchedValue', data);
     },
     createTask(data) {
       this.$emit('createTask', data);
