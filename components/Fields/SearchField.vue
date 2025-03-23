@@ -4,6 +4,7 @@
     label="Keresés"
     clear-icon="mdi-close-circle"
     clearable
+    outlined
     @input="searchQuery(search)"
     @click:clear="searchQuery('')"
   ></v-text-field>
