@@ -1,5 +1,22 @@
 <template>
-  <v-row justify="end">
+  <v-row align="center" justify="end">
+    <v-col
+      v-if="$store.getters['hasPermission']('3')"
+      cols="12"
+      sm="12"
+      md="3"
+      lg="5"
+    >
+      <v-row align="center" justify="center">
+        <AddTaskField
+          @uploadBatchTasks="uploadBatchTasks"
+          @createTask="createTask"
+        />
+      </v-row>
+    </v-col>
+    <v-col cols="12" sm="12" md="3" lg="3">
+      <SearchField @search="search" />
+    </v-col>
     <v-col cols="12" sm="12" md="3" lg="2">
       <v-select
         id="serialFilter"
@@ -9,7 +26,13 @@
         outlined
       />
     </v-col>
-    <v-col cols="12" sm="12" md="3" lg="2">
+    <v-col
+      v-if="$store.getters['hasPermission']('22')"
+      cols="12"
+      sm="12"
+      md="3"
+      lg="2"
+    >
       <v-select
         id="tofShopIdFilter"
         v-model="selectedAdminFilter"
@@ -22,7 +45,10 @@
 </template>
 
 <script>
+import SearchField from '@/components/Fields/SearchField.vue';
+import AddTaskField from '../../Fields/AddTaskField.vue';
 export default {
+  components: { SearchField, AddTaskField },
   props: {
     adminFilterOptions: {
       type: Array,
@@ -51,6 +77,25 @@ export default {
         key: 'serialFilter',
         value: this.selectedSerialFilter
       });
+    }
+  },
+  methods: {
+    search(data) {
+      this.$emit('searchedValue', data);
+    },
+    openCreateTaskBatchModal() {
+      //this.$refs.childModal.open();
+      this.$store.commit('openCreateTaskBatchModal');
+    },
+    openCreateTaskModal() {
+      this.$store.commit('openCreateTaskModal');
+    },
+    uploadBatchTasks(files) {
+      this.$store.commit('turnOnLoading');
+      this.$emit('uploadBatchTasks', files);
+    },
+    createTask(data) {
+      this.$emit('createTask', data);
     }
   }
 };
