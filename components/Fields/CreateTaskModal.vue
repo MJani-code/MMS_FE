@@ -8,15 +8,15 @@
             <v-row>
               <!-- TODO: Megbízás leírása, helyszín, megbízás típusa, locker uuid, tervezett kezdési időpont, megbízott -->
               <v-col cols="12" md="6">
-                <v-select
-                  v-model="data.tofShopId"
+                <v-combobox
+                  v-model="data.selectedLocation"
                   :items="payload.locations ? payload.locations : []"
                   item-text="nameAndAddress"
-                  item-value="tof_shop_id"
+                  item-value="tofShopId"
                   label="Helyszín"
                   :rules="[rules.required]"
                 >
-                </v-select>
+                </v-combobox>
               </v-col>
               <v-col cols="12" md="6">
                 <v-select
@@ -38,7 +38,6 @@
                   v-model="selectedLockers"
                   :items="filteredLockers"
                   item-text="serial"
-                  item-value="serial"
                   label="Locker"
                   :rules="[rules.required]"
                   multiple
@@ -125,7 +124,6 @@
                   type="date"
                   class="date"
                   label="Határidő"
-                  :rules="[rules.required]"
                   hide-details="auto"
                 />
               </v-col>
@@ -136,7 +134,6 @@
                   item-text="name"
                   item-value="id"
                   label="Megbízott"
-                  :rules="[rules.required]"
                 >
                 </v-select>
               </v-col>
@@ -161,7 +158,7 @@ export default {
   data() {
     return {
       data: {
-        tofShopId: '',
+        selectedLocation: '',
         lockers: [],
         plannedDeliveryDate: '',
         responsible: '',
@@ -184,9 +181,9 @@ export default {
       return this.$store.state.isModalCreateTaskOpen;
     },
     filteredLockers() {
-      if (!this.data.tofShopId) return [];
+      if (!this.data.selectedLocation) return [];
       return this.payload.lockers.filter(
-        (locker) => locker.tofShopId === this.data.tofShopId
+        (locker) => locker.tofShopId === this.data.selectedLocation['tofShopId']
       );
     },
     getLockerIssueRules() {
@@ -252,8 +249,27 @@ export default {
       return locker ? locker.serial : '';
     },
     updateLockers(selectedLockers) {
-      this.data.lockers = selectedLockers.map((uuid) => ({
-        uuid,
+      var lockerId = this.filteredLockers.find(
+        (l) => l.serial === selectedLockers[0]
+      )
+        ? this.filteredLockers.find((l) => l.serial === selectedLockers[0]).id
+        : '';
+      var brand = this.filteredLockers.find(
+        (l) => l.serial === selectedLockers[0]
+      )
+        ? this.filteredLockers.find((l) => l.serial === selectedLockers[0])
+            .brand
+        : '';
+      var type = this.filteredLockers.find(
+        (l) => l.serial === selectedLockers[0]
+      )
+        ? this.filteredLockers.find((l) => l.serial === selectedLockers[0]).type
+        : '';
+      this.data.lockers = selectedLockers.map((serial) => ({
+        serial,
+        lockerId,
+        brand,
+        type,
         issues: [
           {
             type: '',
@@ -262,6 +278,7 @@ export default {
         ],
         description: ''
       }));
+      console.log('Lockers', this.data.lockers);
     },
     addIssue(lockerIndex) {
       this.data.lockers[lockerIndex].issues.push({
