@@ -13,7 +13,7 @@
           <v-icon v-if="isMobile">mdi-map-marker-alert</v-icon>
           <span v-else>
             <v-icon>mdi-map-marker-alert</v-icon>
-            Helyszín részletek</span
+            Megbízás részletei</span
           >
         </v-tab>
         <v-tab v-if="$store.getters['hasPermission']('6')" class="fees">
@@ -138,7 +138,7 @@
               ></v-text-field>
               <v-textarea
                 v-model="comment"
-                label="Megjegyzés"
+                label="Megbízás leírása"
                 :disabled="isToDisable(item)"
                 @change="
                   updateLocationData(
@@ -146,6 +146,19 @@
                     'task_locations',
                     'comment',
                     'comment'
+                  )
+                "
+              ></v-textarea>
+              <v-textarea
+                v-model="feedback"
+                label="Report"
+                :disabled="isToDisable(item)"
+                @change="
+                  updateLocationData(
+                    item,
+                    'task_locations',
+                    'company_feedback',
+                    'feedback'
                   )
                 "
               ></v-textarea>
@@ -204,6 +217,7 @@ export default {
       fixingMethod: this.item.fixing_method,
       sitePreparation: this.item.required_site_preparation,
       comment: this.item.comment,
+      feedback: this.item.feedback,
       taskFiles: [],
       isMobile: false
     };
