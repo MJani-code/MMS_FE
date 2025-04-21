@@ -26,6 +26,7 @@
         @deleteFee="deleteFee"
         @removeLocker="removeLocker"
         @downloadTig="downloadTig"
+        @downloadTasks="downloadTasks"
         @verifyLocker="verifyLocker"
         @deletePhoto="deletePhoto"
       />
@@ -79,6 +80,9 @@ export default {
     },
     downloadTig(data) {
       this.$emit('downloadTig', data);
+    },
+    downloadTasks(data) {
+      this.$emit('downloadTasks', data);
     },
     verifyLocker(data) {
       this.$emit('verifyLocker', data);
