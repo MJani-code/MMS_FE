@@ -22,6 +22,7 @@ export const config = {
     updateUser: host + '/MMS_BE/api/task/updateUser.php',
     createTaskBatch: host + '/MMS_BE/api/task/createTaskBatch.php',
     downloadTig: host + '/MMS_BE/api/task/downloadTig.php',
+    downloadTasks: host + '/MMS_BE/api/task/downloadTasks.php',
     verifyLocker: host + '/MMS_BE/api/task/verifyLocker.php',
     getLockerFromLos: host + '/MMS_BE/api/task/getLockerFromLos.php',
     getDataForCreateTask: host + '/MMS_BE/api/task/getDataForCreateTask.php',
