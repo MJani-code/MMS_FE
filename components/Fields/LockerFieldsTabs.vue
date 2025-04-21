@@ -2,66 +2,14 @@
   <v-col cols="12" sm="4" md="8" lg="8" xl="8" style="padding-top: unset">
     <v-card :style="{ width: cardWidth }">
       <v-tabs v-model="tab" background-color="primary" dark show-arrows>
-        <v-tab class="tab-general"> Általános </v-tab>
         <v-tab> Ellenőrző </v-tab>
         <v-tab> Javítás </v-tab>
+        <v-tab class="tab-general"> Általános </v-tab>
       </v-tabs>
 
       <v-tabs-slider color="teal lighten-3"></v-tabs-slider>
 
       <v-tabs-items v-model="tab">
-        <v-tab-item class="tabitem-general">
-          <v-form ref="">
-            <v-row>
-              <v-col cols="12" sm="6" md="6" lg="2" xl="2">
-                <v-text-field
-                  v-model="brand"
-                  label="Brand"
-                  class="px-2"
-                  @change="
-                    updateLockerData(brand, locker.id, 'task_lockers', 'brand')
-                  "
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" sm="6" md="6" lg="2" xl="2">
-                <v-text-field
-                  v-model="type"
-                  label="Típus"
-                  class="px-2"
-                  @change="
-                    updateLockerData(type, locker.id, 'task_lockers', 'type')
-                  "
-                ></v-text-field>
-              </v-col>
-            </v-row>
-            <v-checkbox
-              v-model="isRegistered"
-              label="Regisztrált"
-              class="mt-0 px-2"
-              @change="
-                updateLockerData(
-                  isRegistered ? 1 : 0,
-                  locker.id,
-                  'task_lockers',
-                  'is_registered'
-                )
-              "
-            ></v-checkbox>
-            <v-checkbox
-              v-model="isActive"
-              label="Aktív"
-              class="mt-0 px-2"
-              @change="
-                updateLockerData(
-                  isActive ? 1 : 0,
-                  locker.id,
-                  'task_lockers',
-                  'is_active'
-                )
-              "
-            ></v-checkbox>
-          </v-form>
-        </v-tab-item>
         <v-tab-item class="tabitem-check">
           <v-form>
             <v-btn color="primary" class="mx-2" small @click="verifyLocker"
@@ -162,6 +110,58 @@
               <repair-reports></repair-reports>
             </v-col>
           </v-row>
+        </v-tab-item>
+        <v-tab-item class="tabitem-general">
+          <v-form ref="">
+            <v-row>
+              <v-col cols="12" sm="6" md="6" lg="2" xl="2">
+                <v-text-field
+                  v-model="brand"
+                  label="Brand"
+                  class="px-2"
+                  @change="
+                    updateLockerData(brand, locker.id, 'task_lockers', 'brand')
+                  "
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6" md="6" lg="2" xl="2">
+                <v-text-field
+                  v-model="type"
+                  label="Típus"
+                  class="px-2"
+                  @change="
+                    updateLockerData(type, locker.id, 'task_lockers', 'type')
+                  "
+                ></v-text-field>
+              </v-col>
+            </v-row>
+            <v-checkbox
+              v-model="isRegistered"
+              label="Regisztrált"
+              class="mt-0 px-2"
+              @change="
+                updateLockerData(
+                  isRegistered ? 1 : 0,
+                  locker.id,
+                  'task_lockers',
+                  'is_registered'
+                )
+              "
+            ></v-checkbox>
+            <v-checkbox
+              v-model="isActive"
+              label="Aktív"
+              class="mt-0 px-2"
+              @change="
+                updateLockerData(
+                  isActive ? 1 : 0,
+                  locker.id,
+                  'task_lockers',
+                  'is_active'
+                )
+              "
+            ></v-checkbox>
+          </v-form>
         </v-tab-item>
       </v-tabs-items>
     </v-card>
