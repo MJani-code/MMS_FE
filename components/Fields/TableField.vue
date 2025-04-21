@@ -497,17 +497,33 @@
           </template>
         </v-combobox>
       </template>
-      <template
-        v-if="
-          filteredTasks.length > 0 &&
-          filteredTasks[0].status_exohu_id === 9 &&
-          $store.getters['hasPermission']('21')
-        "
-        v-slot:footer.prepend
-      >
-        <v-btn color="primary" dark class="ma-2" @click="downloadTig"
-          >TIG letöltés</v-btn
+      <template v-slot:footer>
+        <v-btn
+          v-if="
+            filteredTasks.length > 0 &&
+            filteredTasks[0].status_exohu_id === 9 &&
+            $store.getters['hasPermission']('21')
+          "
+          color="primary"
+          dark
+          class="ma-2"
+          @click="downloadTig"
         >
+          TIG letöltés
+        </v-btn>
+        <v-btn
+          v-if="
+            filteredTasks.length > 0 &&
+            filteredTasks[0].status_exohu_id === 6 &&
+            $store.getters['hasPermission']('24')
+          "
+          color="primary"
+          dark
+          class="ma-2"
+          @click="downloadTasks"
+        >
+          Letöltés
+        </v-btn>
       </template>
 
       <!-- FillExpandedField -->
@@ -732,7 +748,10 @@ export default {
       ) {
         return true;
       }
-      if (header.value === 'tof_shop_id') {
+      if (
+        header.value === 'tof_shop_id' &&
+        !this.$store.getters['hasPermission']('16')
+      ) {
         return true;
       }
     },
@@ -800,7 +819,11 @@ export default {
       }
     },
     removeLocker(item) {
-      this.$emit('removeLocker', { value: item.serial, id: item.id });
+      this.$emit('removeLocker', {
+        value: item.serial,
+        id: item.id,
+        taskId: item.task_id
+      });
     },
     uploadTaskFile(item) {
       this.$emit('uploadTaskFile', item);
@@ -810,6 +833,9 @@ export default {
     },
     downloadTig() {
       this.$emit('downloadTig');
+    },
+    downloadTasks() {
+      this.$emit('downloadTasks');
     },
     deleteFee(data) {
       this.$emit('deleteFee', data);
