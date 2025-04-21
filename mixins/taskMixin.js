@@ -125,6 +125,16 @@ export const taskMixin = {
         return [];
       }
     },
+    downloadTasks(payload) {
+      try {
+        const token = this.$store.state.token;
+        const response = APIDOWNLOAD('downloadTasks', token);
+        return response;
+      } catch (error) {
+        console.error('Error fetching tasks', error);
+        return [];
+      }
+    },
     verifyLocker(payload) {
       try {
         const token = this.$store.state.token;
