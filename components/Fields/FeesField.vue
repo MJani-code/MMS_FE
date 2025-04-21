@@ -9,7 +9,6 @@
             :items="lockerSerials"
             item-value="id"
             item-text="serial"
-            :rules="rules.lockerSerials"
             :disabled="disabled"
             small-chips
             solo
