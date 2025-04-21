@@ -30,6 +30,7 @@
         @deleteFee="handleDeleteFee"
         @removeLocker="handleRemoveLocker"
         @downloadTig="handleDownloadTig"
+        @downloadTasks="handleDownloadTasks"
         @verifyLocker="handleVerifyLocker"
         @deletePhoto="handleDeletePhoto"
       >
@@ -392,6 +393,22 @@ export default {
         const link = document.createElement('a');
         link.href = url;
         link.setAttribute('download', 'tig.xlsx'); // Állítsd be a fájl nevét
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (error) {
+        this.showNotification('error', error);
+      }
+    },
+    async handleDownloadTasks(payload) {
+      try {
+        const response = await this.downloadTasks(payload);
+
+        // Létrehozunk egy URL-t a blob-hoz
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'completedtasks.xlsx'); // Állítsd be a fájl nevét
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
