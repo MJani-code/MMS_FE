@@ -85,7 +85,8 @@ export default {
     }
   },
   server: {
-    host: '0.0.0.0',
+    //ez itt 0.0.0.0 volt a docker miatt
+    host: 'localhost',
     port: 3002
   }
 };
