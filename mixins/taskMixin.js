@@ -184,6 +184,18 @@ export const taskMixin = {
         console.error('Error fetching tasks', error);
         return [];
       }
+    },
+    async fetchIssues(payload) {
+      try {
+        //const token = this.$store.state.token;
+        const token =
+          'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6Im1hcnRvbmpAZXhwcmVzc29uZS5odSIsImV4cGlyYXRpb25UaW1lIjoxNzQ1MjY2NzYyLCJ1c2VySWQiOjIsInJvbGVJZCI6MSwiY29tcGFueUlkIjoxfQ.BOaTc-yQIpBvdi9nrfUmMU0fCzwowhf3N8hmvZDNFg8';
+        const response = await APIPOST('getTaskLockersIssues', payload, token);
+        return await response;
+      } catch (error) {
+        console.error('Error fetching users', error);
+        return [];
+      }
     }
   }
 };
