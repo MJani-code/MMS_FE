@@ -27,7 +27,8 @@ export const config = {
     getLockerFromLos: host + '/MMS_BE/api/task/getLockerFromLos.php',
     getDataForCreateTask: host + '/MMS_BE/api/task/getDataForCreateTask.php',
     createTask: host + '/MMS_BE/api/task/createTask.php',
-    deletePhoto: host + '/MMS_BE/api/task/deletePhoto.php'
+    deletePhoto: host + '/MMS_BE/api/task/deletePhoto.php',
+    getTaskLockersIssues: host + '/MMS_BE/api/task/getTaskLockersIssues.php'
   }
 };
 const API = axios.create({
