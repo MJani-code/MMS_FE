@@ -360,6 +360,8 @@ export default {
             (fee) => !(fee.id === idToRemove && fee.taskId === taskIdToRemove)
           );
         }
+      } else {
+        this.showNotification('error', result.data.message);
       }
     },
     async handleDeletePhoto(payload) {
