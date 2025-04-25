@@ -1,5 +1,5 @@
 <template>
-  <v-row align="center" justify="end">
+  <v-row align="center" justify="space-between">
     <v-col
       v-if="$store.getters['hasPermission']('3')"
       cols="12"
@@ -7,8 +7,9 @@
       md="3"
       lg="5"
     >
-      <v-row align="center" justify="center">
+      <v-row align="left">
         <AddTaskField
+          v-if="$store.getters['hasPermission']('14')"
           @uploadBatchTasks="uploadBatchTasks"
           @createTask="createTask"
         />
