@@ -185,10 +185,8 @@ export const taskMixin = {
         return [];
       }
     },
-    async fetchIssues(payload) {
+    async fetchIssues(payload, token) {
       try {
-        //const token = this.$store.state.token;
-        const token ='';
         const response = await APIPOST('getTaskLockersIssues', payload, token);
         return await response;
       } catch (error) {
