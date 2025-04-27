@@ -18,8 +18,9 @@ export const mutations = {
 };
 
 export const actions = {
-  async fetchIssuesAction({ commit }, payload) {
-    const res = await taskMixin.methods.fetchIssues(payload);
+  async fetchIssuesAction({ commit, rootState }, payload) {
+    const token = rootState.token;
+    const res = await taskMixin.methods.fetchIssues(payload, token);
     commit('setIssue', res.data.payload);
   },
   async addIntervention({ commit }, payload) {
