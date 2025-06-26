@@ -207,6 +207,8 @@
                 >mdi-key</v-icon
               >
             </v-card-actions>
+            <v-divider class="ma-2"></v-divider>
+            <LockerUtilizationField :value="locker.lockerUtilizationValues" />
           </v-card>
         </v-col>
       </template>
@@ -216,6 +218,10 @@
 
 <script>
 export default {
+  components: {
+    LockerUtilizationField: () =>
+      import('@/components/Fields/LockerUtilizationField.vue')
+  },
   props: {
     lockers: {
       type: Array,
