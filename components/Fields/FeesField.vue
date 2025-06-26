@@ -39,7 +39,7 @@
             class="mb-4 ml-2"
           />
           <v-text-field
-            v-if="item.feeId === 5"
+            v-if="getFeeType(item.feeId) === 5"
             v-model="item.otherItems"
             label="Megjegyzés"
             required
@@ -162,7 +162,6 @@ export default {
   },
   methods: {
     async addItem(item) {
-      console.log(this.taskTypes);
       const isValid = await this.$refs.form[0].validate();
       if (!isValid) {
         return;
@@ -211,10 +210,15 @@ export default {
           return '';
       }
     },
+    getFeeType(feeId) {
+      const fee = this.fees.find((f) => f.id === feeId);
+      return fee ? fee.type : '';
+    },
     getFeeName(feeId, id) {
       const fee = this.fees.find((f) => f.id === feeId);
       const feeNote = this.taskFees.find((f) => f.id === id);
-      if (feeId === 5) {
+      const feeType = this.getFeeType(feeId);
+      if (feeType === 5) {
         return fee ? feeNote.otherItems : '';
       } else {
         return fee ? fee.name : '';
