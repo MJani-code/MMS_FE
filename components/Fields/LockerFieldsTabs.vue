@@ -193,20 +193,6 @@ export default {
     brand: '',
     fault: '',
     type: '',
-    issues: [
-      {
-        id: 1,
-        name: 'Issue 1'
-      },
-      {
-        id: 2,
-        name: 'Issue 2'
-      },
-      {
-        id: 3,
-        name: 'Issue 3'
-      }
-    ],
     sparepartList: [
       {
         id: 1,
@@ -247,10 +233,14 @@ export default {
       if (!timestamp) return '';
       const date = new Date(timestamp * 1000);
       return date.toLocaleString();
+    },
+    issues() {
+      return this.$store.getters['locker/repair/getIssues'];
     }
   },
-  mounted() {
+  async mounted() {
     this.updateLocalLockerData();
+    await this.fetchIssues();
   },
   watch: {
     locker: {
@@ -290,6 +280,13 @@ export default {
       const date = new Date(timestamp * 1000);
       //Ha a timestamp a jelenlegi időpponttól több mint 12 órával kevesebb, akkor a kapcsolat megszakadt
       this.isConnectionLost = date < new Date(Date.now() - 12 * 60 * 60 * 1000);
+    },
+    async fetchIssues() {
+      // Explicit hívás a fetchIssuesAction-re
+      await this.$store.dispatch('locker/repair/fetchIssuesAction', {
+        taskId: this.taskId,
+        uuid: this.locker.serial
+      });
     }
   }
 };

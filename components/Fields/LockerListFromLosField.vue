@@ -19,7 +19,7 @@
           >
             <v-card-title class="text-body-2">
               <v-icon left>mdi-locker</v-icon>
-              {{ lockerListData.lockerName }}
+              {{ locker.branchName }}
             </v-card-title>
             <v-card-subtitle class="text-body-2">
               <v-icon left>mdi-map-marker-outline</v-icon>
@@ -207,6 +207,8 @@
                 >mdi-key</v-icon
               >
             </v-card-actions>
+            <v-divider class="ma-2"></v-divider>
+            <LockerUtilizationField :value="locker.lockerUtilizationValues" />
           </v-card>
         </v-col>
       </template>
@@ -216,6 +218,10 @@
 
 <script>
 export default {
+  components: {
+    LockerUtilizationField: () =>
+      import('@/components/Fields/LockerUtilizationField.vue')
+  },
   props: {
     lockers: {
       type: Array,

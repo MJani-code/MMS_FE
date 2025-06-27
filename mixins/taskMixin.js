@@ -184,6 +184,15 @@ export const taskMixin = {
         console.error('Error fetching tasks', error);
         return [];
       }
+    },
+    async fetchIssues(payload, token) {
+      try {
+        const response = await APIPOST('getTaskLockersIssues', payload, token);
+        return await response;
+      } catch (error) {
+        console.error('Error fetching users', error);
+        return [];
+      }
     }
   }
 };
