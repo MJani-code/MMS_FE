@@ -75,6 +75,10 @@
             ></v-text-field>
           </template>
         </v-range-slider>
+        <locker-utilization-filter-field
+          :filters="filters"
+          @update-filter="$emit('update-filter', $event)"
+        ></locker-utilization-filter-field>
       </v-col>
       <v-col cols="12" sm="12" md="3" lg="3">
         <v-switch
@@ -125,7 +129,9 @@
 </template>
 
 <script>
+import LockerUtilizationFilterField from './LockerUtilizationFilterField.vue';
 export default {
+  components: { LockerUtilizationFilterField },
   props: {
     filters: {
       type: Object,

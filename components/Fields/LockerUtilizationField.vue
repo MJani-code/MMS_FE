@@ -16,9 +16,6 @@
               <span style="color: black; z-index: 2" v-bind="attrs" v-on="on">
                 {{ Math.round(locker.utilizationValue) }}%
               </span>
-              <!-- <v-btn color="primary" dark v-bind="attrs" v-on="on">
-                Left
-              </v-btn> -->
             </template>
             <span>{{ locker.timeFrame }}</span>
           </v-tooltip>
@@ -36,10 +33,6 @@ export default {
       type: Array,
       required: true
     }
-  },
-  //print out the value prop in the console
-  mounted() {
-    console.log('LockerUtilizationField value:', this.value);
   }
 };
 </script>

@@ -128,9 +128,66 @@ export default {
             );
           }
 
+          if (key === 'utilizationWeekly') {
+            if (
+              !resultList.lockerUtilizationValues ||
+              resultList.lockerUtilizationValues.length === 0 ||
+              !resultList.lockerUtilizationValues.some(
+                (locker) => locker.timeFrame === 'Weekly'
+              )
+            ) {
+              return true;
+            }
+            return resultList.lockerUtilizationValues.some(
+              (locker) =>
+                //csak akkor szűrjük, ha a lockerUtilizationValues tömb nem üres
+                locker.utilizationValue &&
+                locker.utilizationValue >= filterValue[0] &&
+                locker.utilizationValue <= filterValue[1] &&
+                locker.timeFrame === 'Weekly'
+            );
+          }
+
+          if (key === 'utilizationMonthly') {
+            if (
+              !resultList.lockerUtilizationValues ||
+              resultList.lockerUtilizationValues.length === 0 ||
+              !resultList.lockerUtilizationValues.some(
+                (locker) => locker.timeFrame === 'Monthly'
+              )
+            ) {
+              return true;
+            }
+            return resultList.lockerUtilizationValues.some(
+              (locker) =>
+                locker.utilizationValue &&
+                locker.utilizationValue >= filterValue[0] &&
+                locker.utilizationValue <= filterValue[1] &&
+                locker.timeFrame === 'Monthly'
+            );
+          }
+
+          if (key === 'utilizationYearly') {
+            if (
+              !resultList.lockerUtilizationValues ||
+              resultList.lockerUtilizationValues.length === 0 ||
+              !resultList.lockerUtilizationValues.some(
+                (locker) => locker.timeFrame === 'Yearly'
+              )
+            ) {
+              return true;
+            }
+            return resultList.lockerUtilizationValues.some(
+              (locker) =>
+                locker.utilizationValue &&
+                locker.utilizationValue >= filterValue[0] &&
+                locker.utilizationValue <= filterValue[1] &&
+                locker.timeFrame === 'Yearly'
+            );
+          }
+
           if (key === 'isPassive') {
             if (filterValue) {
-              console.log(filterValue);
               return resultList.lockerList.some(
                 (locker) => locker.isPassive === true
               );
@@ -157,7 +214,6 @@ export default {
           //isConnectionError szűrés
           if (key === 'isConnectionError') {
             if (filterValue) {
-              console.log('isConnectionError:', filterValue);
               //Azon lockerek listája, amelyeknél a lastConnectionTimestamp értéke 12 órával korábbi
               return resultList.lockerList.some((locker) => {
                 const timestamp = locker.lastConnectionTimestamp;

@@ -19,7 +19,7 @@
           >
             <v-card-title class="text-body-2">
               <v-icon left>mdi-locker</v-icon>
-              {{ lockerListData.lockerName }}
+              {{ locker.branchName }}
             </v-card-title>
             <v-card-subtitle class="text-body-2">
               <v-icon left>mdi-map-marker-outline</v-icon>
