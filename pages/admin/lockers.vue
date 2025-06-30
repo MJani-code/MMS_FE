@@ -129,7 +129,6 @@ export default {
           }
 
           if (key === 'utilizationWeekly') {
-            console.log('utilizationWeekly', filterValue);
             if (filterValue[0] === 0 && filterValue[1] === 100) {
               return true;
             }
@@ -143,7 +142,6 @@ export default {
           }
 
           if (key === 'utilizationMonthly') {
-            console.log('utilizationMonthly', filterValue);
             if (filterValue[0] === 0 && filterValue[1] === 100) {
               return true;
             }
@@ -157,7 +155,6 @@ export default {
           }
 
           if (key === 'utilizationYearly') {
-            console.log('utilizationYearly', filterValue);
             if (filterValue[0] === 0 && filterValue[1] === 100) {
               return true;
             }
