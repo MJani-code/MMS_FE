@@ -129,18 +129,12 @@ export default {
           }
 
           if (key === 'utilizationWeekly') {
-            if (
-              !resultList.lockerUtilizationValues ||
-              resultList.lockerUtilizationValues.length === 0 ||
-              !resultList.lockerUtilizationValues.some(
-                (locker) => locker.timeFrame === 'Weekly'
-              )
-            ) {
+            console.log('utilizationWeekly', filterValue);
+            if (filterValue[0] === 0 && filterValue[1] === 100) {
               return true;
             }
             return resultList.lockerUtilizationValues.some(
               (locker) =>
-                //csak akkor szűrjük, ha a lockerUtilizationValues tömb nem üres
                 locker.utilizationValue &&
                 locker.utilizationValue >= filterValue[0] &&
                 locker.utilizationValue <= filterValue[1] &&
@@ -149,13 +143,8 @@ export default {
           }
 
           if (key === 'utilizationMonthly') {
-            if (
-              !resultList.lockerUtilizationValues ||
-              resultList.lockerUtilizationValues.length === 0 ||
-              !resultList.lockerUtilizationValues.some(
-                (locker) => locker.timeFrame === 'Monthly'
-              )
-            ) {
+            console.log('utilizationMonthly', filterValue);
+            if (filterValue[0] === 0 && filterValue[1] === 100) {
               return true;
             }
             return resultList.lockerUtilizationValues.some(
@@ -168,13 +157,8 @@ export default {
           }
 
           if (key === 'utilizationYearly') {
-            if (
-              !resultList.lockerUtilizationValues ||
-              resultList.lockerUtilizationValues.length === 0 ||
-              !resultList.lockerUtilizationValues.some(
-                (locker) => locker.timeFrame === 'Yearly'
-              )
-            ) {
+            console.log('utilizationYearly', filterValue);
+            if (filterValue[0] === 0 && filterValue[1] === 100) {
               return true;
             }
             return resultList.lockerUtilizationValues.some(

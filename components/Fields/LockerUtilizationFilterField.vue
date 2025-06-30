@@ -170,7 +170,7 @@ export default {
   },
   data() {
     return {
-      expansionPanel: 0,
+      expansionPanel: null,
       utilizationWeekly: [0, 100],
       utilizationMonthly: [0, 100],
       utilizationYearly: [0, 100]
