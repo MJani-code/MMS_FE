@@ -23,7 +23,9 @@
             </v-card-title>
             <v-card-subtitle class="text-body-2">
               <v-icon left>mdi-map-marker-outline</v-icon>
-              {{ locker.address }}</v-card-subtitle
+              {{
+                locker.zip + ' ' + locker.city + ', ' + locker.address
+              }}</v-card-subtitle
             >
             <v-card-text>
               <div>
