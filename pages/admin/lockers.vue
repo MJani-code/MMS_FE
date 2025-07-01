@@ -132,12 +132,11 @@ export default {
             if (filterValue[0] === 0 && filterValue[1] === 100) {
               return true;
             }
-            return resultList.lockerUtilizationValues.some(
+            return resultList.lockerList.some(
               (locker) =>
-                locker.utilizationValue &&
-                locker.utilizationValue >= filterValue[0] &&
-                locker.utilizationValue <= filterValue[1] &&
-                locker.timeFrame === 'Weekly'
+                locker.utilization['weekly'] &&
+                locker.utilization['weekly'] >= filterValue[0] &&
+                locker.utilization['weekly'] <= filterValue[1]
             );
           }
 
@@ -145,12 +144,11 @@ export default {
             if (filterValue[0] === 0 && filterValue[1] === 100) {
               return true;
             }
-            return resultList.lockerUtilizationValues.some(
+            return resultList.lockerList.some(
               (locker) =>
-                locker.utilizationValue &&
-                locker.utilizationValue >= filterValue[0] &&
-                locker.utilizationValue <= filterValue[1] &&
-                locker.timeFrame === 'Monthly'
+                locker.utilization['monthly'] &&
+                locker.utilization['monthly'] >= filterValue[0] &&
+                locker.utilization['monthly'] <= filterValue[1]
             );
           }
 
@@ -158,12 +156,11 @@ export default {
             if (filterValue[0] === 0 && filterValue[1] === 100) {
               return true;
             }
-            return resultList.lockerUtilizationValues.some(
+            return resultList.lockerList.some(
               (locker) =>
-                locker.utilizationValue &&
-                locker.utilizationValue >= filterValue[0] &&
-                locker.utilizationValue <= filterValue[1] &&
-                locker.timeFrame === 'Yearly'
+                locker.utilization['yearly'] &&
+                locker.utilization['yearly'] >= filterValue[0] &&
+                locker.utilization['yearly'] <= filterValue[1]
             );
           }
 
