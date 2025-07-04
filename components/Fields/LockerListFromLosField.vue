@@ -210,7 +210,7 @@
               >
             </v-card-actions>
             <v-divider class="ma-2"></v-divider>
-            <LockerUtilizationField :value="locker.lockerUtilizationValues" />
+            <LockerUtilizationField :value="lockerListData.utilization" />
           </v-card>
         </v-col>
       </template>

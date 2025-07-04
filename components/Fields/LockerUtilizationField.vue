@@ -8,16 +8,16 @@
           :size="30"
           :width="15"
           color="primary"
-          :value="locker.utilizationValue"
+          :value="locker"
           class="mr-2"
         >
           <v-tooltip top>
             <template v-slot:activator="{ on, attrs }">
               <span style="color: black; z-index: 2" v-bind="attrs" v-on="on">
-                {{ Math.round(locker.utilizationValue) }}%
+                {{ Math.round(locker) }}%
               </span>
             </template>
-            <span>{{ locker.timeFrame }}</span>
+            <span>{{ index }}</span>
           </v-tooltip>
         </v-progress-circular>
       </div>
@@ -30,7 +30,7 @@ export default {
   name: 'LockerUtilizationField',
   props: {
     value: {
-      type: Array,
+      type: Object,
       required: true
     }
   }
