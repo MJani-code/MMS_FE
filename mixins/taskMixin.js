@@ -25,6 +25,19 @@ export const taskMixin = {
         return [];
       }
     },
+    async fetchDirect4MeLocations() {
+      try {
+        const token = this.$store.state.token;
+        const response = await APIGET(
+          'Locations_GetCountryPublicLocations',
+          token
+        );
+        return await response;
+      } catch (error) {
+        console.error('Error fetching locations', error);
+        return [];
+      }
+    },
     updateTask(payload) {
       if (payload.file) {
         try {

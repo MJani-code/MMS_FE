@@ -213,11 +213,44 @@ export default {
     },
     async getTasks() {
       const result = await this.fetchTasks();
+      const d4meResult = await this.fetchDirect4MeLocations();
       if (result.data.status === 200) {
         this.tasks = result.data;
         this.tasks.headers.unshift({ text: '', value: 'data-table-expand' });
       } else {
         this.showNotification('error', result.data.message);
+      }
+      if (d4meResult.data.status === 200) {
+        var currentPhotos = [];
+        //d4meResult.data id-t megkeresni a tasks.data box_id-ban
+        this.tasks.data.forEach((task) => {
+          const location = d4meResult.data.data.find(
+            (loc) => loc.id === task.box_id
+          );
+          if (location) {
+            if (task.lockers.length > 0) {
+              task.lockers[0]['is_registered'] = 1;
+              task.lockers[0]['is_active'] = 1;
+            }
+            if (
+              location.images['images'] &&
+              location.images['images'].length > 0
+            ) {
+              location.images['images'].forEach((image) => {
+                if (
+                  image.imagePath &&
+                  !currentPhotos.includes(image.imagePath)
+                ) {
+                  currentPhotos.push(image.imagePath);
+                  task.location_photos.push({ url: image.imagePath });
+                }
+              });
+            }
+            console.log(task);
+          }
+        });
+      } else {
+        this.showNotification('error', d4meResult.data.message);
       }
       this.turnOffLoading();
     },

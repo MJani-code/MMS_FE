@@ -28,7 +28,9 @@ export const config = {
     getDataForCreateTask: host + '/MMS_BE/api/task/getDataForCreateTask.php',
     createTask: host + '/MMS_BE/api/task/createTask.php',
     deletePhoto: host + '/MMS_BE/api/task/deletePhoto.php',
-    getTaskLockersIssues: host + '/MMS_BE/api/task/getTaskLockersIssues.php'
+    getTaskLockersIssues: host + '/MMS_BE/api/task/getTaskLockersIssues.php',
+    Locations_GetCountryPublicLocations:
+      host + '/MMS_BE/api/task/d4me/Locations_GetCountryPublicLocations.php'
   }
 };
 const API = axios.create({
