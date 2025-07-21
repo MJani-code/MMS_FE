@@ -15,13 +15,30 @@
             v-for="lockerListData in locker.lockerList"
             :key="lockerListData.lockerId"
             class="pa-2 mx-4"
-            @click="viewDetails(locker)"
           >
-            <v-card-title class="text-body-2">
-              <v-icon left>mdi-locker</v-icon>
-              {{ locker.branchName }}
-            </v-card-title>
-            <v-card-subtitle class="text-body-2">
+            <div class="d-flex align-center justify-space-between">
+              <v-card-title class="text-body-2">
+                <v-icon left>mdi-locker</v-icon>
+                {{ locker.branchName }}
+              </v-card-title>
+              <v-menu offset-y>
+                <template #activator="{ on, attrs }">
+                  <div>
+                    <v-btn
+                      @click.stop="viewDetails(locker)"
+                      large
+                      color="primary"
+                      icon
+                      v-bind="attrs"
+                      v-on="on"
+                    >
+                      <v-icon>mdi-eye-circle</v-icon>
+                    </v-btn>
+                  </div>
+                </template>
+              </v-menu>
+            </div>
+            <v-card-subtitle class="text-body-2 pt-0">
               <v-icon left>mdi-map-marker-outline</v-icon>
               {{
                 locker.zip + ' ' + locker.city + ', ' + locker.address
@@ -38,6 +55,7 @@
               <div>
                 <strong>Verzió:</strong> {{ lockerListData.currentVersion }}
               </div>
+              <div><strong>uuid:</strong> {{ lockerListData.uuid }}</div>
             </v-card-text>
             <v-divider class="ma-2"></v-divider>
             <div>
@@ -209,7 +227,7 @@
                 >mdi-key</v-icon
               >
             </v-card-actions>
-            <v-divider class="ma-2"></v-divider>
+            <v-divider class="mb-2"></v-divider>
             <LockerUtilizationField :value="lockerListData.utilization" />
           </v-card>
         </v-col>
@@ -244,7 +262,6 @@ export default {
       return timestamp < Date.now() / 1000 - 43200;
     },
     viewDetails(locker) {
-      console.log(locker);
       localStorage.setItem('selectedLocker', JSON.stringify(locker));
       this.$store.dispatch('selectedLocker/setSelectedLocker', locker);
       this.$router.push({
@@ -259,11 +276,11 @@ export default {
 
 <style scoped>
 .v-card {
-  transition: transform 0.2s;
-  cursor: pointer;
+  /* transition: transform 0.2s; */
+  /* cursor: pointer; */
 }
 .v-card:hover {
-  transform: scale(1.05);
+  /* transform: scale(1.05); */
 }
 .v-progress-circular {
   margin: 0.2rem;
