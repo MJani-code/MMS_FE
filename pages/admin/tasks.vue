@@ -100,7 +100,6 @@ export default {
       }
 
       if (this.selectedSerialFilter !== null) {
-        console.log(this.selectedSerialFilter);
         if (this.selectedSerialFilter === true) {
           filteredTasks = filteredTasks.filter(
             (task) => task.lockerSerials && task.lockerSerials.length > 0
@@ -229,8 +228,10 @@ export default {
           );
           if (location) {
             if (task.lockers.length > 0) {
-              task.lockers[0]['is_registered'] = 1;
-              task.lockers[0]['is_active'] = 1;
+              task.lockers.forEach((locker) => {
+                locker['is_registered'] = 1;
+                locker['is_active'] = 1;
+              });
             }
             if (
               location.images['images'] &&
@@ -246,7 +247,6 @@ export default {
                 }
               });
             }
-            console.log(task);
           }
         });
       } else {
