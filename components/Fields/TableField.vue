@@ -463,7 +463,14 @@
           @change="
             updateTask(header, { id: item.location_id, value: item.box_id })
           "
-        ></v-text-field>
+        >
+          <template
+            v-if="item.box_id != item.pointId && item.pointId != null"
+            v-slot:append
+          >
+            <v-icon color="red"> mdi-alert-circle </v-icon>
+          </template>
+        </v-text-field>
       </template>
       <template #[`item.serial`]="{ header, item }">
         <v-combobox
@@ -1005,7 +1012,7 @@ td.text-start {
 ::-webkit-scrollbar {
   -webkit-appearance: none;
   width: 0px;
-  height: 7px;
+  height: 10px;
 }
 ::-webkit-scrollbar-thumb {
   border-radius: 4px;
