@@ -131,6 +131,29 @@
               solo
               hide-details="auto"
             />
+            <v-text-field
+              v-if="header.filterable && header.text === 'Létrehozta'"
+              v-model="filters.createdBy"
+              :placeholder="header.text"
+              solo
+              hide-details="auto"
+            />
+            <v-text-field
+              v-if="header.filterable && header.text === 'Létrehozva'"
+              v-model="filters.startCreatedAt"
+              type="datetime-local"
+              class="datetime"
+              label="Tól"
+              hide-details="auto"
+            />
+            <v-text-field
+              v-if="header.filterable && header.text === 'Létrehozva'"
+              v-model="filters.endCreatedAt"
+              type="datetime-local"
+              class="datetime"
+              label="Ig"
+              hide-details="auto"
+            />
           </td>
         </tr>
 
@@ -236,12 +259,30 @@
                   />
                 </v-col>
               </v-row>
+              <v-row>
+                <v-col cols="12" md="4" sm="2">
+                  <v-text-field
+                    v-model="filters.createdBy"
+                    placeholder="Létrehozta"
+                    solo
+                    hide-details="auto"
+                  />
+                </v-col>
+                <v-col cols="12" md="4" sm="2">
+                  <v-text-field
+                    v-model="filters.createdAt"
+                    type="datetime-local"
+                    solo
+                    hide-details="auto"
+                  />
+                </v-col>
+              </v-row>
             </v-expansion-panel-content>
           </v-expansion-panel>
         </v-expansion-panels>
       </template>
 
-      <!-- FillCells -->
+      <!-- Name -->
       <template #[`item.name`]="{ header, item }">
         <v-text-field
           v-model="item.name"
@@ -254,6 +295,8 @@
           "
         ></v-text-field>
       </template>
+
+      <!-- Task Types -->
       <template #[`item.taskTypes`]="{ header, item }">
         <v-select
           v-model="item.taskTypes"
@@ -274,6 +317,8 @@
           </template>
         </v-select>
       </template>
+
+      <!-- Status Partner ID -->
       <template #[`item.status_partner_id`]="{ header, item }">
         <v-select
           v-model="item.status_partner_id"
@@ -299,6 +344,8 @@
           </template>
         </v-select>
       </template>
+
+      <!-- Status Exohu ID -->
       <template #[`item.status_exohu_id`]="{ header, item }">
         <v-select
           v-model="item.status_exohu_id"
@@ -327,6 +374,8 @@
           </template>
         </v-select>
       </template>
+
+      <!-- Zip -->
       <template #[`item.zip`]="{ header, item }">
         <v-text-field
           v-model="item.zip"
@@ -339,6 +388,8 @@
           "
         ></v-text-field>
       </template>
+
+      <!-- City -->
       <template #[`item.city`]="{ header, item }">
         <v-text-field
           v-model="item.city"
@@ -351,6 +402,8 @@
           "
         ></v-text-field>
       </template>
+
+      <!-- Address -->
       <template #[`item.address`]="{ header, item }">
         <v-text-field
           v-model="item.address"
@@ -363,6 +416,8 @@
           "
         ></v-text-field>
       </template>
+
+      <!-- Delivery Date -->
       <template #[`item.delivery_date`]="{ header, item }">
         <v-text-field
           v-model="item.delivery_date"
@@ -376,6 +431,8 @@
           "
         ></v-text-field>
       </template>
+
+      <!-- Planned Delivery Date -->
       <template #[`item.planned_delivery_date`]="{ header, item }">
         <v-text-field
           v-model="item.planned_delivery_date"
@@ -392,6 +449,8 @@
           "
         ></v-text-field>
       </template>
+
+      <!-- Location Type -->
       <template #[`item.location_type`]="{ header, item }">
         <v-select
           v-model="item.location_type"
@@ -420,6 +479,8 @@
           </template>
         </v-select>
       </template>
+
+      <!-- Responsibles -->
       <template #[`item.responsibles`]="{ header, item }">
         <v-select
           v-model="item.responsibles"
@@ -438,6 +499,32 @@
         >
         </v-select>
       </template>
+
+      <!-- Created By -->
+      <template #[`item.createdBy`]="{ item }">
+        <div class="createdBy">
+          <v-chip color="primary">
+            <v-avatar left>
+              <v-icon>mdi-account-circle</v-icon>
+            </v-avatar>
+            {{ item.createdBy }}
+          </v-chip>
+        </div>
+      </template>
+
+      <!-- Created At -->
+      <template #[`item.createdAt`]="{ item }">
+        <v-text-field
+          v-model="item.createdAt"
+          type="datetime-local"
+          class="datetime"
+          solo
+          hide-details="auto"
+          :disabled="true"
+        ></v-text-field>
+      </template>
+
+      <!-- tofShopId -->
       <template #[`item.tof_shop_id`]="{ header, item }">
         <v-text-field
           v-model="item.tof_shop_id"
@@ -453,6 +540,8 @@
           "
         ></v-text-field>
       </template>
+
+      <!-- box_id -->
       <template #[`item.box_id`]="{ header, item }">
         <v-text-field
           v-model="item.box_id"
@@ -472,6 +561,8 @@
           </template>
         </v-text-field>
       </template>
+
+      <!-- Serial -->
       <template #[`item.serial`]="{ header, item }">
         <v-combobox
           v-model="item.lockers"
@@ -504,6 +595,8 @@
           </template>
         </v-combobox>
       </template>
+
+      <!-- Footer -->
       <template v-slot:footer>
         <v-btn
           v-if="
@@ -642,6 +735,18 @@ export default {
             return (
               (!this.filters.startDate || taskDate >= startDate) &&
               (!this.filters.endDate || taskDate <= endDate)
+            );
+          }
+
+          if (key === 'startCreatedAt' || key === 'endCreatedAt') {
+            // Ha a 'startCreatedAt' vagy 'endCreatedAt' oszlopról van szó, ellenőrizzük a tól-ig intervallumot
+            const taskDate = new Date(task.createdAt);
+            const startDate = new Date(this.filters.startCreatedAt);
+            const endDate = new Date(this.filters.endCreatedAt);
+
+            return (
+              (!this.filters.startCreatedAt || taskDate >= startDate) &&
+              (!this.filters.endCreatedAt || taskDate <= endDate)
             );
           }
 
@@ -787,9 +892,6 @@ export default {
         dbTable: header.dbTable,
         dbColumn: header.dbColumn,
         value: selectedItem['value'],
-        // value: selectedItem['value']
-        //   ? selectedItem['value']
-        //   : selectedItem[header.dbColumn],
         color: color
       });
     },
@@ -871,29 +973,21 @@ export default {
 </script>
 
 <style lang="scss">
-/* .v-text-field__details {
-  display: none;
-} */
 td.text-start .v-input__slot {
   box-shadow: none !important;
 }
-/* .v-chip--clickable {
-  background-color: #fa9702 !important;
-} */
-/* .theme--light.v-text-field--solo > .v-input__control > .v-input__slot {
-  background-color: unset;
-}
-.theme--dark.v-text-field--solo > .v-input__control > .v-input__slot {
-  background-color: unset;
-} */
+
 .zip,
 .tof_shop_id,
+.createdBy,
 .box_id {
-  min-width: 80px !important;
-}
-.city {
   min-width: 100px !important;
 }
+
+.city {
+  min-width: 120px !important;
+}
+
 .address,
 .partner_name {
   min-width: 200px !important;
@@ -996,6 +1090,7 @@ td.text-start {
 }
 .datetime {
   padding: 10px 0px 10px 0px !important;
+  min-width: 170px;
 }
 .v-list-item__title {
   font-size: inherit;
