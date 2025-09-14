@@ -7,6 +7,7 @@ import {
 export default async function ({
   store,
   redirect,
+  error,
   route
 }) {
 
@@ -33,9 +34,10 @@ export default async function ({
         // Token validálása a backenddel
         if (token) {
           const response = await APIPOST('auth', {
-            token: token
+            token: token,
+            urlTo: route.path
           });
-          if (response.data.status !== 200) {
+          if (response.data.status === 401 || response.data.status === 400) {
             //localStorage.removeItem('data'); // lejárt token törlése
             return redirect('/');
           }
@@ -44,8 +46,11 @@ export default async function ({
       } catch (err) {
         // Ha hiba történt a backend kérés közben, naplózzuk, és átirányítunk
         console.error("Token validálási hiba:", err);
-        localStorage.removeItem('data');
-        return redirect('/');
+        if (err.response.status === 404) {
+          error({ statusCode: 404, message: err.response.data.message, urlTo: err.response.data.data.urlTo, title: err.response.data.data.title });
+        }
+        //localStorage.removeItem('data');
+        //return redirect('/');
       }
     }
   } else {
