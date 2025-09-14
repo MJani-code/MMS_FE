@@ -10,6 +10,7 @@
       <v-tabs-slider color="teal lighten-3"></v-tabs-slider>
 
       <v-tabs-items v-model="tab">
+        <!-- Check -->
         <v-tab-item class="tabitem-check">
           <v-form>
             <v-btn color="primary" class="mx-2" small @click="verifyLocker"
@@ -52,6 +53,8 @@
             </v-col>
           </v-form>
         </v-tab-item>
+
+        <!-- Repair -->
         <v-tab-item class="tabitem-repair">
           <v-row no-gutters>
             <v-col cols="12" sm="6" md="6" lg="4" xl="4">
@@ -111,6 +114,8 @@
             </v-col>
           </v-row>
         </v-tab-item>
+
+        <!-- General -->
         <v-tab-item class="tabitem-general">
           <v-form ref="">
             <v-row>
@@ -131,6 +136,24 @@
                   class="px-2"
                   @change="
                     updateLockerData(type, locker.id, 'task_lockers', 'type')
+                  "
+                ></v-text-field>
+              </v-col>
+            </v-row>
+            <v-row>
+              <!-- controller Id -->
+              <v-col cols="12" sm="6" md="6" lg="2" xl="2">
+                <v-text-field
+                  v-model="controllerId"
+                  label="Controller Id"
+                  class="px-2"
+                  @change="
+                    updateLockerData(
+                      controllerId,
+                      locker.id,
+                      'task_lockers',
+                      'controller_id'
+                    )
                   "
                 ></v-text-field>
               </v-col>
@@ -193,6 +216,7 @@ export default {
     brand: '',
     fault: '',
     type: '',
+    controllerId: '',
     sparepartList: [
       {
         id: 1,
@@ -267,6 +291,7 @@ export default {
       this.brand = this.locker.brand;
       this.fault = this.locker.fault;
       this.type = this.locker.type;
+      this.controllerId = this.locker.controllerId;
     },
     verifyLocker() {
       this.$emit('verifyLocker', {
