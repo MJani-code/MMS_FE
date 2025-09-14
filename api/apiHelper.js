@@ -35,7 +35,7 @@ export const config = {
 };
 const API = axios.create({
   // baseURL: process.env.API_URL ?? 'http://',
-  timeout: 10000
+  timeout: 20000
   // headers: {
   //   'Authorization': `Bearer ${token}`
   // }
