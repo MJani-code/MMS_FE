@@ -3,6 +3,8 @@
     <PagesTasksTaskFilter
       :admin-filter-options="adminFilterOptions"
       :serial-filter-options="serialFilterOptions"
+      :tasks="tasks.data"
+      :download-new-points="downloadNewPoints"
       @searchedValue="filteredTasks"
       @tofShopIdFilter="filteredTasks"
       @serialFilter="filteredTasks"
@@ -233,6 +235,8 @@ export default {
                 locker['is_active'] = 1;
               });
             }
+            task['longitude'] = location.longitude;
+            task['latitude'] = location.latitude;
             if (
               location.images['images'] &&
               location.images['images'].length > 0

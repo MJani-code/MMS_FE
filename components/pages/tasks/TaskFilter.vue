@@ -1,20 +1,20 @@
 <template>
-  <v-row align="center" justify="space-between">
-    <v-col
-      v-if="$store.getters['hasPermission']('3')"
-      cols="12"
-      sm="12"
-      md="3"
-      lg="5"
-    >
-      <v-row align="left">
+  <v-row align="" justify="space-between">
+    <v-row align="center">
+      <v-col
+        v-if="$store.getters['hasPermission']('3')"
+        cols="12"
+        sm="12"
+        md="3"
+        lg="3"
+      >
         <AddTaskField
           v-if="$store.getters['hasPermission']('14')"
           @uploadBatchTasks="uploadBatchTasks"
           @createTask="createTask"
         />
-      </v-row>
-    </v-col>
+      </v-col>
+    </v-row>
     <v-col cols="12" sm="12" md="3" lg="3">
       <SearchField @search="search" />
     </v-col>
@@ -42,14 +42,25 @@
         outlined
       />
     </v-col>
+    <v-col
+      v-if="$store.getters['hasPermission']('25')"
+      cols="12"
+      sm="12"
+      md="3"
+      lg="2"
+    >
+      <DownloadField @downloadPoints="downloadPoints" />
+    </v-col>
   </v-row>
 </template>
 
 <script>
 import SearchField from '@/components/Fields/SearchField.vue';
 import AddTaskField from '../../Fields/AddTaskField.vue';
+import DownloadField from '../../Fields/DownloadField.vue';
+
 export default {
-  components: { SearchField, AddTaskField },
+  components: { SearchField, AddTaskField, DownloadField },
   props: {
     adminFilterOptions: {
       type: Array,
@@ -58,6 +69,14 @@ export default {
     serialFilterOptions: {
       type: Array,
       default: () => []
+    },
+    tasks: {
+      type: Array,
+      default: () => []
+    },
+    downloadNewPoints: {
+      type: Function,
+      default: () => {}
     }
   },
   data() {
@@ -65,6 +84,12 @@ export default {
       selectedAdminFilter: null,
       selectedSerialFilter: null
     };
+  },
+  computed: {
+    //console out this.tasks
+    // showTasks() {
+    //   return console.log(this.tasks);
+    // }
   },
   watch: {
     selectedAdminFilter: function () {
@@ -97,6 +122,34 @@ export default {
     },
     createTask(data) {
       this.$emit('createTask', data);
+    },
+    async downloadPoints() {
+      //Körbejárni a tasks-ot és a megfelelő elemeket kigyűjteni
+      const filteredTasks = this.tasks.filter((task) => {
+        // Példa feltételek
+        return (
+          task.status_exohu_id === 6 &&
+          task.isActiveInAdmin == false &&
+          task.lockers.every((locker) => locker.is_registered === 1) &&
+          task.lockers.every((locker) => locker.is_active === 1) &&
+          task.lockers.every((locker) => locker.fault === null)
+        );
+      });
+
+      const response = await this.downloadNewPoints(
+        filteredTasks,
+        this.$store.state.token
+      );
+      console.log(response);
+
+      // Létrehozunk egy URL-t a blob-hoz
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'newPoints.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
   }
 };

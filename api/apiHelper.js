@@ -30,7 +30,8 @@ export const config = {
     deletePhoto: host + '/MMS_BE/api/task/deletePhoto.php',
     getTaskLockersIssues: host + '/MMS_BE/api/task/getTaskLockersIssues.php',
     Locations_GetCountryPublicLocations:
-      host + '/MMS_BE/api/task/d4me/Locations_GetCountryPublicLocations.php'
+      host + '/MMS_BE/api/task/d4me/Locations_GetCountryPublicLocations.php',
+    downloadNewPoints: host + '/MMS_BE/api/task/downloadNewPoints.php'
   }
 };
 const API = axios.create({
@@ -41,12 +42,13 @@ const API = axios.create({
   // }
 });
 
-export const APIPOST = async (endpoint, data, token) => {
+export const APIPOST = async (endpoint, data, token, download) => {
   const url = config.apiUrl[endpoint];
   return await API.post(url, data, {
     headers: {
       Authorization: `Bearer ${token}`
-    }
+    },
+    ...(download ? { responseType: 'blob' } : {})
   });
 };
 

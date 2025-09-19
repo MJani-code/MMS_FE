@@ -206,6 +206,20 @@ export const taskMixin = {
         console.error('Error fetching users', error);
         return [];
       }
+    },
+    async downloadNewPoints(payload, token) {
+      try {
+        const response = await APIPOST(
+          'downloadNewPoints',
+          payload,
+          token,
+          true
+        );
+        return await response;
+      } catch (error) {
+        console.error('Error fetching data', error);
+        return [];
+      }
     }
   }
 };
