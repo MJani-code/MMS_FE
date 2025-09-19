@@ -63,7 +63,7 @@
     <v-footer :absolute="!fixed" app>
       <span
         >&copy; {{ new Date().getFullYear() }} BY: Martolin. Version:
-        1.0.1</span
+        1.0.2</span
       >
     </v-footer>
   </v-app>
