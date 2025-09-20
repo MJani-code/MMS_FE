@@ -6,7 +6,9 @@
     <h1 v-else>
       {{ otherError }}
     </h1>
-    <NuxtLink :to="error.urlTo"> {{ error.title }} </NuxtLink>
+    <NuxtLink v-if="error.urlTo" :to="error.urlTo">
+      {{ error.title }}
+    </NuxtLink>
   </v-app>
 </template>
 

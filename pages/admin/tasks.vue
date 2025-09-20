@@ -159,8 +159,8 @@ export default {
         this.selectedAdminFilter = searchedValue.value;
       } else if (searchedValue.key === 'serialFilter') {
         this.selectedSerialFilter = searchedValue.value;
-      } else {
-        this.searchQuery = searchedValue;
+      } else if (searchedValue.key === 'search') {
+        this.searchQuery = searchedValue.value;
       }
     },
     turnOnLoading() {

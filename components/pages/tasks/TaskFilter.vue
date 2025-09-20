@@ -128,8 +128,12 @@ export default {
       const filteredTasks = this.tasks.filter((task) => {
         // Példa feltételek
         return (
-          task.status_exohu_id === 6 &&
+          (task.status_exohu_id === 6 ||
+            task.status_exohu_id === 9 ||
+            task.status_exohu_id === 10) &&
           task.isActiveInAdmin == false &&
+          task.box_id == task.pointId &&
+          task.lockers.length > 0 &&
           task.lockers.every((locker) => locker.is_registered === 1) &&
           task.lockers.every((locker) => locker.is_active === 1) &&
           task.lockers.every((locker) => locker.fault === null)

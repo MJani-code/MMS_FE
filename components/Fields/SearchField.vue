@@ -22,7 +22,7 @@ export default {
       console.log(search);
     },
     searchQuery(search) {
-      this.$emit('search', search);
+      this.$emit('search', { key: 'search', value: search });
     }
   }
 };
