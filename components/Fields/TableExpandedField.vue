@@ -150,6 +150,20 @@
                 "
               ></v-textarea>
               <v-textarea
+                v-model="lockerApproach"
+                label="Megközelítés"
+                :disabled="isToDisable(item)"
+                placeholder="Add meg, hogyan találja meg a címzett.."
+                @change="
+                  updateLocationData(
+                    item,
+                    'task_locations',
+                    'locker_approach',
+                    'lockerApproach'
+                  )
+                "
+              ></v-textarea>
+              <v-textarea
                 v-model="feedback"
                 label="Report"
                 :disabled="isToDisable(item)"
@@ -218,6 +232,7 @@ export default {
       sitePreparation: this.item.required_site_preparation,
       comment: this.item.comment,
       feedback: this.item.feedback,
+      lockerApproach: this.item.lockerApproach,
       taskFiles: [],
       isMobile: false
     };
