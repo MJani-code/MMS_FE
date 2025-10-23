@@ -37,5 +37,6 @@ body {
 }
 .background {
   background-image: url('../static/vecteezy_white-background-with-orange-geometric_11171111-1.jpg');
+  background-size: cover;
 }
 </style>
