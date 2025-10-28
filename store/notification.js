@@ -5,7 +5,8 @@ export const state = () => ({
     visible: false,
     message: '',
     buttons: []
-  }
+  },
+  bellEvent: null
 });
 
 export const mutations = {
@@ -23,6 +24,9 @@ export const mutations = {
   },
   HIDE_MODAL(state) {
     state.modal.visible = false;
+  },
+  setBellEvent(state, payload) {
+    state.bellEvent = payload ? { ...payload, _ts: Date.now() } : null;
   }
 };
 
@@ -45,5 +49,8 @@ export const actions = {
     commit
   }) {
     commit("HIDE_MODAL");
+  },
+  triggerBellEvent({ commit }, payload) {
+    commit('setBellEvent', payload);
   }
 };

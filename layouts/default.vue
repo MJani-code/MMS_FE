@@ -46,11 +46,16 @@
       />
       <v-toolbar-title :style="{ color: 'white' }">MMS </v-toolbar-title>
       <v-spacer />
-      <v-icon @click="$vuetify.theme.dark = !$vuetify.theme.dark">
-        {{
-          $vuetify.theme.dark ? 'mdi-weather-night' : 'mdi-white-balance-sunny'
-        }}
-      </v-icon>
+      <div class="d-flex" style="gap: 20px">
+        <v-icon @click="$vuetify.theme.dark = !$vuetify.theme.dark">
+          {{
+            $vuetify.theme.dark
+              ? 'mdi-weather-night'
+              : 'mdi-white-balance-sunny'
+          }}
+        </v-icon>
+        <bell-notifications :userId="userId" />
+      </div>
     </v-app-bar>
     <v-main>
       <v-container>
@@ -74,10 +79,11 @@ import { routers } from '@/routers/routers.js';
 import Notification from '../components/Notification.vue';
 import Modal from '../components/Modal.vue';
 import BounceLoader from '../components/BounceLoader.vue';
+import BellNotifications from '../components/BellNotifications.vue';
 
 export default {
   name: 'DefaultLayout',
-  components: { Notification, Modal, BounceLoader },
+  components: { Notification, Modal, BounceLoader, BellNotifications },
   data() {
     return {
       themeChangeIcon: '',
@@ -89,6 +95,7 @@ export default {
       right: true,
       rightDrawer: false,
       firstName: this.$store.state.firstName,
+      userId: this.$store.state.userId,
       showConfirmLogoutModal: false
     };
   },

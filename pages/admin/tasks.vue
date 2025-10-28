@@ -79,6 +79,18 @@ export default {
       expandedAccordions: [] // Nyitott accordionok ID-jai
     };
   },
+  watch: {
+    // '$store.state.notification.bellEvent': {
+    //   handler(newVal) {
+    //     if (newVal && newVal.type === 'special' && newVal.toRefresh) {
+    //       this.turnOnLoading();
+    //       this.getTasks();
+    //       this.$store.commit('notification/setBellEvent', null);
+    //     }
+    //   },
+    //   immediate: true
+    // }
+  },
   computed: {
     groupedTasks() {
       if (!this.tasks.data || !this.tasks.statuses) {
@@ -214,13 +226,14 @@ export default {
     },
     async getTasks() {
       const result = await this.fetchTasks();
-      const d4meResult = await this.fetchDirect4MeLocations();
       if (result.data.status === 200) {
         this.tasks = result.data;
         this.tasks.headers.unshift({ text: '', value: 'data-table-expand' });
       } else {
         this.showNotification('error', result.data.message);
       }
+
+      const d4meResult = await this.fetchDirect4MeLocations();
       if (d4meResult.data.status === 200) {
         var currentPhotos = [];
         //d4meResult.data id-t megkeresni a tasks.data box_id-ban

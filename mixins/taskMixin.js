@@ -18,10 +18,10 @@ export const taskMixin = {
     async fetchTasks() {
       try {
         const token = this.$store.state.token;
-        const response = await APIGET('getAllTask', token);
+        const response = await APIGET('getAllTask', {}, token);
         return await response;
       } catch (error) {
-        console.error('Error fetching users', error);
+        console.error('Error fetching tasks', error);
         return [];
       }
     },
@@ -30,11 +30,12 @@ export const taskMixin = {
         const token = this.$store.state.token;
         const response = await APIGET(
           'Locations_GetCountryPublicLocations',
+          {},
           token
         );
         return await response;
       } catch (error) {
-        console.error('Error fetching locations', error);
+        console.error('Error fetching d4me locations', error);
         return [];
       }
     },
@@ -45,7 +46,7 @@ export const taskMixin = {
           const response = APIPOST2('updateTask', payload, token);
           return response;
         } catch (error) {
-          console.error('Error fetching users', error);
+          console.error('Error fetching updated tasks', error);
           return [];
         }
       }
@@ -54,7 +55,7 @@ export const taskMixin = {
         const response = APIPOST('updateTask', payload, token);
         return response;
       } catch (error) {
-        console.error('Error fetching users', error);
+        console.error('Error fetching updated tasks', error);
         return [];
       }
     },
@@ -94,14 +95,14 @@ export const taskMixin = {
         const response = APIPOST('removeLocker', payload, token);
         return response;
       } catch (error) {
-        console.error('Error fetching users', error);
+        console.error('Error fetching removed lockers', error);
         return [];
       }
     },
     getUser() {
       try {
         const token = this.$store.state.token;
-        const response = APIGET('getUser', token);
+        const response = APIGET('getUser', {}, token);
         return response;
       } catch (error) {
         console.error('Error fetching users', error);
@@ -114,7 +115,7 @@ export const taskMixin = {
         const response = APIPOST('updateUser', payload, token);
         return response;
       } catch (error) {
-        console.error('Error fetching users', error);
+        console.error('Error fetching updated users', error);
         return [];
       }
     },
@@ -124,7 +125,7 @@ export const taskMixin = {
         const response = APIPOST2('createTaskBatch', payload, token);
         return response;
       } catch (error) {
-        console.error('Error fetching tasks', error);
+        console.error('Error fetching batch tasks', error);
         return [];
       }
     },
@@ -134,7 +135,7 @@ export const taskMixin = {
         const response = APIDOWNLOAD('downloadTig', token);
         return response;
       } catch (error) {
-        console.error('Error fetching tasks', error);
+        console.error('Error fetching TIG', error);
         return [];
       }
     },
@@ -144,7 +145,7 @@ export const taskMixin = {
         const response = APIDOWNLOAD('downloadTasks', token);
         return response;
       } catch (error) {
-        console.error('Error fetching tasks', error);
+        console.error('Error fetching task for download', error);
         return [];
       }
     },
@@ -154,7 +155,7 @@ export const taskMixin = {
         const response = APIPOST('verifyLocker', payload, token);
         return response;
       } catch (error) {
-        console.error('Error fetching tasks', error);
+        console.error('Error fetching locker verification', error);
         return [];
       }
     },
@@ -164,7 +165,7 @@ export const taskMixin = {
         const response = APIPOST('getLockerFromLos', payload, token);
         return response;
       } catch (error) {
-        console.error('Error fetching tasks', error);
+        console.error('Error fetching locker data from LOS', error);
         return [];
       }
     },
@@ -174,7 +175,7 @@ export const taskMixin = {
         const response = APIPOST('getDataForCreateTask', payload, token);
         return response;
       } catch (error) {
-        console.error('Error fetching tasks', error);
+        console.error('Error fetching task creation data', error);
         return [];
       }
     },
@@ -184,7 +185,7 @@ export const taskMixin = {
         const response = APIPOST('createTask', payload, token);
         return response;
       } catch (error) {
-        console.error('Error fetching tasks', error);
+        console.error('Error fetching task creation data', error);
         return [];
       }
     },
@@ -194,7 +195,7 @@ export const taskMixin = {
         const response = APIPOST('deletePhoto', payload, token);
         return response;
       } catch (error) {
-        console.error('Error fetching tasks', error);
+        console.error('Error fetching deleted photos', error);
         return [];
       }
     },
@@ -203,7 +204,7 @@ export const taskMixin = {
         const response = await APIPOST('getTaskLockersIssues', payload, token);
         return await response;
       } catch (error) {
-        console.error('Error fetching users', error);
+        console.error('Error fetching issues', error);
         return [];
       }
     },
@@ -217,7 +218,27 @@ export const taskMixin = {
         );
         return await response;
       } catch (error) {
-        console.error('Error fetching data', error);
+        console.error('Error fetching new points', error);
+        return [];
+      }
+    },
+    async downloadNotifications(params) {
+      try {
+        const token = this.$store.state.token;
+        const response = await APIGET('downloadNotifications', params, token);
+        return await response;
+      } catch (error) {
+        console.error('Error fetching notifications', error);
+        return [];
+      }
+    },
+    async markNotificationsAsRead(payload) {
+      try {
+        const token = this.$store.state.token;
+        const response = await APIPOST('readNotifications', payload, token);
+        return response;
+      } catch (error) {
+        console.error('Error marking notifications as read', error);
         return [];
       }
     }

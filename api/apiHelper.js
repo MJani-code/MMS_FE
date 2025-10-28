@@ -31,7 +31,10 @@ export const config = {
     getTaskLockersIssues: host + '/MMS_BE/api/task/getTaskLockersIssues.php',
     Locations_GetCountryPublicLocations:
       host + '/MMS_BE/api/task/d4me/Locations_GetCountryPublicLocations.php',
-    downloadNewPoints: host + '/MMS_BE/api/task/downloadNewPoints.php'
+    downloadNewPoints: host + '/MMS_BE/api/task/downloadNewPoints.php',
+    downloadNotifications:
+      host + '/MMS_BE/api/notifications/getNotifications.php',
+    readNotifications: host + '/MMS_BE/api/notifications/readNotifications.php'
   }
 };
 const API = axios.create({
@@ -62,12 +65,13 @@ export const APIPOST2 = async (endpoint, data, token) => {
   });
 };
 
-export const APIGET = async (endpoint, token) => {
+export const APIGET = async (endpoint, params, token) => {
   const url = config.apiUrl[endpoint];
   return await API.get(url, {
     headers: {
       Authorization: `Bearer ${token}`
-    }
+    },
+    ...(params ? { params } : {})
   });
 };
 
