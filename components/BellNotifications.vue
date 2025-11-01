@@ -94,7 +94,7 @@ export default {
           }
         }
         this.lastCheck = Date.now();
-        setInterval(this.startPolling, 60000);
+        setInterval(this.startPolling, 600000);
       } catch (err) {
         console.error('Értesítés lekérés hiba:', err);
       }
