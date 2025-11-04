@@ -241,6 +241,28 @@ export const taskMixin = {
         console.error('Error marking notifications as read', error);
         return [];
       }
+    },
+    async addIntervention(taskId, interventionData, token) {
+      try {
+        const response = await APIPOST(
+          'addIntervention',
+          { taskId: taskId, interventions: [interventionData] },
+          token
+        );
+        return response;
+      } catch (error) {
+        console.error('Error adding intervention', error);
+        return [];
+      }
+    },
+    async deleteIntervention(data, token) {
+      try {
+        const response = await APIPOST('deleteIntervention', data, token);
+        return response;
+      } catch (error) {
+        console.error('Error deleting intervention', error);
+        return [];
+      }
     }
   }
 };

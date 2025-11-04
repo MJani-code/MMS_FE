@@ -29,6 +29,8 @@ export const config = {
     createTask: host + '/MMS_BE/api/task/createTask.php',
     deletePhoto: host + '/MMS_BE/api/task/deletePhoto.php',
     getTaskLockersIssues: host + '/MMS_BE/api/task/getTaskLockersIssues.php',
+    addIntervention: host + '/MMS_BE/api/task/addIntervention.php',
+    deleteIntervention: host + '/MMS_BE/api/task/deleteIntervention.php',
     Locations_GetCountryPublicLocations:
       host + '/MMS_BE/api/task/d4me/Locations_GetCountryPublicLocations.php',
     downloadNewPoints: host + '/MMS_BE/api/task/downloadNewPoints.php',

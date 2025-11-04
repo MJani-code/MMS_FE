@@ -38,7 +38,7 @@ export const actions = {
     commit("ADD_NOTIFICATION", notification);
     setTimeout(() => {
       commit("REMOVE_NOTIFICATION", 0);
-    }, notification.timeout || 3000);
+    }, notification.timeout || 10000);
   },
   showModal({
     commit

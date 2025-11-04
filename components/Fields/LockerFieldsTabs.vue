@@ -1,5 +1,5 @@
 <template>
-  <v-col cols="12" sm="4" md="8" lg="8" xl="8" style="padding-top: unset">
+  <v-col cols="12" sm="4" md="8" lg="8" xl="11" style="padding-top: unset">
     <v-card :style="{ width: cardWidth }">
       <v-tabs v-model="tab" background-color="primary" dark show-arrows>
         <v-tab> Ellenőrző </v-tab>
@@ -57,60 +57,93 @@
         <!-- Repair -->
         <v-tab-item class="tabitem-repair">
           <v-row no-gutters>
-            <v-col cols="12" sm="6" md="6" lg="4" xl="4">
+            <v-col cols="12" sm="6" md="6" lg="4" xl="6">
               <v-card class="ma-2">
                 <v-card-text>
-                  <v-form>
-                    <v-select
-                      v-model="selectedIssues"
-                      :items="issues"
-                      item-text="name"
-                      item-value="id"
-                      label="Hiba kiválasztása"
-                      multiple
-                      chips
-                      clearable
-                    >
-                    </v-select>
-                    <v-select
-                      v-model="completedRepairs['interventions']"
-                      :items="interventionList"
-                      item-text="name"
-                      item-value="id"
-                      label="Beavatkozás kiválasztása"
-                      multiple
-                      chips
-                      clearable
-                    >
-                    </v-select>
-                    <v-select
-                      v-model="completedRepairs['spareparts']"
-                      :items="sparepartList"
-                      item-text="name"
-                      item-value="id"
-                      label="Alkatrész hozzáadása"
-                      multiple
-                      chips
-                      clearable
-                    >
-                    </v-select>
-                    <v-textarea
-                      v-model="completedRepairs['repairReport']"
-                      label="Leírás"
-                      counter="500"
-                      auto-grow
-                      outlined
-                      clearable
-                    ></v-textarea>
-                    <div class="text-right">
-                      <v-btn color="primary" class="mb-2" small>Mentés</v-btn>
-                    </div>
+                  <v-form ref="form" @submit.prevent="addIntervention()">
+                    <v-row class="px-4 d-grid" style="gap: 10px">
+                      <v-select
+                        style="max-width: 350px"
+                        :value="newIntervention.issues.map((i) => i.id)"
+                        @change="onIssuesChange"
+                        :items="issues"
+                        item-text="name"
+                        item-value="id"
+                        label="Hiba kiválasztása"
+                        multiple
+                        chips
+                        clearable
+                      >
+                      </v-select>
+                      <v-select
+                        v-model="newIntervention.interventionId"
+                        :items="interventionList"
+                        item-text="name"
+                        item-value="id"
+                        label="Beavatkozás kiválasztása"
+                        chips
+                        clearable
+                      >
+                      </v-select>
+                    </v-row>
+                    <v-row class="px-4 d-grid" style="gap: 10px">
+                      <v-select
+                        style="max-width: 330px"
+                        :value="newIntervention.parts.map((p) => p.stockId)"
+                        @change="
+                          (val) =>
+                            (newIntervention.parts = val.map((stockId) => ({
+                              stockId,
+                              quantity: 1
+                            })))
+                        "
+                        :items="spareparts"
+                        item-text="name"
+                        item-value="stockId"
+                        label="Alkatrész hozzáadása"
+                        multiple
+                        chips
+                        clearable
+                      >
+                      </v-select>
+                      <v-checkbox
+                        v-model="checkbox"
+                        @change="
+                          (val) =>
+                            (newIntervention.issues =
+                              newIntervention.issues.map((i) => ({
+                                ...i,
+                                solved: val
+                              })))
+                        "
+                        label="Hiba kijavítva"
+                      ></v-checkbox>
+                    </v-row>
+                    <v-row class="px-4">
+                      <v-textarea
+                        v-model="newIntervention['notes']"
+                        label="Leírás"
+                        counter="500"
+                        auto-grow
+                        outlined
+                        clearable
+                      ></v-textarea>
+                    </v-row>
+                    <v-row class="d-flex justify-end">
+                      <div class="px-4">
+                        <v-btn type="submit" class="mb-2" small>Hozzáad</v-btn>
+                      </div>
+                    </v-row>
                   </v-form>
                 </v-card-text>
               </v-card>
             </v-col>
-            <v-col cols="12" sm="6" md="6" lg="7" xl="7">
-              <repair-reports></repair-reports>
+            <v-col cols="12" sm="6" md="6" lg="7" xl="5">
+              <repair-reports
+                :interventions="interventions"
+                :locker="locker"
+                :taskId="taskId"
+              ></repair-reports>
             </v-col>
           </v-row>
         </v-tab-item>
@@ -211,41 +244,19 @@ export default {
     isRegistered: 0,
     isConnectionLost: 0,
     allowSpaces: false,
-    selectedIssues: [],
+    checkbox: false,
     max: 0,
     brand: '',
     fault: '',
     type: '',
     controllerId: '',
-    sparepartList: [
-      {
-        id: 1,
-        name: 'Sparepart 1'
-      },
-      {
-        id: 2,
-        name: 'Sparepart 2'
-      },
-      {
-        id: 3,
-        name: 'Sparepart 3'
-      }
-    ],
-    interventionList: [
-      {
-        id: 1,
-        name: 'Újraindítás'
-      },
-      {
-        id: 2,
-        name: 'Alkatrészcsere'
-      },
-      {
-        id: 3,
-        name: 'Egyéb'
-      }
-    ],
-    completedRepairs: []
+    newIntervention: {
+      issues: [],
+      interventionId: null,
+      uuid: null,
+      parts: [],
+      notes: ''
+    }
   }),
   computed: {
     cardWidth() {
@@ -260,6 +271,15 @@ export default {
     },
     issues() {
       return this.$store.getters['locker/repair/getIssues'];
+    },
+    interventionList() {
+      return this.$store.getters['locker/repair/getInterventionList'] || [];
+    },
+    spareparts() {
+      return this.$store.getters['locker/repair/getSpareParts'] || [];
+    },
+    interventions() {
+      return this.$store.getters['locker/repair/getInterventions'] || [];
     }
   },
   async mounted() {
@@ -292,6 +312,9 @@ export default {
       this.fault = this.locker.fault;
       this.type = this.locker.type;
       this.controllerId = this.locker.controllerId;
+      // ensure the newIntervention.uuid is populated from the locker prop
+      // use locker.serial (consistent with fetchIssues usage)
+      this.newIntervention.uuid = this.locker.serial;
     },
     verifyLocker() {
       this.$emit('verifyLocker', {
@@ -311,6 +334,24 @@ export default {
       await this.$store.dispatch('locker/repair/fetchIssuesAction', {
         taskId: this.taskId,
         uuid: this.locker.serial
+      });
+    },
+    onIssuesChange(val) {
+      // detect removal: if new selection length is smaller than previous, uncheck the checkbox
+      const prevLen = (this.newIntervention.issues || []).length;
+      const issues = (val || []).map((id) => ({ id }));
+      if (val.length < prevLen) {
+        this.checkbox = false;
+        // ensure solved flag is false for remaining issues
+        issues.forEach((i) => (i.solved = false));
+      }
+      this.newIntervention.issues = issues;
+    },
+    addIntervention(form) {
+      console.log('Adding intervention with data:', this.newIntervention);
+      this.$store.dispatch('locker/repair/addInterventionAction', {
+        taskId: this.taskId,
+        interventionData: this.newIntervention
       });
     }
   }

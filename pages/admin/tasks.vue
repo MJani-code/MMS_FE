@@ -233,42 +233,42 @@ export default {
         this.showNotification('error', result.data.message);
       }
 
-      const d4meResult = await this.fetchDirect4MeLocations();
-      if (d4meResult.data.status === 200) {
-        var currentPhotos = [];
-        //d4meResult.data id-t megkeresni a tasks.data box_id-ban
-        this.tasks.data.forEach((task) => {
-          const location = d4meResult.data.data.find(
-            (loc) => loc.id === task.box_id
-          );
-          if (location) {
-            if (task.lockers.length > 0) {
-              task.lockers.forEach((locker) => {
-                locker['is_registered'] = 1;
-                locker['is_active'] = 1;
-              });
-            }
-            task['longitude'] = location.longitude;
-            task['latitude'] = location.latitude;
-            if (
-              location.images['images'] &&
-              location.images['images'].length > 0
-            ) {
-              location.images['images'].forEach((image) => {
-                if (
-                  image.imagePath &&
-                  !currentPhotos.includes(image.imagePath)
-                ) {
-                  currentPhotos.push(image.imagePath);
-                  task.location_photos.push({ url: image.imagePath });
-                }
-              });
-            }
-          }
-        });
-      } else {
-        this.showNotification('error', d4meResult.data.message);
-      }
+      // const d4meResult = await this.fetchDirect4MeLocations();
+      // if (d4meResult.data.status === 200) {
+      //   var currentPhotos = [];
+      //   //d4meResult.data id-t megkeresni a tasks.data box_id-ban
+      //   this.tasks.data.forEach((task) => {
+      //     const location = d4meResult.data.data.find(
+      //       (loc) => loc.id === task.box_id
+      //     );
+      //     if (location) {
+      //       if (task.lockers.length > 0) {
+      //         task.lockers.forEach((locker) => {
+      //           locker['is_registered'] = 1;
+      //           locker['is_active'] = 1;
+      //         });
+      //       }
+      //       task['longitude'] = location.longitude;
+      //       task['latitude'] = location.latitude;
+      //       if (
+      //         location.images['images'] &&
+      //         location.images['images'].length > 0
+      //       ) {
+      //         location.images['images'].forEach((image) => {
+      //           if (
+      //             image.imagePath &&
+      //             !currentPhotos.includes(image.imagePath)
+      //           ) {
+      //             currentPhotos.push(image.imagePath);
+      //             task.location_photos.push({ url: image.imagePath });
+      //           }
+      //         });
+      //       }
+      //     }
+      //   });
+      // } else {
+      //   this.showNotification('error', d4meResult.data.message);
+      // }
       this.turnOffLoading();
     },
     async handleUpdatedLockerData(payload) {

@@ -2,6 +2,7 @@
   <td :colspan="headers.length" class="table-expanded-field">
     <v-card>
       <v-tabs vertical>
+        <!-- Location Photos Tabs-->
         <v-tab class="location_photos_tab">
           <v-icon v-if="isMobile">mdi-image-marker</v-icon>
           <span v-else>
@@ -9,6 +10,8 @@
             Helyszín fotók</span
           >
         </v-tab>
+
+        <!-- Location Details Tabs-->
         <v-tab class="location_details_tab">
           <v-icon v-if="isMobile">mdi-map-marker-alert</v-icon>
           <span v-else>
@@ -16,6 +19,8 @@
             Megbízás részletei</span
           >
         </v-tab>
+
+        <!-- Fees Tabs-->
         <v-tab v-if="$store.getters['hasPermission']('6')" class="fees">
           <v-icon v-if="isMobile">mdi-cash-check</v-icon>
           <span v-else>
@@ -23,6 +28,8 @@
             Díjak</span
           ></v-tab
         >
+
+        <!-- Lockers Tabs-->
         <v-tab
           v-for="locker in item.lockers"
           v-bind:key="locker.id"
@@ -43,6 +50,7 @@
           >
         </v-tab>
 
+        <!-- Location Photos -->
         <v-tab-item class="location_photos_item">
           <v-card flat>
             <v-row>
@@ -106,6 +114,8 @@
 
           <!-- </v-col> -->
         </v-tab-item>
+
+        <!-- Location Details -->
         <v-tab-item class="location_details">
           <v-card flat>
             <v-col cols="12" sm="3">
@@ -179,6 +189,8 @@
             </v-col>
           </v-card>
         </v-tab-item>
+
+        <!-- Fees -->
         <v-tab-item v-if="$store.getters['hasPermission']('6')" class="fees">
           <v-col cols="12" sm="6" md="8" lg="8" xl="8">
             <FeesField
@@ -194,6 +206,8 @@
             />
           </v-col>
         </v-tab-item>
+
+        <!-- Lockers -->
         <v-tab-item
           v-for="locker in item.lockers"
           v-bind:key="locker.id"
