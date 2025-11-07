@@ -263,6 +263,33 @@ export const taskMixin = {
         console.error('Error deleting intervention', error);
         return [];
       }
+    },
+    getStockItems(token) {
+      try {
+        const response = APIGET('getStockItems', null, token);
+        return response;
+      } catch (error) {
+        console.error('Error fetching stock items', error);
+        return [];
+      }
+    },
+    getPartsMasterData(token) {
+      try {
+        const response = APIGET('getPartsMasterData', null, token);
+        return response;
+      } catch (error) {
+        console.error('Error fetching parts master data', error);
+        return [];
+      }
+    },
+    async addStockItem(token, item) {
+      try {
+        const response = await APIPOST('addPartToStock', item, token);
+        return response;
+      } catch (error) {
+        console.error('Error adding stock item', error);
+        return [];
+      }
     }
   }
 };

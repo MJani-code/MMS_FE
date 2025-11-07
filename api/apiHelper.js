@@ -36,7 +36,10 @@ export const config = {
     downloadNewPoints: host + '/MMS_BE/api/task/downloadNewPoints.php',
     downloadNotifications:
       host + '/MMS_BE/api/notifications/getNotifications.php',
-    readNotifications: host + '/MMS_BE/api/notifications/readNotifications.php'
+    readNotifications: host + '/MMS_BE/api/notifications/readNotifications.php',
+    getStockItems: host + '/MMS_BE/api/parts/getStockItems.php',
+    getPartsMasterData: host + '/MMS_BE/api/parts/getPartsMasterData.php',
+    addPartToStock: host + '/MMS_BE/api/parts/addPartToStock.php'
   }
 };
 const API = axios.create({
