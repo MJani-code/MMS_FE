@@ -1,5 +1,5 @@
 <template>
-  <v-col cols="12" sm="4" md="8" lg="8" xl="11" style="padding-top: unset">
+  <v-col cols="12" sm="4" md="8" lg="11" xl="11" style="padding-top: unset">
     <v-card :style="{ width: cardWidth }">
       <v-tabs v-model="tab" background-color="primary" dark show-arrows>
         <v-tab> Ellenőrző </v-tab>
@@ -57,7 +57,7 @@
         <!-- Repair -->
         <v-tab-item class="tabitem-repair">
           <v-row no-gutters>
-            <v-col cols="12" sm="6" md="6" lg="4" xl="6">
+            <v-col cols="12" sm="6" md="6" lg="6" xl="6">
               <v-card class="ma-2">
                 <v-card-text>
                   <v-form ref="form" @submit.prevent="addIntervention()">
@@ -90,13 +90,7 @@
                       <v-select
                         style="max-width: 330px"
                         :value="newIntervention.parts.map((p) => p.stockId)"
-                        @change="
-                          (val) =>
-                            (newIntervention.parts = val.map((stockId) => ({
-                              stockId,
-                              quantity: 1
-                            })))
-                        "
+                        @change="checkValue($event)"
                         :items="spareparts"
                         item-text="name"
                         item-value="stockId"
@@ -138,7 +132,7 @@
                 </v-card-text>
               </v-card>
             </v-col>
-            <v-col cols="12" sm="6" md="6" lg="7" xl="5">
+            <v-col cols="12" sm="6" md="6" lg="6" xl="5" class="px-6">
               <repair-reports
                 :interventions="interventions"
                 :locker="locker"
@@ -296,6 +290,33 @@ export default {
     }
   },
   methods: {
+    checkValue(val) {
+      console.log('Selected spare parts:', val);
+      const selected = Array.isArray(val) ? val : [];
+      const partsByStockId = (this.spareparts || []).reduce((acc, p) => {
+        acc[p.stockId] = p;
+        return acc;
+      }, {});
+      this.newIntervention.parts = selected.map((stockId) => {
+        const existing = (this.newIntervention.parts || []).find(
+          (p) => p.stockId === stockId
+        );
+        const part = partsByStockId[stockId] || {};
+        const unitPrice = part.unitPrice ?? part.unit_price ?? 0;
+        return {
+          stockId,
+          quantity: existing ? existing.quantity : 1,
+          unitPrice,
+          supplierId: part.supplierId
+        };
+      });
+
+      // (val) =>
+      //   (newIntervention.parts = val.map((stockId) => ({
+      //     stockId,
+      //     quantity: 1
+      //   })));
+    },
     updateLockerData(value, lockerId, dbTable, dbColumn) {
       this.$emit('updateLockerData', {
         id: lockerId,

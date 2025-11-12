@@ -39,7 +39,8 @@ export const config = {
     readNotifications: host + '/MMS_BE/api/notifications/readNotifications.php',
     getStockItems: host + '/MMS_BE/api/parts/getStockItems.php',
     getPartsMasterData: host + '/MMS_BE/api/parts/getPartsMasterData.php',
-    addPartToStock: host + '/MMS_BE/api/parts/addPartToStock.php'
+    addPartToStock: host + '/MMS_BE/api/parts/addPartToStock.php',
+    updatePartInStock: host + '/MMS_BE/api/parts/updatePartInStock.php'
   }
 };
 const API = axios.create({

@@ -12,7 +12,7 @@ export const routers = [{
   },
   // parts management
   {
-    icon: 'mdi-cog-outline',
+    icon: 'mdi-tools',
     title: 'Alkatrészek',
     to: '/admin/parts'
   },

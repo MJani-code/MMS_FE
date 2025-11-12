@@ -7,7 +7,10 @@
       :suppliers="suppliers"
       :manufacturers="manufacturers"
       :currencies="currencies"
+      :dialog="dialog"
+      @update:dialog="dialog = $event"
       @add-item="addItem($event)"
+      @update-item="updateItem($event)"
     />
   </div>
 </template>
@@ -24,7 +27,8 @@ export default {
     warehouses: [],
     suppliers: [],
     manufacturers: [],
-    currencies: []
+    currencies: [],
+    dialog: false
   }),
   watch: {},
   computed: {
@@ -55,7 +59,6 @@ export default {
         'sparePartStock/addStockItem',
         newItem
       );
-      console.log('Add item response:', res);
       if (res.data.status !== 200) {
         //notification error store
         this.$store.dispatch('notification/addNotification', {
@@ -68,8 +71,28 @@ export default {
           type: 'success',
           message: res.data.message || 'Stock item added successfully.'
         });
-        // Refresh stock items
-        // this.fetchStockItems();
+        this.dialog = false;
+      }
+      return res;
+    },
+    async updateItem(updatedItem) {
+      const res = await this.$store.dispatch(
+        'sparePartStock/updateStockItem',
+        updatedItem
+      );
+      if (res.data.status !== 200) {
+        //notification error store
+        this.$store.dispatch('notification/addNotification', {
+          type: 'error',
+          message: res.data.message || 'Failed to update stock item.'
+        });
+      } else {
+        //notification success store
+        this.$store.dispatch('notification/addNotification', {
+          type: 'success',
+          message: res.data.message || 'Stock item updated successfully.'
+        });
+        this.dialog = false;
       }
       return res;
     }

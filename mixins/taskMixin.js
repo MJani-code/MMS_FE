@@ -290,6 +290,15 @@ export const taskMixin = {
         console.error('Error adding stock item', error);
         return [];
       }
+    },
+    async updateStockItem(token, item) {
+      try {
+        const response = await APIPOST('updatePartInStock', item, token);
+        return response;
+      } catch (error) {
+        console.error('Error updating stock item', error);
+        return [];
+      }
     }
   }
 };

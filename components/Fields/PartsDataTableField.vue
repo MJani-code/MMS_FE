@@ -3,7 +3,7 @@
     :headers="headers"
     :items="stock"
     sort-by="partName"
-    class="elevation-1"
+    class="elevation-1 parts-data-table"
   >
     <template v-slot:item.quantity="{ item }">
       <v-chip :color="item.quantity >= item.minStock ? 'green' : 'red'">
@@ -17,7 +17,7 @@
         <v-divider class="mx-4" inset vertical></v-divider>
         <v-spacer></v-spacer>
 
-        <v-dialog v-model="dialog" max-width="500px">
+        <v-dialog v-model="localDialog" max-width="500px">
           <template v-slot:activator="{ on, attrs }">
             <v-btn color="blue-grey" dark class="mb-2" v-bind="attrs" v-on="on">
               Hozzáadás
@@ -105,7 +105,12 @@
                         type="number"
                       ></v-text-field>
                     </v-col>
-                    <v-col v-if="formTitle === 'Új'" cols="12" sm="6" md="4">
+                    <v-col
+                      v-if="initialQuantity != editedItem.quantity"
+                      cols="12"
+                      sm="6"
+                      md="4"
+                    >
                       <v-text-field
                         v-model="editedItem.reference"
                         label="Szállítói azonosító"
@@ -113,8 +118,8 @@
                     </v-col>
                     <v-col cols="12">
                       <v-textarea
-                        v-if="reasonForChangeQuantity"
-                        v-model="editedItem.comment"
+                        v-if="initialQuantity != editedItem.quantity"
+                        v-model="editedItem.note"
                         label="Megjegyzés"
                       ></v-textarea>
                     </v-col>
@@ -165,109 +170,60 @@ export default {
     currencies: {
       type: Array,
       required: true
+    },
+    dialog: {
+      type: Boolean,
+      required: true
     }
   },
-  data: () => ({
-    dialog: false,
-    dialogDelete: false,
-    headers: [
-      {
-        text: 'Alkatrész név',
-        align: 'start',
-        sortable: false,
-        value: 'partName'
+  data() {
+    return {
+      dialogDelete: false,
+      localDialog: this.dialog,
+      headers: [
+        {
+          text: 'Alkatrész név',
+          align: 'start',
+          sortable: false,
+          value: 'partName'
+        },
+        { text: 'Cikkszám', value: 'partNumber' },
+        { text: 'Kategória', value: 'category' },
+        { text: 'Beszállító', value: 'supplier' },
+        { text: 'Raktár', value: 'warehouseName' },
+        { text: 'Mennyiség', value: 'quantity' },
+        { text: 'Actions', value: 'actions', sortable: false }
+      ],
+      editedIndex: -1,
+      editedItem: {
+        partName: '',
+        partNumber: '',
+        categoryId: '',
+        supplierId: '',
+        warehouseId: '',
+        manufacturerId: '',
+        unitPrice: 0,
+        currency: '',
+        reference: '',
+        quantity: 0,
+        note: ''
       },
-      { text: 'Cikkszám', value: 'partNumber' },
-      { text: 'Kategória', value: 'category' },
-      { text: 'Beszállító', value: 'supplier' },
-      { text: 'Raktár', value: 'warehouseName' },
-      { text: 'Mennyiség', value: 'quantity' },
-      { text: 'Actions', value: 'actions', sortable: false }
-    ],
-    // categories: [
-    //   {
-    //     id: 1,
-    //     name: 'Elektronika'
-    //   },
-    //   {
-    //     id: 2,
-    //     name: 'Mechanikai'
-    //   }
-    // ],
-    // warehouses: [
-    //   {
-    //     id: 1,
-    //     name: 'Központi raktár'
-    //   },
-    //   {
-    //     id: 2,
-    //     name: 'Telephely 2'
-    //   }
-    // ],
-    // suppliers: [
-    //   {
-    //     id: 1,
-    //     name: 'Elektronikai Kft.'
-    //   },
-    //   {
-    //     id: 4,
-    //     name: 'Elektronikai Kft.'
-    //   },
-    //   {
-    //     id: 3,
-    //     name: 'Műszerbolt Bt.'
-    //   },
-    //   {
-    //     id: 6,
-    //     name: 'Műszerbolt Bt.'
-    //   },
-    //   {
-    //     id: 2,
-    //     name: 'TechTrade Hungary'
-    //   },
-    //   {
-    //     id: 5,
-    //     name: 'TechTrade Hungary'
-    //   }
-    // ],
-    // manufacturers: [
-    //   {
-    //     id: 2,
-    //     name: 'Direct4Me'
-    //   },
-    //   {
-    //     id: 1,
-    //     name: 'DongCheng'
-    //   }
-    // ],
-    editedIndex: -1,
-    editedItem: {
-      partName: '',
-      partNumber: '',
-      categoryId: '',
-      supplierId: '',
-      warehouseId: '',
-      manufacturerId: '',
-      unitPrice: 0,
-      currency: '',
-      reference: '',
-      quantity: 0
-    },
-    initialQuantity: 0,
-    reasonForChangeQuantity: null,
-    defaultItem: {
-      partName: '',
-      partNumber: '',
-      categoryId: '',
-      supplierId: '',
-      warehouseId: '',
-      manufacturerId: '',
-      unitPrice: 0,
-      currency: '',
-      reference: '',
-      quantity: 0
-    }
-  }),
+      initialQuantity: 0,
+      reasonForChangeQuantity: null,
+      defaultItem: {
+        partName: '',
+        partNumber: '',
+        categoryId: '',
+        supplierId: '',
+        warehouseId: '',
+        manufacturerId: '',
+        unitPrice: 0,
+        currency: '',
+        reference: '',
+        quantity: 0
+      }
+    };
+  },
 
   computed: {
     stockItems() {
@@ -279,8 +235,14 @@ export default {
   },
 
   watch: {
+    // when parent updates prop, reflect to localDialog
     dialog(val) {
+      this.localDialog = val;
       val || this.close();
+    },
+    // when local dialog changed (via activator or code), inform parent
+    localDialog(val) {
+      this.$emit('update:dialog', val);
     },
     dialogDelete(val) {
       val || this.closeDelete();
@@ -315,7 +277,7 @@ export default {
       this.editedItem.supplierId = selectedSupplier;
       this.editedItem.manufacturerId = selectedManufacturer;
 
-      this.dialog = true;
+      this.$emit('update:dialog', true);
       this.initialQuantity = item.quantity;
     },
 
@@ -327,37 +289,29 @@ export default {
       }
     },
 
-    // deleteItem(item) {
-    //   this.editedItem = Object.assign({}, item);
-    //   this.dialogDelete = true;
-    // },
-
-    // deleteItemConfirm() {
-    //   this.closeDelete();
-    // },
-
     close() {
-      this.dialog = false;
+      this.$emit('update:dialog', false);
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
       });
     },
 
-    // closeDelete() {
-    //   this.dialogDelete = false;
-    //   this.$nextTick(() => {
-    //     this.editedItem = Object.assign({}, this.defaultItem);
-    //     this.editedIndex = -1;
-    //   });
-    // },
-
-    save() {
+    save(item) {
       this.editedItem.quantity = parseInt(this.editedItem.quantity);
       this.editedItem.unitPrice = parseFloat(this.editedItem.unitPrice);
       if (this.editedIndex > -1) {
         //szerkesztés
-        // Object.assign(this.stock[this.editedIndex], this.editedItem);
+        if (this.editedItem.quantity < this.initialQuantity) {
+          this.editedItem.quantity =
+            this.editedItem.quantity - this.initialQuantity;
+        } else if (this.editedItem.quantity > this.initialQuantity) {
+          this.editedItem.quantity =
+            this.editedItem.quantity - this.initialQuantity;
+        } else {
+          this.editedItem.quantity = 0;
+        }
+        this.$emit('update-item', this.editedItem);
       } else {
         //új
         this.$emit('add-item', this.editedItem);
@@ -373,7 +327,7 @@ export default {
   max-height: unset;
 }
 
-tr td:first-child {
+.parts-data-table tr td:first-child {
   font-weight: bold !important;
 }
 </style>

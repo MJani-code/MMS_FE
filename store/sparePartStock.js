@@ -35,6 +35,16 @@ export const actions = {
       await this.dispatch('sparePartStock/fetchStockItems');
     }
     return res;
+  },
+  //updateStockItem
+  async updateStockItem({ commit, rootState, state }, item) {
+    const token = rootState.token;
+    const res = await taskMixin.methods.updateStockItem(token, item);
+    if (res.data.status === 200) {
+      //fetchStockItems to sync
+      await this.dispatch('sparePartStock/fetchStockItems');
+    }
+    return res;
   }
 };
 
