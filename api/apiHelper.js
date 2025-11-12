@@ -29,12 +29,18 @@ export const config = {
     createTask: host + '/MMS_BE/api/task/createTask.php',
     deletePhoto: host + '/MMS_BE/api/task/deletePhoto.php',
     getTaskLockersIssues: host + '/MMS_BE/api/task/getTaskLockersIssues.php',
+    addIntervention: host + '/MMS_BE/api/task/addIntervention.php',
+    deleteIntervention: host + '/MMS_BE/api/task/deleteIntervention.php',
     Locations_GetCountryPublicLocations:
       host + '/MMS_BE/api/task/d4me/Locations_GetCountryPublicLocations.php',
     downloadNewPoints: host + '/MMS_BE/api/task/downloadNewPoints.php',
     downloadNotifications:
       host + '/MMS_BE/api/notifications/getNotifications.php',
-    readNotifications: host + '/MMS_BE/api/notifications/readNotifications.php'
+    readNotifications: host + '/MMS_BE/api/notifications/readNotifications.php',
+    getStockItems: host + '/MMS_BE/api/parts/getStockItems.php',
+    getPartsMasterData: host + '/MMS_BE/api/parts/getPartsMasterData.php',
+    addPartToStock: host + '/MMS_BE/api/parts/addPartToStock.php',
+    updatePartInStock: host + '/MMS_BE/api/parts/updatePartInStock.php'
   }
 };
 const API = axios.create({

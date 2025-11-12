@@ -1,6 +1,6 @@
 <template>
   <v-row>
-    <v-col cols="12" sm="8" md="8" lg="4" xl="6">
+    <v-col cols="12" sm="8" md="8" lg="4" xl="4">
       <div v-for="(item, index) in taskItemsToInvoice" :key="index">
         <v-list-item-title class="mb-2">Tételek hozzáadása </v-list-item-title>
         <v-form ref="form" @submit.prevent="addItem(item)">
@@ -45,15 +45,17 @@
             required
             class="mb-4 ml-2"
           />
-          <v-btn type="submit" :disabled="disabled" class="mt-4 mb-4 ml-2"
-            >Hozzáad</v-btn
-          >
+          <v-row class="d-flex justify-end px-4">
+            <v-btn type="submit" :disabled="disabled" class="mt-4 mb-4 ml-2"
+              >Hozzáad</v-btn
+            >
+          </v-row>
         </v-form>
       </div>
       <v-divider class="divider-horizontal"></v-divider>
     </v-col>
     <v-divider vertical class="divider-vertical"></v-divider>
-    <v-col cols="12" sm="8" md="4" lg="6" xl="6">
+    <v-col cols="12" sm="8" md="4" lg="6" xl="5">
       <v-list class="transparent">
         <v-list-item-title> Hozzáadott tételek </v-list-item-title>
         <v-list-item class="pa-0">
