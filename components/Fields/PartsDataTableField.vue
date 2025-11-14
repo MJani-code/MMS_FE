@@ -301,10 +301,10 @@ export default {
 
     close() {
       this.$emit('update:dialog', false);
-      // this.$nextTick(() => {
-      //   this.editedItem = Object.assign({}, this.defaultItem);
-      //   // this.editedIndex = -1;
-      // });
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem);
+        // this.editedIndex = -1;
+      });
     },
 
     save(item) {
