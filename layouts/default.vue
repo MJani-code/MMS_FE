@@ -57,13 +57,13 @@
         <bell-notifications :userId="userId" />
       </div>
     </v-app-bar>
-    <v-main>
-      <v-container>
+    <v-main class="mx-6">
+      <div class="w-100">
         <!-- Értesítő komponens megjelenítése -->
         <Notification />
         <Modal />
         <Nuxt />
-      </v-container>
+      </div>
     </v-main>
     <v-footer :absolute="!fixed" app>
       <span
