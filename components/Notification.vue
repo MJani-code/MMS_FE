@@ -5,7 +5,11 @@
       v-for="(notification, index) in notifications"
       :key="index"
     >
-      <v-alert :type="notification.type" @input="removeNotification(index)">
+      <v-alert
+        dismissible
+        :type="notification.type"
+        @input="removeNotification(index)"
+      >
         {{ notification.message }}
       </v-alert>
     </v-slide-x-reverse-transition>
