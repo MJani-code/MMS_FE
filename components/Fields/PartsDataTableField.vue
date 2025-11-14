@@ -19,7 +19,14 @@
 
         <v-dialog v-model="localDialog" max-width="500px">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn color="blue-grey" dark class="mb-2" v-bind="attrs" v-on="on">
+            <v-btn
+              color="blue-grey"
+              dark
+              class="mb-2"
+              v-bind="attrs"
+              v-on="on"
+              @click="editedIndex = -1"
+            >
               Hozzáadás
             </v-btn>
           </template>
@@ -206,6 +213,7 @@ export default {
         currency: '',
         reference: '',
         quantity: 0,
+        quantityDifference: 0,
         note: ''
       },
       initialQuantity: 0,
@@ -220,7 +228,9 @@ export default {
         unitPrice: 0,
         currency: '',
         reference: '',
-        quantity: 0
+        quantity: 0,
+        quantityDifference: 0,
+        note: ''
       }
     };
   },
@@ -230,7 +240,7 @@ export default {
       return this.initialize();
     },
     formTitle() {
-      return this.editedIndex === -1 ? 'Új' : 'Szerkesztés';
+      return this.editedIndex === -1 ? 'Új cikk felvitele' : 'Szerkesztés';
     }
   },
 
@@ -291,10 +301,10 @@ export default {
 
     close() {
       this.$emit('update:dialog', false);
-      this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem);
-        this.editedIndex = -1;
-      });
+      // this.$nextTick(() => {
+      //   this.editedItem = Object.assign({}, this.defaultItem);
+      //   // this.editedIndex = -1;
+      // });
     },
 
     save(item) {
@@ -303,13 +313,13 @@ export default {
       if (this.editedIndex > -1) {
         //szerkesztés
         if (this.editedItem.quantity < this.initialQuantity) {
-          this.editedItem.quantity =
+          this.editedItem.quantityDifference =
             this.editedItem.quantity - this.initialQuantity;
         } else if (this.editedItem.quantity > this.initialQuantity) {
-          this.editedItem.quantity =
+          this.editedItem.quantityDifference =
             this.editedItem.quantity - this.initialQuantity;
         } else {
-          this.editedItem.quantity = 0;
+          this.editedItem.quantityDifference = 0;
         }
         this.$emit('update-item', this.editedItem);
       } else {
@@ -324,7 +334,7 @@ export default {
 
 <style>
 .v-data-table__wrapper {
-  max-height: unset;
+  max-height: unset !important;
 }
 
 .parts-data-table tr td:first-child {
