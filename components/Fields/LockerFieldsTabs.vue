@@ -374,6 +374,7 @@ export default {
         taskId: this.taskId,
         interventionData: this.newIntervention
       });
+      this.$store.dispatch('sparePartStock/fetchStockItems');
     }
   }
 };

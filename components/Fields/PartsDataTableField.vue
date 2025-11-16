@@ -2,12 +2,21 @@
   <v-data-table
     :headers="headers"
     :items="stock"
+    :expanded.sync="expanded"
+    item-key="stockId"
+    show-expand
     sort-by="partName"
     class="elevation-1 parts-data-table"
   >
     <template v-slot:item.quantity="{ item }">
       <v-chip :color="item.quantity >= item.minStock ? 'green' : 'red'">
         {{ item.quantity }}
+      </v-chip>
+    </template>
+
+    <template v-slot:item.badQuantity="{ item }">
+      <v-chip :color="item.badQuantity > 0 ? 'red' : 'green'">
+        {{ item.badQuantity }}
       </v-chip>
     </template>
 
@@ -144,15 +153,23 @@
         </v-dialog>
       </v-toolbar>
     </template>
+
+    <template v-slot:expanded-item="{ headers, item }">
+      <td :colspan="headers.length">
+        <parts-history :part-id="item.partId" class="px-6"></parts-history>
+      </td>
+    </template>
+
     <template v-slot:item.actions="{ item }">
       <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
-      <v-icon small> mdi-delete </v-icon>
     </template>
   </v-data-table>
 </template>
 
 <script>
+import partsHistory from '../pages/parts/partsHistory.vue';
 export default {
+  components: { partsHistory },
   props: {
     stock: {
       type: Array,
@@ -185,21 +202,33 @@ export default {
   },
   data() {
     return {
+      expanded: [],
       dialogDelete: false,
       localDialog: this.dialog,
       headers: [
         {
           text: 'Alkatrész név',
-          align: 'start',
+          align: 'center',
           sortable: false,
           value: 'partName'
         },
-        { text: 'Cikkszám', value: 'partNumber' },
-        { text: 'Kategória', value: 'category' },
-        { text: 'Beszállító', value: 'supplier' },
-        { text: 'Raktár', value: 'warehouseName' },
-        { text: 'Mennyiség', value: 'quantity' },
-        { text: 'Actions', value: 'actions', sortable: false }
+        { text: 'Cikkszám', align: 'center', value: 'partNumber' },
+        { text: 'Kategória', align: 'center', value: 'category' },
+        { text: 'Beszállító', align: 'center', value: 'supplier' },
+        { text: 'Raktár', align: 'center', value: 'warehouseName' },
+        { text: 'Mennyiség (jó készlet)', align: 'center', value: 'quantity' },
+        {
+          text: 'Mennyiség (rossz készlet)',
+          align: 'center',
+          value: 'badQuantity'
+        },
+        {
+          text: 'Műveletek',
+          align: 'center',
+          value: 'actions',
+          sortable: false
+        },
+        { text: 'Előzmények', align: 'center', value: 'data-table-expand' }
       ],
       editedIndex: -1,
       editedItem: {
@@ -337,7 +366,7 @@ export default {
   max-height: unset !important;
 }
 
-.parts-data-table tr td:first-child {
+/* .parts-data-table tr td:first-child {
   font-weight: bold !important;
-}
+} */
 </style>
