@@ -299,6 +299,15 @@ export const taskMixin = {
         console.error('Error updating stock item', error);
         return [];
       }
+    },
+    async getPartsHistory(token, data) {
+      try {
+        const response = await APIPOST('getPartsHistory', data, token);
+        return response;
+      } catch (error) {
+        console.error('Error fetching parts history', error);
+        return [];
+      }
     }
   }
 };

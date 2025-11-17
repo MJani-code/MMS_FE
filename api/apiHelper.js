@@ -40,7 +40,8 @@ export const config = {
     getStockItems: host + '/MMS_BE/api/parts/getStockItems.php',
     getPartsMasterData: host + '/MMS_BE/api/parts/getPartsMasterData.php',
     addPartToStock: host + '/MMS_BE/api/parts/addPartToStock.php',
-    updatePartInStock: host + '/MMS_BE/api/parts/updatePartInStock.php'
+    updatePartInStock: host + '/MMS_BE/api/parts/updatePartInStock.php',
+    getPartsHistory: host + '/MMS_BE/api/parts/getPartsHistory.php'
   }
 };
 const API = axios.create({

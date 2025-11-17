@@ -368,11 +368,14 @@ export default {
       }
       this.newIntervention.issues = issues;
     },
-    addIntervention(form) {
+    async addIntervention(form) {
       console.log('Adding intervention with data:', this.newIntervention);
-      this.$store.dispatch('locker/repair/addInterventionAction', {
+      await this.$store.dispatch('locker/repair/addInterventionAction', {
         taskId: this.taskId,
         interventionData: this.newIntervention
+      });
+      this.$nextTick(() => {
+        this.$broadcast.send('taskUpdated', { id: this.taskId });
       });
     }
   }

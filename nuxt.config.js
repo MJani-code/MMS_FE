@@ -45,7 +45,7 @@ export default {
 
   css: ['@/assets/styles.scss'],
 
-  plugins: [],
+  plugins: ['~/plugins/broadcast.js'],
 
   // loading: '~/components/BounceLoader.vue',
 

@@ -39,6 +39,14 @@ export default {
   mounted() {
     this.fetchStockItems();
     this.fetchPartsMasterData();
+    this.$broadcast.on((msg) => {
+      if (msg.data.event === 'taskUpdated') {
+        console.log('Tasks oldal frissítés történt:', msg.data.payload);
+
+        // Itt frissítheted a store-t:
+        this.fetchStockItems();
+      }
+    });
   },
   methods: {
     async fetchStockItems() {

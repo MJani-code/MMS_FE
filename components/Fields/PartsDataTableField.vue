@@ -2,12 +2,21 @@
   <v-data-table
     :headers="headers"
     :items="stock"
+    :expanded.sync="expanded"
+    item-key="stockId"
+    show-expand
     sort-by="partName"
     class="elevation-1 parts-data-table"
   >
     <template v-slot:item.quantity="{ item }">
       <v-chip :color="item.quantity >= item.minStock ? 'green' : 'red'">
         {{ item.quantity }}
+      </v-chip>
+    </template>
+
+    <template v-slot:item.badQuantity="{ item }">
+      <v-chip :color="item.badQuantity > 0 ? 'red' : 'green'">
+        {{ item.badQuantity }}
       </v-chip>
     </template>
 
@@ -44,12 +53,14 @@
                       <v-text-field
                         v-model="editedItem.partName"
                         label="Név"
+                        :disabled="addingItem"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
                       <v-text-field
                         v-model="editedItem.partNumber"
                         label="Cikkszám"
+                        :disabled="addingItem"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
@@ -59,6 +70,7 @@
                         item-text="name"
                         item-value="id"
                         label="Kategória"
+                        :disabled="addingItem"
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
@@ -68,6 +80,7 @@
                         item-text="name"
                         item-value="id"
                         label="Beszállító"
+                        :disabled="addingItem"
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
@@ -77,6 +90,7 @@
                         item-text="name"
                         item-value="id"
                         label="Gyártó"
+                        :disabled="addingItem"
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
@@ -86,6 +100,7 @@
                         item-text="name"
                         item-value="id"
                         label="Raktár"
+                        :disabled="addingItem"
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
@@ -93,6 +108,7 @@
                         v-model="editedItem.unitPrice"
                         type="number"
                         label="Egységár"
+                        :disabled="addingItem"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
@@ -102,6 +118,7 @@
                         label="Valuta"
                         item-text="currency"
                         item-value="currency"
+                        :disabled="addingItem"
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
@@ -137,22 +154,33 @@
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn class="secondary" text @click="close"> Cancel </v-btn>
-                <v-btn class="primary" text @click="save"> Save </v-btn>
+                <v-btn class="primary" text @click="save(method)"> Save </v-btn>
               </v-card-actions>
             </v-card>
           </v-form>
         </v-dialog>
       </v-toolbar>
     </template>
+
+    <template v-slot:expanded-item="{ headers, item }">
+      <td :colspan="headers.length">
+        <parts-history :part-id="item.partId" class="px-6"></parts-history>
+      </td>
+    </template>
+
     <template v-slot:item.actions="{ item }">
       <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
-      <v-icon small> mdi-delete </v-icon>
+      <v-icon small class="mr-2" @click="addItem(item)">
+        mdi-plus-circle-outline
+      </v-icon>
     </template>
   </v-data-table>
 </template>
 
 <script>
+import partsHistory from '../pages/parts/partsHistory.vue';
 export default {
+  components: { partsHistory },
   props: {
     stock: {
       type: Array,
@@ -185,21 +213,34 @@ export default {
   },
   data() {
     return {
+      expanded: [],
       dialogDelete: false,
       localDialog: this.dialog,
+      addingItem: false,
       headers: [
         {
           text: 'Alkatrész név',
-          align: 'start',
+          align: 'center',
           sortable: false,
           value: 'partName'
         },
-        { text: 'Cikkszám', value: 'partNumber' },
-        { text: 'Kategória', value: 'category' },
-        { text: 'Beszállító', value: 'supplier' },
-        { text: 'Raktár', value: 'warehouseName' },
-        { text: 'Mennyiség', value: 'quantity' },
-        { text: 'Actions', value: 'actions', sortable: false }
+        { text: 'Cikkszám', align: 'center', value: 'partNumber' },
+        { text: 'Kategória', align: 'center', value: 'category' },
+        { text: 'Beszállító', align: 'center', value: 'supplier' },
+        { text: 'Raktár', align: 'center', value: 'warehouseName' },
+        { text: 'Mennyiség (jó készlet)', align: 'center', value: 'quantity' },
+        {
+          text: 'Mennyiség (rossz készlet)',
+          align: 'center',
+          value: 'badQuantity'
+        },
+        {
+          text: 'Műveletek',
+          align: 'center',
+          value: 'actions',
+          sortable: false
+        },
+        { text: 'Előzmények', align: 'center', value: 'data-table-expand' }
       ],
       editedIndex: -1,
       editedItem: {
@@ -240,7 +281,19 @@ export default {
       return this.initialize();
     },
     formTitle() {
+      if (this.addingItem) {
+        return 'Mennyiség hozzáadása egy meglévő alkatrészhez';
+      }
       return this.editedIndex === -1 ? 'Új cikk felvitele' : 'Szerkesztés';
+    },
+    method() {
+      if (this.addingItem) {
+        return 'addQuantity';
+      }
+      if (this.editedIndex === -1) {
+        return 'addNewItem';
+      }
+      return 'editing';
     }
   },
 
@@ -304,13 +357,21 @@ export default {
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
         // this.editedIndex = -1;
+        this.addingItem = false;
       });
     },
 
-    save(item) {
+    addItem(item) {
+      this.addingItem = true;
+      this.editItem(item);
+
+      console.log('quantity', this.editedItem.quantityDifference);
+    },
+
+    save(method) {
       this.editedItem.quantity = parseInt(this.editedItem.quantity);
       this.editedItem.unitPrice = parseFloat(this.editedItem.unitPrice);
-      if (this.editedIndex > -1) {
+      if (method === 'editing') {
         //szerkesztés
         if (this.editedItem.quantity < this.initialQuantity) {
           this.editedItem.quantityDifference =
@@ -322,11 +383,15 @@ export default {
           this.editedItem.quantityDifference = 0;
         }
         this.$emit('update-item', this.editedItem);
-      } else {
+      } else if (method === 'addNewItem') {
         //új
         this.$emit('add-item', this.editedItem);
+      } else if (method === 'addQuantity') {
+        //mennyiség hozzáadása
+        this.editedItem.quantityDifference =
+          this.editedItem.quantity - this.initialQuantity;
+        this.$emit('add-item', this.editedItem);
       }
-      // this.close();
     }
   }
 };
@@ -337,7 +402,7 @@ export default {
   max-height: unset !important;
 }
 
-.parts-data-table tr td:first-child {
+/* .parts-data-table tr td:first-child {
   font-weight: bold !important;
-}
+} */
 </style>
