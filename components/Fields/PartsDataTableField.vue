@@ -53,12 +53,14 @@
                       <v-text-field
                         v-model="editedItem.partName"
                         label="Név"
+                        :disabled="addingItem"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
                       <v-text-field
                         v-model="editedItem.partNumber"
                         label="Cikkszám"
+                        :disabled="addingItem"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
@@ -68,6 +70,7 @@
                         item-text="name"
                         item-value="id"
                         label="Kategória"
+                        :disabled="addingItem"
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
@@ -77,6 +80,7 @@
                         item-text="name"
                         item-value="id"
                         label="Beszállító"
+                        :disabled="addingItem"
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
@@ -86,6 +90,7 @@
                         item-text="name"
                         item-value="id"
                         label="Gyártó"
+                        :disabled="addingItem"
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
@@ -95,6 +100,7 @@
                         item-text="name"
                         item-value="id"
                         label="Raktár"
+                        :disabled="addingItem"
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
@@ -102,6 +108,7 @@
                         v-model="editedItem.unitPrice"
                         type="number"
                         label="Egységár"
+                        :disabled="addingItem"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
@@ -111,6 +118,7 @@
                         label="Valuta"
                         item-text="currency"
                         item-value="currency"
+                        :disabled="addingItem"
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
@@ -146,7 +154,7 @@
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn class="secondary" text @click="close"> Cancel </v-btn>
-                <v-btn class="primary" text @click="save"> Save </v-btn>
+                <v-btn class="primary" text @click="save(method)"> Save </v-btn>
               </v-card-actions>
             </v-card>
           </v-form>
@@ -162,6 +170,9 @@
 
     <template v-slot:item.actions="{ item }">
       <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
+      <v-icon small class="mr-2" @click="addItem(item)">
+        mdi-plus-circle-outline
+      </v-icon>
     </template>
   </v-data-table>
 </template>
@@ -205,6 +216,7 @@ export default {
       expanded: [],
       dialogDelete: false,
       localDialog: this.dialog,
+      addingItem: false,
       headers: [
         {
           text: 'Alkatrész név',
@@ -269,7 +281,19 @@ export default {
       return this.initialize();
     },
     formTitle() {
+      if (this.addingItem) {
+        return 'Mennyiség hozzáadása egy meglévő alkatrészhez';
+      }
       return this.editedIndex === -1 ? 'Új cikk felvitele' : 'Szerkesztés';
+    },
+    method() {
+      if (this.addingItem) {
+        return 'addQuantity';
+      }
+      if (this.editedIndex === -1) {
+        return 'addNewItem';
+      }
+      return 'editing';
     }
   },
 
@@ -333,13 +357,21 @@ export default {
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
         // this.editedIndex = -1;
+        this.addingItem = false;
       });
     },
 
-    save(item) {
+    addItem(item) {
+      this.addingItem = true;
+      this.editItem(item);
+
+      console.log('quantity', this.editedItem.quantityDifference);
+    },
+
+    save(method) {
       this.editedItem.quantity = parseInt(this.editedItem.quantity);
       this.editedItem.unitPrice = parseFloat(this.editedItem.unitPrice);
-      if (this.editedIndex > -1) {
+      if (method === 'editing') {
         //szerkesztés
         if (this.editedItem.quantity < this.initialQuantity) {
           this.editedItem.quantityDifference =
@@ -351,11 +383,15 @@ export default {
           this.editedItem.quantityDifference = 0;
         }
         this.$emit('update-item', this.editedItem);
-      } else {
+      } else if (method === 'addNewItem') {
         //új
         this.$emit('add-item', this.editedItem);
+      } else if (method === 'addQuantity') {
+        //mennyiség hozzáadása
+        this.editedItem.quantityDifference =
+          this.editedItem.quantity - this.initialQuantity;
+        this.$emit('add-item', this.editedItem);
       }
-      // this.close();
     }
   }
 };
