@@ -40,12 +40,7 @@
               <v-btn
                 class="error"
                 @click="
-                  $store.dispatch('locker/repair/deleteIntervention', {
-                    issues: intervention.issues,
-                    interventionId: intervention.id,
-                    lockerSerial: locker.serial,
-                    taskId: taskId
-                  })
+                  deleteIntervention(intervention.id, intervention.issues)
                 "
               >
                 <v-icon left>mdi-delete</v-icon> Törlés
@@ -76,6 +71,16 @@ export default {
   },
   data: () => ({
     panel: []
-  })
+  }),
+  methods: {
+    async deleteIntervention(interventionId, issues) {
+      await this.$store.dispatch('locker/repair/deleteIntervention', {
+        interventionId,
+        issues,
+        lockerSerial: this.locker.serial,
+        taskId: this.taskId
+      });
+    }
+  }
 };
 </script>

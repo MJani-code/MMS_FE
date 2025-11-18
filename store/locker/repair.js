@@ -86,6 +86,9 @@ export const actions = {
         taskId: data.taskId,
         uuid: data.lockerSerial
       });
+
+      // Broadcast event to notify other components about the update
+      this.$broadcast.send('taskUpdated', { id: data.taskId });
     } else {
       dispatch(
         'notification/addNotification',
