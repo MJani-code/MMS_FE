@@ -7,6 +7,7 @@
       :suppliers="suppliers"
       :manufacturers="manufacturers"
       :currencies="currencies"
+      :companies="companies"
       :dialog="dialog"
       @update:dialog="dialog = $event"
       @add-item="addItem($event)"
@@ -28,6 +29,7 @@ export default {
     suppliers: [],
     manufacturers: [],
     currencies: [],
+    companies: [],
     dialog: false
   }),
   watch: {},
@@ -60,6 +62,7 @@ export default {
       this.suppliers = res.suppliers;
       this.manufacturers = res.manufacturers;
       this.currencies = res.currencies;
+      this.companies = res.companies;
       return res;
     },
     async addItem(newItem) {
