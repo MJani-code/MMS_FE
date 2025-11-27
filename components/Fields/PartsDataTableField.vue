@@ -65,6 +65,16 @@
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
                       <v-select
+                        v-model="editedItem.ownerId"
+                        :items="companies"
+                        item-text="name"
+                        item-value="id"
+                        label="Tulajdonos"
+                        :disabled="addingItem"
+                      ></v-select>
+                    </v-col>
+                    <v-col cols="12" sm="6" md="4">
+                      <v-select
                         v-model="editedItem.categoryId"
                         :items="categories"
                         item-text="name"
@@ -206,6 +216,10 @@ export default {
       type: Array,
       required: true
     },
+    companies: {
+      type: Array,
+      required: true
+    },
     dialog: {
       type: Boolean,
       required: true
@@ -226,6 +240,8 @@ export default {
         },
         { text: 'Cikkszám', align: 'center', value: 'partNumber' },
         { text: 'Kategória', align: 'center', value: 'category' },
+        { text: 'Gyártó', align: 'center', value: 'manufacturerName' },
+        { text: 'Tulajdonos', align: 'center', value: 'ownerName' },
         { text: 'Beszállító', align: 'center', value: 'supplier' },
         { text: 'Raktár', align: 'center', value: 'warehouseName' },
         { text: 'Mennyiség (jó készlet)', align: 'center', value: 'quantity' },
@@ -249,6 +265,7 @@ export default {
         categoryId: '',
         supplierId: '',
         warehouseId: '',
+        ownerId: '',
         manufacturerId: '',
         unitPrice: 0,
         currency: '',
@@ -265,6 +282,7 @@ export default {
         categoryId: '',
         supplierId: '',
         warehouseId: '',
+        ownerId: '',
         manufacturerId: '',
         unitPrice: 0,
         currency: '',
@@ -386,6 +404,7 @@ export default {
       } else if (method === 'addNewItem') {
         //új
         this.$emit('add-item', this.editedItem);
+        console.log('új elem hozzáadva', this.editedItem);
       } else if (method === 'addQuantity') {
         //mennyiség hozzáadása
         this.editedItem.quantityDifference =
