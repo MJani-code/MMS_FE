@@ -29,11 +29,7 @@
                 >
                 </v-select>
               </v-col>
-              <v-col
-                v-if="data.taskType === 1 || data.taskType === 2"
-                cols="12"
-                md="6"
-              >
+              <v-col v-if="isLockerTask" cols="12" md="6">
                 <v-select
                   v-model="selectedLockers"
                   :items="filteredLockers"
@@ -94,7 +90,7 @@
                         item-text="name"
                         item-value="id"
                         label="Hibatípus"
-                        :rules="getLockerIssueRules"
+                        :rules="[rules.lockerIssueRequired]"
                       >
                       </v-select>
                     </v-col>
@@ -103,6 +99,11 @@
                         v-model="issue.compartmentNumber"
                         label="Rekesz szám"
                         hide-details
+                        :rules="
+                          [1, 2].includes(Number(issue.type))
+                            ? [rules.required]
+                            : []
+                        "
                       ></v-text-field>
                     </v-col>
                   </v-row>
@@ -170,7 +171,13 @@ export default {
         }
       },
       rules: {
-        required: (value) => !!value || 'Kötelező mező'
+        required: (value) => !!value || 'Kötelező mező',
+        lockerIssueRequired: (value) => {
+          if ([1, 2, 8].includes(Number(this.data.taskType))) {
+            return !!value || 'Kötelező mező';
+          }
+          return true;
+        }
       },
       payload: [],
       selectedLockers: []
@@ -188,6 +195,9 @@ export default {
     },
     getLockerIssueRules() {
       return this.selectedLockers.length > 0 ? [this.rules.required] : [];
+    },
+    isLockerTask() {
+      return [1, 2, 8].includes(Number(this.data.taskType));
     }
   },
   watch: {
@@ -204,7 +214,6 @@ export default {
         const result = await this.getDataForCreateTask();
         if (result.data.status === 200) {
           this.payload = result.data.payload;
-          console.log('payload', this.payload);
         } else {
           this.showNotification('error', result.data.message);
         }
@@ -222,8 +231,11 @@ export default {
       if (!isValid) {
         return;
       } else {
-        console.log('data', this.data);
         this.createTask(this.data);
+        //making form empty
+        this.$refs.createTask.reset();
+        this.data.lockers = [];
+        this.selectedLockers = [];
       }
     },
     createTask() {
