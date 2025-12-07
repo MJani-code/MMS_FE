@@ -354,7 +354,8 @@ export default {
       // Explicit hívás a fetchIssuesAction-re
       await this.$store.dispatch('locker/repair/fetchIssuesAction', {
         taskId: this.taskId,
-        uuid: this.locker.serial
+        uuid: this.locker.serial,
+        brand: this.locker.brand
       });
     },
     onIssuesChange(val) {
