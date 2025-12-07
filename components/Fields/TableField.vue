@@ -1,11 +1,14 @@
 <template>
   <div>
     <v-data-table
+      v-model="selected"
       :headers="headers"
       :items="filteredTasks"
       fixed-header
       :expanded.sync="expanded"
       show-expand
+      show-select
+      item-key="id"
       :item-class="tableClass"
       class="elevation-1 custom-table"
     >
@@ -624,6 +627,10 @@
         >
           Letöltés
         </v-btn>
+        <p>
+          show selected items
+          {{ selected }}
+        </p>
       </template>
 
       <!-- FillExpandedField -->
@@ -693,6 +700,7 @@ export default {
     return {
       serials: [],
       filters: {},
+      selected: [],
       expanded: [],
       taskFiles: [],
       filtersAccordion: [],
