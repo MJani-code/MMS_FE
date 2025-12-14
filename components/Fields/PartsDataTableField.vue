@@ -67,7 +67,7 @@
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
                       <v-select
-                        v-model="editedItem.owner"
+                        v-model="editedItem.ownerId"
                         :items="companies"
                         item-text="name"
                         item-value="id"
@@ -89,7 +89,7 @@
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
                       <v-select
-                        v-model="editedItem.supplier"
+                        v-model="editedItem.supplierId"
                         :items="suppliers"
                         item-text="name"
                         item-value="id"
@@ -161,7 +161,6 @@
                     </v-col>
                     <v-col cols="12">
                       <v-textarea
-                        v-if="initialQuantity != editedItem.quantity"
                         v-model="editedItem.note"
                         label="Megjegyzés"
                       ></v-textarea>
@@ -183,7 +182,13 @@
 
     <template v-slot:expanded-item="{ headers, item }">
       <td :colspan="headers.length">
-        <parts-history :part-id="item.partId" class="px-6"></parts-history>
+        <parts-history
+          :part-id="item.partId"
+          :owner-id="item.ownerId"
+          :warehouse-id="item.warehouseId"
+          :supplier-id="item.supplierId"
+          class="px-6"
+        ></parts-history>
       </td>
     </template>
 
@@ -272,9 +277,9 @@ export default {
         partName: '',
         partNumber: '',
         categoryId: '',
-        supplier: '',
+        supplierId: '',
         warehouseId: '',
-        owner: '',
+        ownerId: '',
         manufacturerId: '',
         unitPrice: 0,
         currency: '',
@@ -297,7 +302,10 @@ export default {
       defaultItem: {
         partName: '',
         partNumber: '',
-        categoryId: '',
+        category: {
+          id: '',
+          name: ''
+        },
         supplierId: '',
         warehouseId: '',
         ownerId: '',
@@ -371,8 +379,6 @@ export default {
         (man) => man.name === item.manufacturerName
       );
 
-      console.log('selectedSupplier', selectedSupplier);
-
       this.editedItem = Object.assign({}, item);
       this.editedItem.partNameChanged = false;
       this.editedItem.partNumberChanged = false;
@@ -383,10 +389,10 @@ export default {
       this.editedItem.manufacturerIdChanged = false;
       this.editedItem.unitPriceChanged = false;
       this.editedItem.currencyChanged = false;
-      this.editedItem.categoryId = selectedCategory;
+      this.editedItem.categoryId = selectedCategory.id;
       this.editedItem.warehouseId = selectedWarehouse;
-      this.editedItem.supplier = selectedSupplier;
-      this.editedItem.manufacturerId = selectedManufacturer;
+      this.editedItem.supplierId = selectedSupplier.id;
+      this.editedItem.manufacturerId = selectedManufacturer.id;
 
       this.$emit('update:dialog', true);
       this.initialQuantity = item.quantity;
