@@ -38,8 +38,36 @@ export const actions = {
   },
   //updateStockItem
   async updateStockItem({ commit, rootState, state }, item) {
+    console.log('store updateStockItem', item);
     const token = rootState.token;
-    const res = await taskMixin.methods.updateStockItem(token, item);
+    const res = await taskMixin.methods.updateStockItem(token, {
+      stockId: item.stockId,
+      ownerId: item.ownerId,
+      ownerIdChanged: item.ownerIdChanged,
+      warehouseId: item.warehouseId,
+      warehouseIdChanged: item.warehouseIdChanged,
+      quantity: item.quantity,
+      quantityDifference: item.quantityDifference,
+      unitPrice: item.unitPrice,
+      unitPriceChanged: item.unitPriceChanged,
+      currency: item.currency,
+      currencyChanged: item.currencyChanged,
+      reference: item.reference,
+      note: item.note,
+      supplierId: item.supplierId,
+      supplierIdChanged: item.supplierIdChanged,
+      part: {
+        partId: item.partId,
+        partName: item.partName,
+        partNumber: item.partNumber,
+        categoryId: item.categoryId,
+        manufacturerId: item.manufacturerId,
+        partNameChanged: item.partNameChanged,
+        partNumberChanged: item.partNumberChanged,
+        categoryIdChanged: item.categoryIdChanged,
+        manufacturerIdChanged: item.manufacturerIdChanged
+      }
+    });
     if (res.data.status === 200) {
       //fetchStockItems to sync
       await this.dispatch('sparePartStock/fetchStockItems');
