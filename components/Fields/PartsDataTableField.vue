@@ -194,9 +194,6 @@
 
     <template v-slot:item.actions="{ item }">
       <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
-      <v-icon small class="mr-2" @click="addItem(item)">
-        mdi-plus-circle-outline
-      </v-icon>
     </template>
   </v-data-table>
 </template>
@@ -418,8 +415,6 @@ export default {
     addItem(item) {
       this.addingItem = true;
       this.editItem(item);
-
-      console.log('quantity', this.editedItem.quantityDifference);
     },
 
     save(method) {
@@ -440,7 +435,6 @@ export default {
       } else if (method === 'addNewItem') {
         //új
         this.$emit('add-item', this.editedItem);
-        console.log('új elem hozzáadva', this.editedItem);
       } else if (method === 'addQuantity') {
         //mennyiség hozzáadása
         this.editedItem.quantityDifference =

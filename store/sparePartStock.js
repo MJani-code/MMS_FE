@@ -38,7 +38,6 @@ export const actions = {
   },
   //updateStockItem
   async updateStockItem({ commit, rootState, state }, item) {
-    console.log('store updateStockItem', item);
     const token = rootState.token;
     const res = await taskMixin.methods.updateStockItem(token, {
       stockId: item.stockId,
