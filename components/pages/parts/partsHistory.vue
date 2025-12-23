@@ -49,6 +49,18 @@ export default {
     partId: {
       type: Number,
       required: true
+    },
+    ownerId: {
+      type: Number,
+      required: false
+    },
+    warehouseId: {
+      type: Number,
+      required: false
+    },
+    supplierId: {
+      type: Number,
+      required: false
     }
   },
   data: () => ({
@@ -131,7 +143,10 @@ export default {
       const res = await this.$store.dispatch(
         'parts/partsHistory/fetchPartsHistory',
         {
-          partId: this.partId
+          partId: this.partId,
+          ownerId: this.ownerId,
+          warehouseId: this.warehouseId,
+          supplierId: this.supplierId
         }
       );
       this.items = res;

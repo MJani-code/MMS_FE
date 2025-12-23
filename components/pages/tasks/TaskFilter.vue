@@ -86,10 +86,7 @@ export default {
     };
   },
   computed: {
-    //console out this.tasks
-    // showTasks() {
-    //   return console.log(this.tasks);
-    // }
+
   },
   watch: {
     selectedAdminFilter: function () {
@@ -144,7 +141,6 @@ export default {
         filteredTasks,
         this.$store.state.token
       );
-      console.log(response);
 
       // Létrehozunk egy URL-t a blob-hoz
       const url = window.URL.createObjectURL(new Blob([response.data]));

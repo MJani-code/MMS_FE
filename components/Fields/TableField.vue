@@ -541,7 +541,11 @@
               value: item.tof_shop_id
             })
           "
-        ></v-text-field>
+        >
+          <template v-if="item.isActiveInAdmin == false" v-slot:append>
+            <v-icon color="red"> mdi-cancel </v-icon>
+          </template>
+        </v-text-field>
       </template>
 
       <!-- box_id -->

@@ -36,7 +36,6 @@ export const actions = {
   },
 
   async deleteIntervention({ dispatch, commit }, data) {
-    console.log('Deleting intervention with data:', data);
     dispatch(
       'notification/showModal',
       {

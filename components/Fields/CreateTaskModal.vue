@@ -290,7 +290,6 @@ export default {
         ],
         description: ''
       }));
-      console.log('Lockers', this.data.lockers);
     },
     addIssue(lockerIndex) {
       this.data.lockers[lockerIndex].issues.push({

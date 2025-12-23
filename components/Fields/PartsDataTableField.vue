@@ -54,6 +54,7 @@
                         v-model="editedItem.partName"
                         label="Név"
                         :disabled="addingItem"
+                        @change="editedItem.partNameChanged = true"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
@@ -61,7 +62,19 @@
                         v-model="editedItem.partNumber"
                         label="Cikkszám"
                         :disabled="addingItem"
+                        @change="editedItem.partNumberChanged = true"
                       ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="6" md="4">
+                      <v-select
+                        v-model="editedItem.ownerId"
+                        :items="companies"
+                        item-text="name"
+                        item-value="id"
+                        label="Tulajdonos"
+                        :disabled="addingItem"
+                        @change="editedItem.ownerIdChanged = true"
+                      ></v-select>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
                       <v-select
@@ -71,6 +84,7 @@
                         item-value="id"
                         label="Kategória"
                         :disabled="addingItem"
+                        @change="editedItem.categoryIdChanged = true"
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
@@ -81,6 +95,7 @@
                         item-value="id"
                         label="Beszállító"
                         :disabled="addingItem"
+                        @change="editedItem.supplierIdChanged = true"
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
@@ -91,6 +106,7 @@
                         item-value="id"
                         label="Gyártó"
                         :disabled="addingItem"
+                        @change="editedItem.manufacturerIdChanged = true"
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
@@ -101,6 +117,7 @@
                         item-value="id"
                         label="Raktár"
                         :disabled="addingItem"
+                        @change="editedItem.warehouseIdChanged = true"
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
@@ -109,6 +126,7 @@
                         type="number"
                         label="Egységár"
                         :disabled="addingItem"
+                        @change="editedItem.unitPriceChanged = true"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
@@ -119,6 +137,7 @@
                         item-text="currency"
                         item-value="currency"
                         :disabled="addingItem"
+                        @change="editedItem.currencyChanged = true"
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
@@ -142,7 +161,6 @@
                     </v-col>
                     <v-col cols="12">
                       <v-textarea
-                        v-if="initialQuantity != editedItem.quantity"
                         v-model="editedItem.note"
                         label="Megjegyzés"
                       ></v-textarea>
@@ -164,15 +182,18 @@
 
     <template v-slot:expanded-item="{ headers, item }">
       <td :colspan="headers.length">
-        <parts-history :part-id="item.partId" class="px-6"></parts-history>
+        <parts-history
+          :part-id="item.partId"
+          :owner-id="item.ownerId"
+          :warehouse-id="item.warehouseId"
+          :supplier-id="item.supplierId"
+          class="px-6"
+        ></parts-history>
       </td>
     </template>
 
     <template v-slot:item.actions="{ item }">
       <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
-      <v-icon small class="mr-2" @click="addItem(item)">
-        mdi-plus-circle-outline
-      </v-icon>
     </template>
   </v-data-table>
 </template>
@@ -206,6 +227,10 @@ export default {
       type: Array,
       required: true
     },
+    companies: {
+      type: Array,
+      required: true
+    },
     dialog: {
       type: Boolean,
       required: true
@@ -226,6 +251,8 @@ export default {
         },
         { text: 'Cikkszám', align: 'center', value: 'partNumber' },
         { text: 'Kategória', align: 'center', value: 'category' },
+        { text: 'Gyártó', align: 'center', value: 'manufacturerName' },
+        { text: 'Tulajdonos', align: 'center', value: 'ownerName' },
         { text: 'Beszállító', align: 'center', value: 'supplier' },
         { text: 'Raktár', align: 'center', value: 'warehouseName' },
         { text: 'Mennyiség (jó készlet)', align: 'center', value: 'quantity' },
@@ -249,29 +276,44 @@ export default {
         categoryId: '',
         supplierId: '',
         warehouseId: '',
+        ownerId: '',
         manufacturerId: '',
         unitPrice: 0,
         currency: '',
         reference: '',
         quantity: 0,
         quantityDifference: 0,
-        note: ''
+        note: '',
+        partNameChanged: false,
+        partNumberChanged: false,
+        categoryIdChanged: false,
+        supplierIdChanged: false,
+        warehouseIdChanged: false,
+        ownerIdChanged: false,
+        manufacturerIdChanged: false,
+        unitPriceChanged: false,
+        currencyChanged: false
       },
       initialQuantity: 0,
       reasonForChangeQuantity: null,
       defaultItem: {
         partName: '',
         partNumber: '',
-        categoryId: '',
+        category: {
+          id: '',
+          name: ''
+        },
         supplierId: '',
         warehouseId: '',
+        ownerId: '',
         manufacturerId: '',
         unitPrice: 0,
         currency: '',
         reference: '',
         quantity: 0,
         quantityDifference: 0,
-        note: ''
+        note: '',
+        partNameChanged: false
       }
     };
   },
@@ -335,10 +377,19 @@ export default {
       );
 
       this.editedItem = Object.assign({}, item);
-      this.editedItem.categoryId = selectedCategory;
+      this.editedItem.partNameChanged = false;
+      this.editedItem.partNumberChanged = false;
+      this.editedItem.categoryIdChanged = false;
+      this.editedItem.supplierIdChanged = false;
+      this.editedItem.warehouseIdChanged = false;
+      this.editedItem.ownerIdChanged = false;
+      this.editedItem.manufacturerIdChanged = false;
+      this.editedItem.unitPriceChanged = false;
+      this.editedItem.currencyChanged = false;
+      this.editedItem.categoryId = selectedCategory.id;
       this.editedItem.warehouseId = selectedWarehouse;
-      this.editedItem.supplierId = selectedSupplier;
-      this.editedItem.manufacturerId = selectedManufacturer;
+      this.editedItem.supplierId = selectedSupplier.id;
+      this.editedItem.manufacturerId = selectedManufacturer.id;
 
       this.$emit('update:dialog', true);
       this.initialQuantity = item.quantity;
@@ -364,8 +415,6 @@ export default {
     addItem(item) {
       this.addingItem = true;
       this.editItem(item);
-
-      console.log('quantity', this.editedItem.quantityDifference);
     },
 
     save(method) {

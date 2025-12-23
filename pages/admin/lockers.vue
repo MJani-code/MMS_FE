@@ -337,7 +337,6 @@ export default {
       vm.previousUrl = from.fullPath;
       //vm.previousUrl értékének mentése a localstorage-ba
       localStorage.setItem('previousUrl', vm.previousUrl);
-      // console.log('Előző URL:', vm.previousUrl);
     });
   }
 };

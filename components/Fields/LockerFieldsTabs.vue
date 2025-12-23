@@ -291,7 +291,6 @@ export default {
   },
   methods: {
     checkValue(val) {
-      console.log('Selected spare parts:', val);
       const selected = Array.isArray(val) ? val : [];
       const partsByStockId = (this.spareparts || []).reduce((acc, p) => {
         acc[p.stockId] = p;
@@ -370,7 +369,6 @@ export default {
       this.newIntervention.issues = issues;
     },
     async addIntervention(form) {
-      console.log('Adding intervention with data:', this.newIntervention);
       await this.$store.dispatch('locker/repair/addInterventionAction', {
         taskId: this.taskId,
         interventionData: this.newIntervention
