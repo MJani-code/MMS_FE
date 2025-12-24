@@ -15,6 +15,9 @@
       <!-- FilterRow in Desktop view-->
       <template v-slot:body.prepend>
         <tr v-if="!isMobile" class="filterRow">
+          <!-- placeholder td for selection column -->
+          <td></td>
+          <!-- real header cells -->
           <td v-for="(header, index) in headers" :key="index">
             <v-select
               v-if="header.filterable && header.text === 'Típus'"
@@ -314,7 +317,11 @@
           @change="updateTask(header, { id: item.id, value: item.taskTypes })"
         >
           <template #selection="{ item: selectedItem }">
-            <v-chip small :style="{ 'background-color': selectedItem.color }">
+            <v-chip
+              small
+              :style="{ 'background-color': selectedItem.color }"
+              :disabled="isToDisable(header, item)"
+            >
               <span>{{ selectedItem.name }}</span>
             </v-chip>
           </template>
@@ -476,6 +483,7 @@
               v-if="index === 0"
               small
               :style="{ 'background-color': selectedItem.color }"
+              :disabled="isToDisable(header, item)"
             >
               <span>{{ selectedItem.name }}</span>
             </v-chip>
@@ -588,6 +596,7 @@
               close
               @click="select"
               @click:close="removeLocker(item)"
+              :disabled="isToDisable(header, item)"
             >
               <v-icon v-if="item.fault" small> mdi-tools </v-icon>
               <v-icon
@@ -631,10 +640,6 @@
         >
           Letöltés
         </v-btn>
-        <p>
-          show selected items
-          {{ selected }}
-        </p>
       </template>
 
       <!-- FillExpandedField -->
@@ -848,6 +853,15 @@ export default {
       }
     },
     isToDisable(header, item) {
+      // Ha van kiválasztott elem akkor minden mező le van tiltva kivéve az engedélyezetteket
+      const notToDisableHeaders = ['status_exohu_id'];
+      if (
+        this.selected.length > 0 &&
+        !notToDisableHeaders.includes(header.value)
+      ) {
+        return true;
+      }
+
       if (
         item.status_exohu_id === 10 &&
         !this.$store.getters['hasPermission']('7')
@@ -879,7 +893,7 @@ export default {
         return true;
       }
     },
-    updateTask(header, selectedItem) {
+    async updateTask(header, selectedItem) {
       let color = '';
       if (header.dbColumn === 'status_by_exohu_id') {
         color = this.getColorOfSelectedStatus(selectedItem['value']);
@@ -898,6 +912,21 @@ export default {
       ) {
         selectedItem[header.dbColumn] = '0000-00-00 00:00:00';
       }
+      // Ha több elem van kiválasztva akkor egy bulk frissítést hajtunk végre
+      if (this.selected.length > 0) {
+        const response = await this.bulkUpdateTask(header, selectedItem);
+        if (response.status !== 200) {
+          this.showNotification('error', response.message);
+        } else {
+          this.$emit('bulkUpdateLockerData', response.payload);
+          this.showNotification(
+            'success',
+            ` ${this.selected.length} db kiválasztott elemek frissítése sikeres volt`
+          );
+          this.selected = [];
+        }
+        return;
+      }
 
       this.$emit('eventToAccordion', {
         id: selectedItem.id,
@@ -906,6 +935,17 @@ export default {
         value: selectedItem['value'],
         color: color
       });
+    },
+    bulkUpdateTask(header, selectedItem) {
+      const response = this.$store.dispatch(
+        'task/updateTaskInBatch/updateTask',
+        {
+          taskIds: this.selected.map((item) => item.id),
+          column: header.dbColumn,
+          value: selectedItem['value']
+        }
+      );
+      return response;
     },
     getColorOfSelectedStatus(statusId) {
       return this.statuses.find((status) => status.id === statusId).color;
@@ -1005,24 +1045,30 @@ td.text-start .v-input__slot {
   min-width: 200px !important;
 }
 thead.v-data-table-header th:nth-child(1),
-thead.v-data-table-header th:nth-child(2) {
-  position: sticky;
-  z-index: 20 !important; /* Biztosítsd, hogy a sticky oszlop a többi fölött legyen */
+thead.v-data-table-header th:nth-child(2),
+thead.v-data-table-header th:nth-child(3) {
+  position: sticky !important;
+  z-index: 20 !important;
 }
 thead.v-data-table-header th:nth-child(1) {
-  left: 0;
+  left: 0 !important;
 }
 thead.v-data-table-header th:nth-child(2) {
-  left: 40px;
+  left: 40px !important;
+}
+thead.v-data-table-header th:nth-child(3) {
+  left: 80px !important;
 }
 .theme--light thead.v-data-table-header th:nth-child(1),
-.theme--light thead.v-data-table-header th:nth-child(2) {
-  background: white; /* Állítsd be a háttérszínt világos témához */
+.theme--light thead.v-data-table-header th:nth-child(2),
+.theme--light thead.v-data-table-header th:nth-child(3) {
+  background: white !important;
 }
 tr.table-row td:nth-child(1),
-tr.table-row td:nth-child(2) {
-  position: sticky;
-  z-index: 1; /* Biztosítsd, hogy a sticky oszlop a többi fölött legyen */
+tr.table-row td:nth-child(2),
+tr.table-row td:nth-child(3) {
+  position: sticky !important;
+  z-index: 1;
 }
 .theme--dark tr.table-row td:nth-child(1) {
   left: 0;
@@ -1038,10 +1084,15 @@ tr.table-row td:nth-child(2) {
   left: 40px;
   background: white;
 }
+.theme--light tr.table-row td:nth-child(3) {
+  left: 80px;
+  background: white;
+}
 tr.filterRow td:nth-child(1),
-tr.filterRow td:nth-child(2) {
+tr.filterRow td:nth-child(2),
+tr.filterRow td:nth-child(3) {
   position: sticky;
-  z-index: 1; /* Biztosítsd, hogy a sticky oszlop a többi fölött legyen */
+  z-index: 1;
 }
 tr.filterRow td:nth-child(1) {
   left: 0;
@@ -1049,16 +1100,22 @@ tr.filterRow td:nth-child(1) {
 tr.filterRow td:nth-child(2) {
   left: 40px;
 }
+tr.filterRow td:nth-child(3) {
+  left: 80px;
+}
 .theme--dark tr.table-row td:nth-child(1),
-.theme--dark tr.table-row td:nth-child(2) {
+.theme--dark tr.table-row td:nth-child(2),
+.theme--dark tr.table-row td:nth-child(3) {
   background: #1e1e1e; /* Állítsd be a háttérszínt sötét témához */
 }
 .theme--dark tr.filterRow td:nth-child(1),
-.theme--dark tr.filterRow td:nth-child(2) {
+.theme--dark tr.filterRow td:nth-child(2),
+.theme--dark tr.filterRow td:nth-child(3) {
   background: #4f4e4e; /* Állítsd be a háttérszínt sötét témához */
 }
 .theme--light tr.filterRow td:nth-child(1),
-.theme--light tr.filterRow td:nth-child(2) {
+.theme--light tr.filterRow td:nth-child(2),
+.theme--light tr.filterRow td:nth-child(3) {
   background: #c3c1c1;
 }
 .v-data-table
@@ -1126,9 +1183,9 @@ td.text-start {
   background-color: rgba(0, 0, 0, 0.5);
   -webkit-box-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
 }
-.v-data-table__wrapper {
-  max-height: 450px;
-}
+// .v-data-table__wrapper {
+//   max-height: 450px;
+// }
 @media (max-width: 600px) {
   .filterRow {
     display: grid;

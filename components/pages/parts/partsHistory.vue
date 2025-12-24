@@ -178,7 +178,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .theme--light thead.v-data-table-header th:nth-child(1),
 .theme--light thead.v-data-table-header th:nth-child(2) {
   background: none !important;

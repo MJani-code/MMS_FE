@@ -27,6 +27,7 @@
         :companies="tasks.companies"
         @eventToTask="handleUpdatedTask"
         @updateLockerData="handleUpdatedLockerData"
+        @bulkUpdateLockerData="handleBulkUpdateLockerData"
         @addFee="handleAddFee"
         @addLocker="handleAddLocker"
         @deleteFee="handleDeleteFee"
@@ -291,6 +292,27 @@ export default {
       } else {
         this.showNotification('error', result.data.message);
       }
+    },
+    async handleBulkUpdateLockerData(payload) {
+      const taskIds = payload.taskIds;
+      const column = payload.column;
+      const value = payload.value;
+      const color = payload.color;
+
+      //megkeressük a taskokat
+      const tasksToUpdate = this.tasks.data.filter((task) =>
+        taskIds.includes(task.id)
+      );
+
+      //frissítjük a locker adatokat
+      tasksToUpdate.forEach((task) => {
+        task[column] = value;
+        if (column == 'status_by_exohu_id') {
+          task.status_color = color;
+          task.status_exohu = payload.status_exohu;
+          task.status_exohu_id = value;
+        }
+      });
     },
     async handleUpdatedTask(payload) {
       const result = await this.updateTask(payload);

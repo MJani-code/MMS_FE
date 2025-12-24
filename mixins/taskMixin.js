@@ -308,6 +308,15 @@ export const taskMixin = {
         console.error('Error fetching parts history', error);
         return [];
       }
+    },
+    async updateTaskInBatch(token, data) {
+      try {
+        const response = await APIPOST('updateTaskInBatch', data, token);
+        return response;
+      } catch (error) {
+        console.error('Error updating tasks in batch', error);
+        return [];
+      }
     }
   }
 };

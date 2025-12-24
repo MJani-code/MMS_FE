@@ -33,6 +33,7 @@
     "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-vue": "^9.29.0",
     "prettier": "^3.3.3",
-    "prettier-plugin-vue": "^1.1.6"
+    "prettier-plugin-vue": "^1.1.6",
+    "webpack-bundle-analyzer": "^5.1.0"
   }
 }

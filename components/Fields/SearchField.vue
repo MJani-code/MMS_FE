@@ -18,8 +18,7 @@ export default {
     };
   },
   methods: {
-    clear(search) {
-    },
+    clear(search) {},
     searchQuery(search) {
       this.$emit('search', { key: 'search', value: search });
     }

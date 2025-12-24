@@ -85,9 +85,7 @@ export default {
       selectedSerialFilter: null
     };
   },
-  computed: {
-
-  },
+  computed: {},
   watch: {
     selectedAdminFilter: function () {
       this.$emit('tofShopIdFilter', {

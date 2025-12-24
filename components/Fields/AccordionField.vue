@@ -20,6 +20,7 @@
         :companies="companies"
         @eventToAccordion="eventToTask"
         @updateLockerData="updateLockerData"
+        @bulkUpdateLockerData="bulkUpdateLockerData"
         @uploadTaskFile="eventToTask"
         @addFee="addFee"
         @addLocker="addLocker"
@@ -35,10 +36,12 @@
 </template>
 
 <script>
-import TableField from './TableField.vue';
+//import TableField from './TableField.vue';
 
 export default {
-  components: { TableField },
+  components: {
+    TableField: () => import('./TableField.vue')
+  },
   props: {
     title: String,
     tasks: Array,
@@ -77,6 +80,9 @@ export default {
     },
     updateLockerData(data) {
       this.$emit('updateLockerData', data);
+    },
+    bulkUpdateLockerData(data) {
+      this.$emit('bulkUpdateLockerData', data);
     },
     downloadTig(data) {
       this.$emit('downloadTig', data);
