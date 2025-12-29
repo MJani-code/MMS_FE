@@ -25,6 +25,7 @@
         :task-types="tasks.taskTypes"
         :locker-serials="tasks.lockerSerials"
         :companies="tasks.companies"
+        :priorities="tasks.priorities"
         @eventToTask="handleUpdatedTask"
         @updateLockerData="handleUpdatedLockerData"
         @bulkUpdateLockerData="handleBulkUpdateLockerData"

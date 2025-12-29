@@ -18,6 +18,7 @@
         :taskTypes="taskTypes"
         :lockerSerials="lockerSerials"
         :companies="companies"
+        :priorities="priorities"
         @eventToAccordion="eventToTask"
         @updateLockerData="updateLockerData"
         @bulkUpdateLockerData="bulkUpdateLockerData"
@@ -52,7 +53,8 @@ export default {
     locationTypes: Array,
     taskTypes: Array,
     lockerSerials: Array,
-    companies: Array
+    companies: Array,
+    priorities: Array
   },
   data: () => ({
     panel: [0],

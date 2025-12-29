@@ -302,6 +302,31 @@
         ></v-text-field>
       </template>
 
+      <!-- Priority -->
+      <template #[`item.priorityId`]="{ header, item }">
+        <v-select
+          v-model="item.priorityId"
+          :items="priorities"
+          item-value="id"
+          item-text="name"
+          small-chips
+          solo
+          hide-details="auto"
+          :disabled="isToDisable(header, item)"
+          @change="updateTask(header, { id: item.id, value: item.priorityId })"
+        >
+          <template #selection="{ item: selectedItem, index }">
+            <v-chip
+              v-if="index === 0"
+              small
+              :style="{ 'background-color': selectedItem.color }"
+            >
+              <span>{{ selectedItem.name }}</span>
+            </v-chip>
+          </template>
+        </v-select>
+      </template>
+
       <!-- Task Types -->
       <template #[`item.taskTypes`]="{ header, item }">
         <v-select
@@ -703,6 +728,10 @@ export default {
     companies: {
       type: Array,
       required: true
+    },
+    priorities: {
+      type: Array,
+      required: true
     }
   },
   data() {
@@ -889,6 +918,12 @@ export default {
       if (
         header.value === 'tof_shop_id' &&
         !this.$store.getters['hasPermission']('16')
+      ) {
+        return true;
+      }
+      if (
+        header.value === 'priorityId' &&
+        !this.$store.getters['hasPermission']('36')
       ) {
         return true;
       }
