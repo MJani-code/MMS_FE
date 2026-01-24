@@ -1,6 +1,7 @@
 <template>
   <div>
     <v-data-table
+      :loading="isLoading"
       v-model="selected"
       :headers="headers"
       :items="filteredTasks"
@@ -732,6 +733,10 @@ export default {
     priorities: {
       type: Array,
       required: true
+    },
+    isLoading: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -983,7 +988,8 @@ export default {
       return response;
     },
     getColorOfSelectedStatus(statusId) {
-      return this.statuses.find((status) => status.id === statusId).color;
+      return this.allowedStatuses.find((status) => status.id === statusId)
+        .color;
     },
     updateLockerData(data) {
       this.$emit('updateLockerData', data);

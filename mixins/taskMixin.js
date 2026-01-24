@@ -25,6 +25,26 @@ export const taskMixin = {
         return [];
       }
     },
+    async fetchTaskStatuses() {
+      try {
+        const token = this.$store.state.token;
+        const response = await APIGET('getTaskStatuses', {}, token);
+        return await response;
+      } catch (error) {
+        console.error('Error fetching task statuses', error);
+        return [];
+      }
+    },
+    async fetchTasksByStatus(statusId) {
+      try {
+        const token = this.$store.state.token;
+        const response = await APIGET('getTasksByStatus', { statusId }, token);
+        return await response;
+      } catch (error) {
+        console.error('Error fetching tasks by status', error);
+        return [];
+      }
+    },
     async fetchDirect4MeLocations() {
       try {
         const token = this.$store.state.token;

@@ -13,6 +13,8 @@ export const config = {
     logout: host + '/MMS_BE/api/logout.php',
     auth: host + '/MMS_BE/api/auth.php',
     getAllTask: host + '/MMS_BE/api/task/getAllTask.php',
+    getTaskStatuses: host + '/MMS_BE/api/task/getTaskStatuses.php',
+    getTasksByStatus: host + '/MMS_BE/api/task/getTasksByStatus.php',
     updateTask: host + '/MMS_BE/api/task/updateTask.php',
     addFee: host + '/MMS_BE/api/task/addFee.php',
     addLocker: host + '/MMS_BE/api/task/addLocker.php',
