@@ -43,7 +43,7 @@ export const taskMixin = {
       if (payload.file) {
         try {
           const token = this.$store.state.token;
-          const response = APIPOST2('updateTask', payload, token);
+          const response = APIPOST2('uploadMedia', payload, token);
           return response;
         } catch (error) {
           console.error('Error fetching updated tasks', error);
@@ -192,7 +192,7 @@ export const taskMixin = {
     deletePhoto(payload) {
       try {
         const token = this.$store.state.token;
-        const response = APIPOST('deletePhoto', payload, token);
+        const response = APIPOST('deleteMedia', payload, token);
         return response;
       } catch (error) {
         console.error('Error fetching deleted photos', error);

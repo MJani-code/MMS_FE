@@ -27,7 +27,7 @@ export const config = {
     getLockerFromLos: host + '/MMS_BE/api/task/getLockerFromLos.php',
     getDataForCreateTask: host + '/MMS_BE/api/task/getDataForCreateTask.php',
     createTask: host + '/MMS_BE/api/task/createTask.php',
-    deletePhoto: host + '/MMS_BE/api/task/deletePhoto.php',
+    deleteMedia: host + '/MMS_BE/api/task/deleteMedia.php',
     getTaskLockersIssues: host + '/MMS_BE/api/task/getTaskLockersIssues.php',
     addIntervention: host + '/MMS_BE/api/task/addIntervention.php',
     deleteIntervention: host + '/MMS_BE/api/task/deleteIntervention.php',
@@ -42,7 +42,8 @@ export const config = {
     addPartToStock: host + '/MMS_BE/api/parts/addPartToStock.php',
     updatePartInStock: host + '/MMS_BE/api/parts/updatePartInStock.php',
     getPartsHistory: host + '/MMS_BE/api/parts/getPartsHistory.php',
-    updateTaskInBatch: host + '/MMS_BE/api/task/updateTaskInBatch.php'
+    updateTaskInBatch: host + '/MMS_BE/api/task/updateTaskInBatch.php',
+    uploadMedia: host + '/MMS_BE/api/task/uploadMedia.php'
   }
 };
 const API = axios.create({
