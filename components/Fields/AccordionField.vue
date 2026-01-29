@@ -38,13 +38,12 @@
 </template>
 
 <script>
-import { taskMixin } from '@/mixins/taskMixin.js';
+import { mapGetters } from 'vuex';
 
 export default {
   components: {
     TableField: () => import('./TableField.vue')
   },
-  mixins: [taskMixin],
   props: {
     title: String,
     statusId: [String, Number],
@@ -67,25 +66,30 @@ export default {
     priorities: Array
   },
   data: () => ({
-    panel: [0],
-    readonly: false,
-    isLoading: false,
-    loadedTasks: [],
     isExpanded: false,
     hasLoadedOnce: false
   }),
   computed: {
+    ...mapGetters('task/tasks', ['getTasksForStatus', 'isStatusLoading']),
+
+    loadedTasks() {
+      // Deep clone hogy ne módosítsuk közvetlenül a store state-t
+      const tasks = this.getTasksForStatus(this.statusId);
+      return JSON.parse(JSON.stringify(tasks));
+    },
+
+    isLoading() {
+      return this.isStatusLoading(this.statusId);
+    },
+
     displayCount() {
-      // Mindig a loadedTasks hosszát mutatjuk, ha be van töltve
-      // Ha még nincs betöltve, akkor a taskCount prop-ot
-      if (this.loadedTasks.length > 0 || this.hasLoadedOnce) {
+      if (this.hasLoadedOnce) {
         return this.loadedTasks.length;
       }
       return this.taskCount;
     }
   },
   watch: {
-    // Figyeljük a loadedTasks változását és jelezzük a szülőnek
     'loadedTasks.length'(newLength) {
       if (this.hasLoadedOnce) {
         this.$emit('countChanged', {
@@ -98,9 +102,7 @@ export default {
   mounted() {},
   methods: {
     handleHeaderClick() {
-      // A kattintás után várunk egy kicsit, hogy a Vuetify feldolgozza az állapot változást
       this.$nextTick(() => {
-        // Az expansion panel állapota most már frissült
         const willBeExpanded = !this.isExpanded;
         this.isExpanded = willBeExpanded;
 
@@ -109,112 +111,170 @@ export default {
         }
       });
     },
+
     async loadTasksForStatus() {
-      this.isLoading = true;
-      try {
-        const response = await this.fetchTasksByStatus(this.statusId);
+      const result = await this.$store.dispatch(
+        'task/tasks/fetchTasksByStatus',
+        this.statusId
+      );
 
-        if (response.data.status === 200) {
-          this.loadedTasks = response.data.data || [];
-
-          // D4ME lokációk adatainak betöltése
-          const d4meResult = await this.fetchDirect4MeLocations();
-          if (d4meResult.data.status === 200) {
-            this.enrichTasksWithLocationData(
-              this.loadedTasks,
-              d4meResult.data.data
-            );
-          }
-
-          this.$emit('tasksLoaded', {
-            statusId: this.statusId,
-            tasks: this.loadedTasks
-          });
-        } else {
-          this.showNotification(
-            'error',
-            response.data.message || 'Hiba történt az adatok betöltése során'
-          );
-        }
-      } catch (error) {
-        console.error('Error loading tasks:', error);
-        this.showNotification(
-          'error',
-          'Hiba történt az adatok betöltése során'
-        );
-      } finally {
-        this.isLoading = false;
+      if (result.success) {
+        this.hasLoadedOnce = true;
+        this.$emit('tasksLoaded', {
+          statusId: this.statusId,
+          tasks: this.loadedTasks
+        });
+      } else {
+        this.showNotification('error', result.message);
       }
     },
-    enrichTasksWithLocationData(tasks, locations) {
-      tasks.forEach((task) => {
-        const location = locations.find((loc) => loc.id === task.box_id);
-        if (location) {
-          if (task.lockers && task.lockers.length > 0) {
-            task.lockers.forEach((locker) => {
-              locker['is_registered'] = 1;
-              locker['is_active'] = 1;
-            });
-          }
-          task['longitude'] = location.longitude;
-          task['latitude'] = location.latitude;
 
-          if (!task.location_photos) {
-            task.location_photos = [];
-          }
-
-          if (location.images?.images?.length > 0) {
-            const currentPhotos = task.location_photos.map((p) => p.url);
-            location.images.images.forEach((image) => {
-              if (image.imagePath && !currentPhotos.includes(image.imagePath)) {
-                task.location_photos.push({ url: image.imagePath });
-              }
-            });
-          }
-        }
-      });
-    },
     async refreshTasks() {
-      // Külső hívásra frissítjük az adatokat
       this.hasLoadedOnce = false;
       if (this.isExpanded) {
         await this.loadTasksForStatus();
-        this.hasLoadedOnce = true;
       }
     },
-    eventToTask(payload) {
-      // Hozzáadjuk a statusId-t minden eventhez
-      this.$emit('eventToTask', { ...payload, statusId: this.statusId });
+
+    async eventToTask(payload) {
+      const column = payload.column;
+
+      // Ha státusz változik, először frissítjük a backend-ben
+      if (column === 'status_by_exohu_id') {
+        // Először frissítjük a backend-ben
+        const result = await this.$store.dispatch('task/tasks/updateTask', {
+          ...payload,
+          statusId: this.statusId
+        });
+
+        if (result.success) {
+          // Ha sikeres, jelezzük a szülőnek a mozgatást
+          this.$emit('statusChange', {
+            taskId: payload.id,
+            oldStatusId: this.statusId,
+            newStatusId: payload.value,
+            color: payload.color,
+            status_exohu: payload.status_exohu
+          });
+        } else {
+          this.showNotification('error', result.message);
+        }
+      } else {
+        // Egyéb frissítések a store-on keresztül
+        const result = await this.$store.dispatch('task/tasks/updateTask', {
+          ...payload,
+          statusId: this.statusId
+        });
+
+        if (!result.success) {
+          this.showNotification('error', result.message);
+        }
+      }
     },
-    addFee(data) {
-      this.$emit('addFee', { ...data, statusId: this.statusId });
+
+    async addFee(payload) {
+      const result = await this.$store.dispatch('task/tasks/addFee', {
+        ...payload,
+        statusId: this.statusId
+      });
+
+      if (!result.success) {
+        this.showNotification('error', result.message);
+      }
     },
-    addLocker(data) {
-      this.$emit('addLocker', { ...data, statusId: this.statusId });
+
+    async addLocker(payload) {
+      const result = await this.$store.dispatch('task/tasks/addLocker', {
+        ...payload,
+        statusId: this.statusId
+      });
+
+      if (result.success) {
+        this.showNotification('success', result.data.message);
+      } else {
+        this.showNotification('error', result.message);
+      }
     },
-    removeLocker(data) {
-      this.$emit('removeLocker', { ...data, statusId: this.statusId });
+
+    async removeLocker(payload) {
+      const result = await this.$store.dispatch('task/tasks/removeLocker', {
+        ...payload,
+        statusId: this.statusId
+      });
+
+      if (!result.success) {
+        this.showNotification('error', result.message);
+      }
     },
-    deleteFee(data) {
-      this.$emit('deleteFee', { ...data, statusId: this.statusId });
+
+    async deleteFee(payload) {
+      const result = await this.$store.dispatch('task/tasks/deleteFee', {
+        ...payload,
+        statusId: this.statusId
+      });
+
+      if (!result.success) {
+        this.showNotification('error', result.message);
+      }
     },
-    deletePhoto(data) {
-      this.$emit('deletePhoto', { ...data, statusId: this.statusId });
+
+    async deletePhoto(payload) {
+      this.$store.dispatch('notification/hideModal');
+
+      const result = await this.$store.dispatch('task/tasks/deletePhoto', {
+        ...payload,
+        statusId: this.statusId
+      });
+
+      if (result.success) {
+        this.showNotification('success', result.message);
+      } else {
+        this.showNotification('error', result.message);
+      }
     },
-    updateLockerData(data) {
-      this.$emit('updateLockerData', { ...data, statusId: this.statusId });
+
+    async updateLockerData(payload) {
+      const result = await this.$store.dispatch('task/tasks/updateTaskLocker', {
+        ...payload,
+        statusId: this.statusId
+      });
+
+      if (!result.success) {
+        this.showNotification('error', result.message);
+      }
     },
+
     bulkUpdateLockerData(data) {
+      // Tömeges frissítést továbbra is a szülő koordinálja
       this.$emit('bulkUpdateLockerData', { ...data, statusId: this.statusId });
     },
+
     downloadTig(data) {
       this.$emit('downloadTig', { ...data, statusId: this.statusId });
     },
+
     downloadTasks(data) {
       this.$emit('downloadTasks', { ...data, statusId: this.statusId });
     },
-    verifyLocker(data) {
-      this.$emit('verifyLocker', { ...data, statusId: this.statusId });
+
+    async verifyLocker(payload) {
+      const result = await this.$store.dispatch('task/tasks/verifyLocker', {
+        statusId: this.statusId,
+        taskId: payload.taskId,
+        data: payload.data
+      });
+
+      if (!result.success) {
+        this.showNotification('error', result.message);
+      }
+    },
+
+    showNotification(type, message) {
+      this.$store.dispatch('notification/addNotification', {
+        type: type,
+        message: message,
+        timeout: 5000
+      });
     }
   }
 };

@@ -235,6 +235,7 @@ export default {
   components: { FeesField, LockerField },
   props: {
     item: Object,
+    statusId: [String, Number],
     taskTypes: Array,
     headers: Array,
     rules: Array,
@@ -281,12 +282,22 @@ export default {
       }
     },
     uploadTaskFile(data) {
-      this.$emit('uploadTaskFile', {
+      // store uploadTaskFile action
+      const response = this.$store.dispatch('task/tasks/uploadMedia', {
         taskId: data.id,
         locationId: data.location_id,
+        statusId: this.statusId,
         fileUpload: true,
         file: this.taskFiles
       });
+      return response;
+
+      // this.$emit('uploadTaskFile', {
+      //   taskId: data.id,
+      //   locationId: data.location_id,
+      //   fileUpload: true,
+      //   file: this.taskFiles
+      // });
     },
     updateLocationData(item, dbTable, dbColumn, key) {
       this.$emit(
@@ -324,11 +335,22 @@ export default {
           {
             text: 'Igen',
             style: 'primary',
-            action: () => this.$emit('deletePhoto', photo)
+            loading: this.$store.state.task.tasks.loadingDeleteMedia,
+            action: () =>
+              this.$store
+                .dispatch('task/tasks/deleteMedia', {
+                  ...photo,
+                  statusId: this.statusId,
+                  locationId: this.item.location_id
+                })
+                .then(() => {
+                  this.$store.dispatch('notification/hideModal');
+                })
           },
           {
             text: 'Mégse',
             style: 'secondary',
+            loading: false,
             action: () => this.$store.dispatch('notification/hideModal')
           }
         ]

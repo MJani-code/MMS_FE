@@ -31,17 +31,10 @@
         :priorities="tasks.priorities"
         @tasksLoaded="handleTasksLoaded"
         @countChanged="handleCountChanged"
-        @eventToTask="handleUpdatedTask"
-        @updateLockerData="handleUpdatedLockerData"
+        @statusChange="handleStatusChange"
         @bulkUpdateLockerData="handleBulkUpdateLockerData"
-        @addFee="handleAddFee"
-        @addLocker="handleAddLocker"
-        @deleteFee="handleDeleteFee"
-        @removeLocker="handleRemoveLocker"
         @downloadTig="handleDownloadTig"
         @downloadTasks="handleDownloadTasks"
-        @verifyLocker="handleVerifyLocker"
-        @deletePhoto="handleDeletePhoto"
       >
       </AccordionField>
     </v-expansion-panels>
@@ -52,9 +45,9 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
 import { taskMixin } from '@/mixins/taskMixin.js';
 import AccordionField from '../../components/Fields/AccordionField.vue';
-import axios from 'axios';
 
 export default {
   name: 'AdminTasks',
@@ -62,20 +55,6 @@ export default {
   mixins: [taskMixin],
   data() {
     return {
-      tasks: {
-        data: [],
-        headers: [],
-        statuses: [],
-        locationTypes: [],
-        users: [],
-        fees: [],
-        taskTypes: [],
-        lockerSerials: [],
-        companies: [],
-        priorities: [],
-        allowedStatuses: []
-      },
-      statusGroups: [], // Státusz csoportok darabszámmal
       searchQuery: '',
       adminFilterOptions: [
         { text: 'Összes tétel', value: null },
@@ -92,21 +71,36 @@ export default {
       expandedAccordions: []
     };
   },
-  watch: {
-    // '$store.state.notification.bellEvent': {
-    //   handler(newVal) {
-    //     if (newVal && newVal.type === 'special' && newVal.toRefresh) {
-    //       this.turnOnLoading();
-    //       this.getTasks();
-    //       this.$store.commit('notification/setBellEvent', null);
-    //     }
-    //   },
-    //   immediate: true
-    // }
-  },
   computed: {
+    ...mapState('task/tasks', {
+      statusGroups: (state) => state.statusGroups,
+      storeHeaders: (state) => state.headers,
+      storeStatuses: (state) => state.statuses,
+      storeFees: (state) => state.fees,
+      storeAllowedStatuses: (state) => state.allowedStatuses,
+      storeLocationTypes: (state) => state.locationTypes,
+      storeTaskTypes: (state) => state.taskTypes,
+      storeLockerSerials: (state) => state.lockerSerials,
+      storeCompanies: (state) => state.companies,
+      storePriorities: (state) => state.priorities
+    }),
+
     groupedTasks() {
       return this.statusGroups;
+    },
+
+    tasks() {
+      return {
+        headers: [...this.storeHeaders],
+        statuses: this.storeStatuses,
+        fees: this.storeFees,
+        allowedStatuses: this.storeAllowedStatuses,
+        locationTypes: this.storeLocationTypes,
+        taskTypes: this.storeTaskTypes,
+        lockerSerials: this.storeLockerSerials,
+        companies: this.storeCompanies,
+        priorities: this.storePriorities
+      };
     }
   },
   async mounted() {
@@ -116,48 +110,29 @@ export default {
   },
   methods: {
     async getTaskStatuses() {
-      try {
-        const result = await this.fetchTaskStatuses();
+      const result = await this.$store.dispatch('task/tasks/fetchTaskStatuses');
 
-        if (result.data.status === 200) {
-          const payload = result.data.payload;
-
-          // Meta adatok
-          this.tasks.headers = payload.headers || [];
-          this.tasks.statuses = payload.statuses || [];
-          this.tasks.fees = payload.fees || [];
-          this.tasks.allowedStatuses = payload.allowedStatuses || [];
-          this.tasks.locationTypes = payload.locationTypes || [];
-          this.tasks.taskTypes = payload.taskTypes || [];
-          this.tasks.lockerSerials = payload.lockerSerials || [];
-          this.tasks.companies = payload.companies || [];
-          this.tasks.priorities = payload.priorities || [];
-          this.tasks.headers.unshift({ text: '', value: 'data-table-expand' });
-
-          // Státusz csoportok darabszámokkal
-          this.statusGroups = payload.statusGroups || {};
-        } else {
-          this.showNotification('error', result.data.message || 'Hiba történt');
-        }
-      } catch (error) {
-        console.error('Error fetching statuses:', error);
-        this.showNotification(
-          'error',
-          'Hiba történt a státuszok betöltése során'
-        );
+      if (result.success) {
+        // Headers unshift kell
+        this.$store.commit('task/tasks/SET_META_DATA', {
+          ...this.$store.state.task.tasks,
+          headers: [
+            { text: '', value: 'data-table-expand' },
+            ...this.$store.state.task.tasks.headers
+          ]
+        });
+      } else {
+        this.showNotification('error', result.message);
       }
     },
+
     handleTasksLoaded(payload) {
-      // Ha szükséges, itt további műveleteket végezhetünk
-      // amikor egy accordion betöltötte az adatait
-      const { statusId, tasks } = payload;
+      // Info célból, ha szükséges
     },
+
     handleCountChanged(payload) {
-      // Frissítjük a statusGroups count értékét amikor egy accordion számlálója változik
       const { statusId, count } = payload;
-      if (this.statusGroups[statusId]) {
-        this.statusGroups[statusId].count = count;
-      }
+      this.$store.commit('task/tasks/UPDATE_STATUS_COUNT', { statusId, count });
     },
     objectContainsQuery(obj, query) {
       // Ellenőrizzük az összes kulcsot és értéket
@@ -237,7 +212,6 @@ export default {
       this.turnOffLoading();
     },
     refreshOpenAccordions() {
-      // Frissítjük az összes megnyitott accordion-t
       Object.keys(this.$refs).forEach((refKey) => {
         if (refKey.startsWith('accordion-')) {
           const accordionRef = this.$refs[refKey];
@@ -247,61 +221,58 @@ export default {
         }
       });
     },
-    async handleUpdatedLockerData(payload) {
-      const result = await this.updateTask(payload);
-      if (result.data.status === 200) {
-        const newValue = result.data.payload.value;
-        const lockerId = result.data.payload.id;
-        const column = result.data.payload.column;
-        const taskId = result.data.payload.taskId;
 
-        this.refreshAccordionTask(payload.statusId, (task) => {
-          if (task.id === taskId) {
-            const locker = task.lockers.find((item) => item.id === lockerId);
-            if (locker) {
-              locker[column] = newValue;
-              return true;
+    async handleStatusChange(payload) {
+      const { taskId, oldStatusId, newStatusId, color, status_exohu } = payload;
+
+      // Megkeressük a task-ot a store-ban
+      const tasks =
+        this.$store.state.task.tasks.tasksByStatus[oldStatusId] || [];
+      const task = tasks.find((t) => t.id === taskId);
+
+      if (task) {
+        // Frissítjük a task adatait
+        const updatedTask = {
+          ...task,
+          status_exohu_id: newStatusId,
+          status_color: color,
+          status_exohu: status_exohu
+        };
+
+        // Store mutation-nel mozgatjuk a task-ot (ez frissíti a számlálókat is)
+        this.$store.commit('task/tasks/MOVE_TASK_TO_STATUS', {
+          taskId,
+          fromStatusId: oldStatusId,
+          toStatusId: newStatusId,
+          updatedTask
+        });
+
+        // Ha az új accordion már be van töltve, frissítjük
+        this.$nextTick(() => {
+          const newAccordionRef = this.$refs[`accordion-${newStatusId}`];
+          if (newAccordionRef && newAccordionRef[0]) {
+            const newAccordion = newAccordionRef[0];
+            if (newAccordion.isExpanded && newAccordion.hasLoadedOnce) {
+              newAccordion.refreshTasks();
             }
           }
-          return false;
         });
-      } else {
-        this.showNotification('error', result.data.message);
       }
     },
+
     async handleBulkUpdateLockerData(payload) {
       const taskIds = payload.taskIds;
       const column = payload.column;
       const value = payload.value;
-      const color = payload.color;
       const oldStatusId = payload.statusId;
-
-      // Frissítjük az adott accordion task-jait
-      this.refreshAccordionTask(payload.statusId, (task) => {
-        if (taskIds.includes(task.id)) {
-          task[column] = value;
-          if (column == 'status_by_exohu_id') {
-            task.status_color = color;
-            task.status_exohu = payload.status_exohu;
-            task.status_exohu_id = value;
-          }
-          return true;
-        }
-        return false;
-      });
 
       // Ha státusz változott tömeges művelettel
       if (column == 'status_by_exohu_id' && oldStatusId !== value) {
-        // Eltávolítjuk a taskokat a régi státuszú accordion-ból
-        const oldAccordionRef = this.$refs[`accordion-${oldStatusId}`];
-        if (oldAccordionRef && oldAccordionRef[0]) {
-          const oldAccordion = oldAccordionRef[0];
-          oldAccordion.loadedTasks = oldAccordion.loadedTasks.filter(
-            (task) => !taskIds.includes(task.id)
-          );
-        }
-
-        await this.refreshStatusGroups();
+        // Store-ban eltávolítjuk a taskokat (ez frissíti a számlálót is)
+        this.$store.commit('task/tasks/REMOVE_TASKS_FROM_STATUS', {
+          statusId: oldStatusId,
+          taskIds: taskIds
+        });
 
         // Frissítjük az új státuszú accordion-t ha már be van töltve
         this.$nextTick(() => {
@@ -315,263 +286,15 @@ export default {
         });
       }
     },
-    async handleUpdatedTask(payload) {
-      const result = await this.updateTask(payload);
-      const isPhotoUpload = result.data.payload?.photoUpload;
-      const color = payload.color;
 
-      if (result.data.status === 200 && isPhotoUpload) {
-        const locationId = result.data.payload.locationId;
-        const newUrl = result.data.payload.url;
-        // Frissítjük az adott accordion task-jait
-        this.refreshAccordionTask(payload.statusId, (task) => {
-          if (task.location_id === locationId) {
-            task.location_photos.push({ url: newUrl });
-            return true;
-          }
-          return false;
-        });
-      }
-      if (result.data.status === 200 && !isPhotoUpload) {
-        if (payload.dbTable === 'task_locations') {
-          const locationId = result.data.payload.id;
-          const column = result.data.payload.column;
-          const newValue = result.data.payload.value;
-          this.refreshAccordionTask(payload.statusId, (task) => {
-            if (task.location_id === locationId) {
-              task[column] = newValue;
-              return true;
-            }
-            return false;
-          });
-        } else {
-          const taskId = result.data.payload.id;
-          const column = result.data.payload.column;
-          const newValue = result.data.payload.value;
-
-          // Ha státusz változás
-          if (column == 'status_by_exohu_id') {
-            // Megkeressük a task-ot a régi accordion-ban
-            const oldAccordionRef = this.$refs[`accordion-${payload.statusId}`];
-            let taskToMove = null;
-
-            if (oldAccordionRef && oldAccordionRef[0]) {
-              const oldAccordion = oldAccordionRef[0];
-              taskToMove = oldAccordion.loadedTasks.find(
-                (t) => t.id === taskId
-              );
-
-              if (taskToMove) {
-                // Frissítjük a task státuszát
-                taskToMove.status_exohu_id = newValue;
-                taskToMove.status_color = color;
-                taskToMove.status_exohu = payload.status_exohu;
-
-                // Eltávolítjuk a régi helyről
-                oldAccordion.loadedTasks = oldAccordion.loadedTasks.filter(
-                  (task) => task.id !== taskId
-                );
-
-                console.log(
-                  `Task ${taskId} removed from status ${payload.statusId}, moving to ${newValue}`
-                );
-              }
-            }
-
-            // Frissítjük a státusz csoportokat
-            await this.refreshStatusGroups();
-
-            // Ha az új státuszú accordion már be van töltve, hozzáadjuk ott
-            this.$nextTick(() => {
-              const newAccordionRef = this.$refs[`accordion-${newValue}`];
-              if (newAccordionRef && newAccordionRef[0]) {
-                const newAccordion = newAccordionRef[0];
-                if (
-                  newAccordion.isExpanded &&
-                  newAccordion.hasLoadedOnce &&
-                  taskToMove
-                ) {
-                  // Hozzáadjuk az új accordion-hoz
-                  newAccordion.loadedTasks.unshift(taskToMove);
-                  console.log(`Task ${taskId} added to status ${newValue}`);
-                }
-              }
-            });
-          } else {
-            // Nem státusz változás, csak egyszerű frissítés
-            this.refreshAccordionTask(payload.statusId, (task) => {
-              if (task.id === taskId) {
-                task[column] = newValue;
-                return true;
-              }
-              return false;
-            });
-          }
-        }
-      }
-      if (result.data.status !== 200) {
-        this.showNotification('error', result.data.message);
-      }
-    },
-    refreshAccordionTask(statusId, updateFn) {
-      // Megkeressük az adott státuszú accordion-t és frissítjük a task-jait
-      const accordionRef = this.$refs[`accordion-${statusId}`];
-      if (accordionRef && accordionRef[0]) {
-        const accordion = accordionRef[0];
-        const updatedTasks = accordion.loadedTasks.map((task) => {
-          if (updateFn(task)) {
-            return { ...task };
-          }
-          return task;
-        });
-        accordion.loadedTasks = updatedTasks;
-      }
-    },
-    async refreshStatusGroups() {
-      // Újratöltjük a státusz csoportokat (darabszámok frissítése)
-      await this.getTaskStatuses();
-    },
-    async handleStatusChange(taskId, oldStatusId, newStatusId) {
-      // Task státusza megváltozott
-      console.log(
-        `Task ${taskId} moved from status ${oldStatusId} to ${newStatusId}`
-      );
-
-      // 1. Eltávolítjuk a taskot a régi státuszú accordion-ból
-      const oldAccordionRef = this.$refs[`accordion-${oldStatusId}`];
-      if (oldAccordionRef && oldAccordionRef[0]) {
-        const oldAccordion = oldAccordionRef[0];
-        oldAccordion.loadedTasks = oldAccordion.loadedTasks.filter(
-          (task) => task.id !== taskId
-        );
-      }
-
-      // 2. Frissítjük a státusz csoportokat (darabszámok)
-      await this.refreshStatusGroups();
-
-      // 3. Ha az új státuszú accordion már be van töltve, frissítjük
-      this.$nextTick(() => {
-        const newAccordionRef = this.$refs[`accordion-${newStatusId}`];
-        if (newAccordionRef && newAccordionRef[0]) {
-          const newAccordion = newAccordionRef[0];
-          // Ha már meg van nyitva és be van töltve, frissítjük
-          if (newAccordion.isExpanded && newAccordion.hasLoadedOnce) {
-            newAccordion.refreshTasks();
-          }
-        }
-      });
-    },
-    async handleAddFee(payload) {
-      const result = await this.addFee(payload);
-
-      if (result.data.status === 200) {
-        const taskId = result.data.payload.taskId;
-        const newFee = result.data.payload;
-
-        this.refreshAccordionTask(payload.statusId, (task) => {
-          if (task.id === taskId) {
-            if (!task.taskFees) task.taskFees = [];
-            task.taskFees.push(newFee);
-            return true;
-          }
-          return false;
-        });
-      }
-    },
-    async handleAddLocker(payload) {
-      const result = await this.addLocker(payload);
-      const message = result.data.message;
-
-      if (result.data.status === 200) {
-        const taskId = result.data.payload[0].taskId;
-        const lockers = result.data.payload;
-
-        this.refreshAccordionTask(payload.statusId, (task) => {
-          if (task.id === taskId) {
-            task.lockers = lockers;
-            return true;
-          }
-          return false;
-        });
-      } else {
-        this.showNotification('error', message);
-      }
-    },
-    async handleRemoveLocker(payload) {
-      const result = await this.removeLocker(payload);
-      const message = result.data.message;
-      if (result.data.status !== 200) {
-        this.showNotification('error', message);
-      } else {
-        this.refreshAccordionTask(payload.statusId, (task) => {
-          const index = task.lockers.findIndex(
-            (locker) => locker.id === payload.id
-          );
-          if (index !== -1) {
-            task.lockers.splice(index, 1);
-            return true;
-          }
-          return false;
-        });
-      }
-    },
-    async handleDeleteFee(payload) {
-      const result = await this.deleteFee(payload);
-      if (result.data.status === 200) {
-        const idToRemove = result.data.payload.id;
-        const taskIdToRemove = result.data.payload.taskId;
-
-        this.refreshAccordionTask(payload.statusId, (task) => {
-          if (
-            task.taskFees &&
-            task.taskFees.some(
-              (fee) => fee.id === idToRemove && fee.taskId === taskIdToRemove
-            )
-          ) {
-            task.taskFees = task.taskFees.filter(
-              (fee) => !(fee.id === idToRemove && fee.taskId === taskIdToRemove)
-            );
-            return true;
-          }
-          return false;
-        });
-      } else {
-        this.showNotification('error', result.data.message);
-      }
-    },
-    async handleDeletePhoto(payload) {
-      this.$store.dispatch('notification/hideModal');
-      const result = await this.deletePhoto(payload);
-      if (result.data.status === 200) {
-        const taskLocationsId = result.data.payload.taskLocationsId;
-        const photoUrl = result.data.payload.url;
-
-        this.refreshAccordionTask(payload.statusId, (task) => {
-          if (task.location_id === taskLocationsId) {
-            const photoIndex = task.location_photos.findIndex(
-              (item) => item.url === photoUrl
-            );
-            if (photoIndex !== -1) {
-              task.location_photos.splice(photoIndex, 1);
-              this.showNotification('success', result.data.message);
-              return true;
-            }
-          }
-          return false;
-        });
-      } else {
-        this.showNotification('error', result.data.message);
-      }
-    },
     async handleDownloadTig(payload) {
       try {
         const response = await this.downloadTig(payload);
 
-        // Létrehozunk egy URL-t a blob-hoz
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', 'tig.xlsx'); // Állítsd be a fájl nevét
+        link.setAttribute('download', 'tig.xlsx');
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -579,15 +302,15 @@ export default {
         this.showNotification('error', error);
       }
     },
+
     async handleDownloadTasks(payload) {
       try {
         const response = await this.downloadTasks(payload);
 
-        // Létrehozunk egy URL-t a blob-hoz
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', 'completedtasks.xlsx'); // Állítsd be a fájl nevét
+        link.setAttribute('download', 'completedtasks.xlsx');
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -595,28 +318,7 @@ export default {
         this.showNotification('error', error);
       }
     },
-    async handleVerifyLocker(payload) {
-      const result = await this.verifyLocker(payload.data);
-      if (result.data.status === 200) {
-        const lockerId = result.data.payload.id;
-        const taskId = payload.taskId;
 
-        this.refreshAccordionTask(payload.statusId, (task) => {
-          if (task.id === taskId) {
-            const lockerIndex = task.lockers.findIndex(
-              (item) => item.id === lockerId
-            );
-            if (lockerIndex !== -1) {
-              task.lockers[lockerIndex] = result.data.payload;
-              return true;
-            }
-          }
-          return false;
-        });
-      } else {
-        this.showNotification('error', result.data.message);
-      }
-    },
     showNotification($type, $message) {
       this.$store.dispatch('notification/addNotification', {
         type: $type,

@@ -16,6 +16,8 @@
       <!-- FilterRow in Desktop view-->
       <template v-slot:body.prepend>
         <tr v-if="!isMobile" class="filterRow">
+          <!-- placeholder td for expand column -->
+          <td></td>
           <!-- placeholder td for selection column -->
           <td></td>
           <!-- real header cells -->
@@ -935,8 +937,13 @@ export default {
     },
     async updateTask(header, selectedItem) {
       let color = '';
+      let status_exohu = null;
       if (header.dbColumn === 'status_by_exohu_id') {
-        color = this.getColorOfSelectedStatus(selectedItem['value']);
+        const selectedStatus = this.allowedStatuses.find(
+          (status) => status.id === selectedItem['value']
+        );
+        color = selectedStatus.color;
+        status_exohu = selectedStatus.name;
       }
 
       //Ha dátumot alaphelyzetbe állítjuk a backendnek 0000-00-00 00:00:00 formátumban kell elküldeni
@@ -972,8 +979,10 @@ export default {
         id: selectedItem.id,
         dbTable: header.dbTable,
         dbColumn: header.dbColumn,
+        column: header.dbColumn,
         value: selectedItem['value'],
-        color: color
+        color: color,
+        status_exohu: status_exohu
       });
     },
     bulkUpdateTask(header, selectedItem) {

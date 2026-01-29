@@ -18,6 +18,7 @@
             :key="index"
             :class="button.style"
             @click="button.action"
+            :loading="isLoading(button.text)"
           >
             {{ button.text }}
           </v-btn>
@@ -26,3 +27,15 @@
     </v-dialog>
   </v-row>
 </template>
+
+<script>
+export default {
+  methods: {
+    isLoading(buttonText) {
+      return (
+        buttonText === 'Igen' && this.$store.state.task.tasks.loadingDeleteMedia
+      );
+    }
+  }
+};
+</script>

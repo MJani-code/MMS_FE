@@ -35,6 +35,8 @@ export const config = {
     deleteIntervention: host + '/MMS_BE/api/task/deleteIntervention.php',
     Locations_GetCountryPublicLocations:
       host + '/MMS_BE/api/task/d4me/Locations_GetCountryPublicLocations.php',
+    getDirect4MeLocations:
+      host + '/MMS_BE/api/task/d4me/Locations_GetCountryPublicLocations.php',
     downloadNewPoints: host + '/MMS_BE/api/task/downloadNewPoints.php',
     downloadNotifications:
       host + '/MMS_BE/api/notifications/getNotifications.php',
@@ -86,12 +88,23 @@ export const APIGET = async (endpoint, params, token) => {
   });
 };
 
-export const APIPUT = async (url, data) => {
-  return await API.put(url, data);
+export const APIPUT = async (endpoint, data, token) => {
+  const url = config.apiUrl[endpoint];
+  return await API.put(url, data, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
 };
 
-export const APIDELETE = async (url) => {
-  return await API.delete(url);
+export const APIDELETE = async (endpoint, data, token) => {
+  const url = config.apiUrl[endpoint];
+  return await API.delete(url, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    },
+    data: data
+  });
 };
 
 export const APIUPLOAD = async (endpoint, data, token) => {
