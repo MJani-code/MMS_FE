@@ -47,7 +47,8 @@ export const config = {
     updatePartInStock: host + '/MMS_BE/api/parts/updatePartInStock.php',
     getPartsHistory: host + '/MMS_BE/api/parts/getPartsHistory.php',
     updateTaskInBatch: host + '/MMS_BE/api/task/updateTaskInBatch.php',
-    uploadMedia: host + '/MMS_BE/api/task/uploadMedia.php'
+    uploadMedia: host + '/MMS_BE/api/task/uploadMedia.php',
+    getInitialData: host + '/MMS_BE/api/task/getInitialData.php'
   }
 };
 const API = axios.create({

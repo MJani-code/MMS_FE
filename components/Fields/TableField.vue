@@ -16,8 +16,6 @@
       <!-- FilterRow in Desktop view-->
       <template v-slot:body.prepend>
         <tr v-if="!isMobile" class="filterRow">
-          <!-- placeholder td for expand column -->
-          <td></td>
           <!-- placeholder td for selection column -->
           <td></td>
           <!-- real header cells -->

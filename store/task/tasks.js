@@ -8,6 +8,9 @@ export const state = () => ({
   // Task-ek státusz szerint (statusId: tasks[])
   tasksByStatus: {},
 
+  // UI állapotok
+  expandedAccordions: [],
+
   // Meta adatok
   headers: [],
   statuses: [],
@@ -209,7 +212,7 @@ export const mutations = {
     }
     state.tasksByStatus[toStatusId].unshift(updatedTask);
 
-    // Frissítjük a számláló értékeket
+    // Frissítjük a számláló értékeket és hozzáadjuk az új státusz csoportot, ha szükséges
     if (state.statusGroups[fromStatusId]) {
       state.statusGroups[fromStatusId].count = Math.max(
         0,
@@ -218,7 +221,23 @@ export const mutations = {
     }
     if (state.statusGroups[toStatusId]) {
       state.statusGroups[toStatusId].count =
-        state.statusGroups[toStatusId].count + 1;
+        (state.statusGroups[toStatusId].count || 0) + 1;
+    } else {
+      // Ha az új státusz csoport nem létezik, a toStatusId használatával kikeressük a státusz nevét a meta adatokból
+      const statusMeta = state.statuses.find((s) => s.id === toStatusId);
+      const statusName = statusMeta ? statusMeta.name : 'Ismeretlen státusz';
+      state.statusGroups = {
+        ...state.statusGroups,
+        [toStatusId]: { color: statusMeta.color, count: 1, title: statusName }
+      };
+    }
+    //Ha a számláló értéke 0, akkor eltávolítjuk a státusz csoportot
+    if (
+      state.statusGroups[fromStatusId] &&
+      state.statusGroups[fromStatusId].count === 0
+    ) {
+      const { [fromStatusId]: _, ...rest } = state.statusGroups;
+      state.statusGroups = rest;
     }
   },
 
@@ -243,15 +262,30 @@ export const mutations = {
     if (state.statusGroups[statusId]) {
       state.statusGroups[statusId].count = count;
     }
+  },
+
+  SET_EXPANDED_ACCORDIONS(state, indices) {
+    state.expandedAccordions = Array.isArray(indices) ? indices : [];
+  },
+
+  // Vuetify v-expansion-panels uses panel indices (numbers) for v-model
+  TOGGLE_ACCORDION(state, index) {
+    if (state.expandedAccordions.includes(index)) {
+      state.expandedAccordions = state.expandedAccordions.filter(
+        (i) => i !== index
+      );
+    } else {
+      state.expandedAccordions.push(index);
+    }
   }
 };
 
 export const actions = {
-  async fetchTaskStatuses({ commit, rootState }) {
+  async fetchInitialData({ commit, rootState }) {
     commit('SET_LOADING_STATUSES', true);
     try {
       const token = rootState.token;
-      const result = await APIGET('getTaskStatuses', null, token);
+      const result = await APIGET('getInitialData', null, token);
 
       if (result.data.status === 200) {
         const payload = result.data.payload;
@@ -312,6 +346,34 @@ export const actions = {
       };
     } finally {
       commit('SET_LOADING_STATUS', { statusId, isLoading: false });
+    }
+  },
+
+  async filteredTasks({ commit, rootState }, filters) {
+    commit('SET_LOADING_STATUSES', true);
+    try {
+      const token = rootState.token;
+      const result = await APIPOST('getFilteredTasks', filters, token);
+
+      if (result.data.status === 200) {
+        const tasks = result.data.data || [];
+        //TODO: a visszatérő adatok alapján updatelni a statusGroups-ot is, hogy csak azok jelenjenek meg, amikben van találat és a számláló értékeket is helyesen mutassa
+        commit('SET_TASKS_FOR_STATUS', { statusId: 'filtered', tasks });
+        return { success: true, tasks };
+      } else {
+        return {
+          success: false,
+          message: result.data.message || 'Hiba történt'
+        };
+      }
+    } catch (error) {
+      console.error('Error fetching filtered tasks:', error);
+      return {
+        success: false,
+        message: 'Hiba történt az adatok betöltése során'
+      };
+    } finally {
+      commit('SET_LOADING_STATUSES', false);
     }
   },
 

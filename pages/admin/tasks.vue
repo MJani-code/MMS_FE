@@ -67,8 +67,7 @@ export default {
         { text: 'Nincs serial', value: false }
       ],
       selectedAdminFilter: null,
-      selectedSerialFilter: null,
-      expandedAccordions: []
+      selectedSerialFilter: null
     };
   },
   computed: {
@@ -85,7 +84,17 @@ export default {
       storePriorities: (state) => state.priorities
     }),
 
+    expandedAccordions: {
+      get() {
+        return this.$store.state.task.tasks.expandedAccordions;
+      },
+      set(indices) {
+        this.$store.commit('task/tasks/SET_EXPANDED_ACCORDIONS', indices);
+      }
+    },
+
     groupedTasks() {
+      console.log(this.$store.state.task.tasks);
       return this.statusGroups;
     },
 
@@ -105,12 +114,12 @@ export default {
   },
   async mounted() {
     this.turnOnLoading();
-    await this.getTaskStatuses();
+    await this.fetchInitialData();
     this.turnOffLoading();
   },
   methods: {
-    async getTaskStatuses() {
-      const result = await this.$store.dispatch('task/tasks/fetchTaskStatuses');
+    async fetchInitialData() {
+      const result = await this.$store.dispatch('task/tasks/fetchInitialData');
 
       if (result.success) {
         // Headers unshift kell

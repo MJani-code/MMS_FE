@@ -106,7 +106,8 @@ export default {
         const willBeExpanded = !this.isExpanded;
         this.isExpanded = willBeExpanded;
 
-        if (willBeExpanded && !this.hasLoadedOnce) {
+        // Always (re)load tasks when the accordion is opened. Do not load on close.
+        if (willBeExpanded) {
           this.loadTasksForStatus();
         }
       });
