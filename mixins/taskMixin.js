@@ -35,16 +35,20 @@ export const taskMixin = {
         return [];
       }
     },
-    async fetchTasksByStatus(statusId) {
-      try {
-        const token = this.$store.state.token;
-        const response = await APIGET('getTasksByStatus', { statusId }, token);
-        return await response;
-      } catch (error) {
-        console.error('Error fetching tasks by status', error);
-        return [];
-      }
-    },
+    // async fetchTasksByStatus(statusId, page, itemsPerPage) {
+    //   try {
+    //     const token = this.$store.state.token;
+    //     const response = await APIGET(
+    //       'getTasksByStatus',
+    //       { statusId, page, itemsPerPage },
+    //       token
+    //     );
+    //     return await response;
+    //   } catch (error) {
+    //     console.error('Error fetching tasks by status', error);
+    //     return [];
+    //   }
+    // },
     async fetchDirect4MeLocations() {
       try {
         const token = this.$store.state.token;
@@ -338,5 +342,14 @@ export const taskMixin = {
         return [];
       }
     }
+    // async getFilteredTasks(token, filters) {
+    //   try {
+    //     const response = await APIPOST('filterTasks', filters, token);
+    //     return response;
+    //   } catch (error) {
+    //     console.error('Error fetching filtered tasks', error);
+    //     return [];
+    //   }
+    // }
   }
 };

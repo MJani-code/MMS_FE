@@ -48,7 +48,8 @@ export const config = {
     getPartsHistory: host + '/MMS_BE/api/parts/getPartsHistory.php',
     updateTaskInBatch: host + '/MMS_BE/api/task/updateTaskInBatch.php',
     uploadMedia: host + '/MMS_BE/api/task/uploadMedia.php',
-    getInitialData: host + '/MMS_BE/api/task/getInitialData.php'
+    getInitialData: host + '/MMS_BE/api/task/getInitialData.php',
+    getTask: host + '/MMS_BE/api/task/getTask.php'
   }
 };
 const API = axios.create({

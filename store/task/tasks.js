@@ -2,6 +2,14 @@
 import { APIGET, APIPOST, APIPOST2, APIPUT, APIDELETE } from '@/api/apiHelper';
 
 export const state = () => ({
+  //filters
+  filters: {
+    searchText: null
+  },
+
+  //serverItemLengthByStatus (statusId: { count: number })
+  serverItemLengthByStatus: {},
+
   // Státusz csoportok (accordion fejlécek)
   statusGroups: {},
 
@@ -29,6 +37,15 @@ export const state = () => ({
 });
 
 export const getters = {
+  getServerItemLength: (state) => (statusId) => {
+    if (!state.serverItemLengthByStatus[statusId]) {
+      return state.serverItemLengthByStatus;
+    }
+    return state.serverItemLengthByStatus[statusId]?.count || 0;
+  },
+
+  getFilters: (state) => state.filters,
+
   getTasksForStatus: (state) => (statusId) => {
     // Return a shallow copy to ensure reactivity
     return state.tasksByStatus[statusId]
@@ -42,10 +59,41 @@ export const getters = {
 
   getStatusGroup: (state) => (statusId) => {
     return state.statusGroups[statusId] || null;
+  },
+
+  getTaskCountForStatus: (state) => (statusId) => {
+    return state.tasksByStatus[statusId]?.length || 0;
   }
 };
 
 export const mutations = {
+  SET_SERVER_ITEM_LENGTH(state, { statusId = null, data = null } = {}) {
+    if (!data) return;
+
+    if (statusId === null || statusId === undefined) {
+      // Tömeges frissítés statusGroups objektumból
+      const next = {};
+      Object.entries(data).forEach(([id, group]) => {
+        next[id] = { count: group?.count || 0 };
+      });
+      state.serverItemLengthByStatus = next;
+      return;
+    }
+
+    if (!state.serverItemLengthByStatus[statusId]) {
+      state.serverItemLengthByStatus[statusId] = { count: 0 };
+    }
+    state.serverItemLengthByStatus[statusId].count = data.count || 0;
+  },
+
+  SET_SEARCH_TEXT(state, text) {
+    state.filters.searchText = text;
+  },
+
+  CLEAR_SEARCH_TEXT(state) {
+    state.filters.searchText = null;
+  },
+
   SET_STATUS_GROUPS(state, groups) {
     state.statusGroups = groups;
   },
@@ -94,17 +142,21 @@ export const mutations = {
     }
   },
 
-  UPDATE_TASK_LOCKER(state, { statusId, taskId, lockerId, updates }) {
+  UPDATE_TASK_LOCKER(state, { taskId, lockerId, updates }) {
+    const statusId = Object.keys(state.tasksByStatus).find((sId) =>
+      state.tasksByStatus[sId].some((t) => t.id === taskId)
+    );
     const tasks = state.tasksByStatus[statusId];
     if (tasks) {
       const task = tasks.find((t) => t.id === taskId);
       if (task && task.lockers) {
         const lockerIndex = task.lockers.findIndex((l) => l.id === lockerId);
         if (lockerIndex !== -1) {
-          task.lockers[lockerIndex] = {
+          // Locker adatok cseréje új objektummal a reaktivitás miatt
+          task.lockers.splice(lockerIndex, 1, {
             ...task.lockers[lockerIndex],
             ...updates
-          };
+          });
         }
       }
     }
@@ -131,19 +183,56 @@ export const mutations = {
     }
   },
 
-  SET_TASK_LOCKERS(state, { statusId, taskId, lockers }) {
+  SET_TASK_LOCKERS(state, { taskId, lockers }) {
+    const statusId = Object.keys(state.tasksByStatus).find((sId) =>
+      state.tasksByStatus[sId].some((t) => t.id === taskId)
+    );
     const tasks = state.tasksByStatus[statusId];
     if (tasks) {
       const taskIndex = tasks.findIndex((t) => t.id === taskId);
       if (taskIndex !== -1) {
-        // Create new task object to trigger reactivity
-        const updatedTask = { ...tasks[taskIndex], lockers };
+        const currentLockers = Array.isArray(tasks[taskIndex].lockers)
+          ? tasks[taskIndex].lockers
+          : [];
+        const incomingLockers = Array.isArray(lockers) ? lockers : [];
+
+        // Hozzáfűzés meglévőkhöz; duplikáció csak egyértelműen azonos kulcsnál kerül kiszűrésre.
+        const buildKey = (locker) => {
+          if (!locker) return null;
+          if (locker.id !== undefined && locker.id !== null) {
+            return `id:${locker.id}`;
+          }
+          if (locker.serial) {
+            return `serial:${locker.serial}`;
+          }
+          return null;
+        };
+
+        const seen = new Set();
+        const mergedLockers = [];
+
+        [...currentLockers, ...incomingLockers].forEach((locker) => {
+          const key = buildKey(locker);
+          if (!key) {
+            mergedLockers.push(locker);
+            return;
+          }
+          if (!seen.has(key)) {
+            seen.add(key);
+            mergedLockers.push(locker);
+          }
+        });
+
+        const updatedTask = { ...tasks[taskIndex], lockers: mergedLockers };
         tasks.splice(taskIndex, 1, updatedTask);
       }
     }
   },
 
-  REMOVE_TASK_LOCKER(state, { statusId, taskId, lockerId }) {
+  REMOVE_TASK_LOCKER(state, { taskId, lockerId }) {
+    const statusId = Object.keys(state.tasksByStatus).find((sId) =>
+      state.tasksByStatus[sId].some((t) => t.id === taskId)
+    );
     const tasks = state.tasksByStatus[statusId];
     if (tasks) {
       const taskIndex = tasks.findIndex((t) => t.id === taskId);
@@ -158,7 +247,10 @@ export const mutations = {
     }
   },
 
-  ADD_TASK_PHOTO(state, { statusId, locationId, photoUrl }) {
+  ADD_TASK_PHOTO(state, { locationId, photoUrl }) {
+    const statusId = Object.keys(state.tasksByStatus).find((sId) =>
+      state.tasksByStatus[sId].some((t) => t.location_id === locationId)
+    );
     const tasks = state.tasksByStatus[statusId];
     if (tasks) {
       const taskIndex = tasks.findIndex((t) => t.location_id === locationId);
@@ -173,7 +265,10 @@ export const mutations = {
     }
   },
 
-  REMOVE_TASK_PHOTO(state, { statusId, locationId, photoUrl }) {
+  REMOVE_TASK_PHOTO(state, { locationId, photoUrl }) {
+    const statusId = Object.keys(state.tasksByStatus).find((sId) =>
+      state.tasksByStatus[sId].some((t) => t.location_id === locationId)
+    );
     const tasks = state.tasksByStatus[statusId];
     if (tasks) {
       const taskIndex = tasks.findIndex((t) => t.location_id === locationId);
@@ -190,10 +285,15 @@ export const mutations = {
     }
   },
 
-  MOVE_TASK_TO_STATUS(
-    state,
-    { taskId, fromStatusId, toStatusId, updatedTask }
-  ) {
+  MOVE_TASK_TO_STATUS(state, { taskId, toStatusId, updatedTask }) {
+    //kikeressük a régi státuszt a taskId alapján
+    const fromStatusId = Object.keys(state.tasksByStatus).find((statusId) =>
+      state.tasksByStatus[statusId].some((t) => String(t.id) === String(taskId))
+    );
+
+    if (fromStatusId === undefined) {
+      return;
+    }
     // Eltávolítjuk a régi státuszból
     const fromTasks = state.tasksByStatus[fromStatusId];
     if (fromTasks) {
@@ -210,31 +310,44 @@ export const mutations = {
         [toStatusId]: []
       };
     }
+    // Az új státuszhoz hozzáadjuk a frissített taskot
     state.tasksByStatus[toStatusId].unshift(updatedTask);
 
     // Frissítjük a számláló értékeket és hozzáadjuk az új státusz csoportot, ha szükséges
-    if (state.statusGroups[fromStatusId]) {
-      state.statusGroups[fromStatusId].count = Math.max(
+    if (state.serverItemLengthByStatus[fromStatusId]) {
+      state.serverItemLengthByStatus[fromStatusId].count = Math.max(
         0,
-        state.statusGroups[fromStatusId].count - 1
+        state.serverItemLengthByStatus[fromStatusId].count - 1
       );
     }
-    if (state.statusGroups[toStatusId]) {
-      state.statusGroups[toStatusId].count =
-        (state.statusGroups[toStatusId].count || 0) + 1;
-    } else {
-      // Ha az új státusz csoport nem létezik, a toStatusId használatával kikeressük a státusz nevét a meta adatokból
-      const statusMeta = state.statuses.find((s) => s.id === toStatusId);
+    if (!state.serverItemLengthByStatus[toStatusId]) {
+      const statusMeta = state.statuses.find(
+        (s) => String(s.id) === String(toStatusId)
+      );
       const statusName = statusMeta ? statusMeta.name : 'Ismeretlen státusz';
-      state.statusGroups = {
-        ...state.statusGroups,
-        [toStatusId]: { color: statusMeta.color, count: 1, title: statusName }
+      //statusGroupban is létrehozzuk az új státusz csoportot, ha még nem létezik
+      if (!state.statusGroups[toStatusId]) {
+        state.statusGroups[toStatusId] = {
+          color: statusMeta?.color || '#ccc',
+          count: 1,
+          title: statusName
+        };
+      }
+
+      state.serverItemLengthByStatus[toStatusId] = {
+        color: statusMeta?.color || '#ccc',
+        count: 1,
+        title: statusName
       };
+    } else {
+      // Ha az új státusz csoport már létezik, növeljük a számlálót
+      state.serverItemLengthByStatus[toStatusId].count =
+        (state.serverItemLengthByStatus[toStatusId].count || 0) + 1;
     }
     //Ha a számláló értéke 0, akkor eltávolítjuk a státusz csoportot
     if (
-      state.statusGroups[fromStatusId] &&
-      state.statusGroups[fromStatusId].count === 0
+      state.serverItemLengthByStatus[fromStatusId] &&
+      state.serverItemLengthByStatus[fromStatusId].count === 0
     ) {
       const { [fromStatusId]: _, ...rest } = state.statusGroups;
       state.statusGroups = rest;
@@ -258,11 +371,44 @@ export const mutations = {
     }
   },
 
-  UPDATE_STATUS_COUNT(state, { statusId, count }) {
-    if (state.statusGroups[statusId]) {
-      state.statusGroups[statusId].count = count;
+  REMOVE_GROUP_FROM_STATUS(state, statusId) {
+    // Eltávolítjuk a státusz csoportot
+    const { [statusId]: _, ...rest } = state.statusGroups;
+    state.statusGroups = rest;
+
+    // Eltávolítjuk a státuszhoz tartozó taskokat
+    if (state.tasksByStatus[statusId]) {
+      delete state.tasksByStatus[statusId];
+    }
+
+    //Ha nincs statusId, akkor minden státusz csoportot és taskot eltávolítunk
+    if (!statusId) {
+      state.statusGroups = {};
+      state.tasksByStatus = {};
     }
   },
+
+  // UPDATE_STATUS_COUNT(state, { statusId, count, direction }) {
+  //   if (direction == 'plus') {
+  //     if (state.serverItemLengthByStatus[statusId]) {
+  //       state.serverItemLengthByStatus[statusId].count =
+  //         (state.serverItemLengthByStatus[statusId].count || 0) + 1;
+  //     }
+  //     return;
+  //   }
+  //   if (direction == 'minus') {
+  //     if (state.serverItemLengthByStatus[statusId]) {
+  //       state.serverItemLengthByStatus[statusId].count = Math.max(
+  //         0,
+  //         (state.serverItemLengthByStatus[statusId].count || 0) - 1
+  //       );
+  //     }
+  //     return;
+  //   }
+  //   if (state.serverItemLengthByStatus[statusId] && typeof count === 'number') {
+  //     state.serverItemLengthByStatus[statusId].count = count;
+  //   }
+  // },
 
   SET_EXPANDED_ACCORDIONS(state, indices) {
     state.expandedAccordions = Array.isArray(indices) ? indices : [];
@@ -296,6 +442,14 @@ export const actions = {
         // Státusz csoportok mentése
         commit('SET_STATUS_GROUPS', payload.statusGroups || {});
 
+        // Server item length mentése
+        if (payload.statusGroups) {
+          commit('SET_SERVER_ITEM_LENGTH', {
+            statusId: null,
+            data: payload.statusGroups
+          });
+        }
+
         return { success: true };
       } else {
         return {
@@ -314,23 +468,33 @@ export const actions = {
     }
   },
 
-  async fetchTasksByStatus({ commit, rootState }, statusId) {
+  async fetchTask(
+    { commit, rootState, state },
+    { statusId, page, itemsPerPage }
+  ) {
     commit('SET_LOADING_STATUS', { statusId, isLoading: true });
     try {
       const token = rootState.token;
-      const result = await APIGET('getTasksByStatus', { statusId }, token);
+      const result = await APIPOST(
+        'getTask',
+        { statusId, page, itemsPerPage, searchText: state.filters.searchText },
+        token
+      );
 
       if (result.data.status === 200) {
         let tasks = result.data.data || [];
 
         // D4ME lokációk adatainak betöltése
-        const d4meResult = await APIGET('getDirect4MeLocations', null, token);
-        if (d4meResult.data.status === 200) {
-          const locations = d4meResult.data.data;
-          tasks = enrichTasksWithLocationData(tasks, locations);
+        // const d4meResult = await APIGET('getDirect4MeLocations', null, token);
+        // if (d4meResult.data.status === 200) {
+        //   const locations = d4meResult.data.data;
+        //   tasks = enrichTasksWithLocationData(tasks, locations);
+        // }
+
+        if (statusId !== null && statusId !== undefined) {
+          commit('SET_TASKS_FOR_STATUS', { statusId, tasks });
         }
 
-        commit('SET_TASKS_FOR_STATUS', { statusId, tasks });
         return { success: true, tasks };
       } else {
         return {
@@ -349,38 +513,66 @@ export const actions = {
     }
   },
 
-  async filteredTasks({ commit, rootState }, filters) {
-    commit('SET_LOADING_STATUSES', true);
+  async setSearchText({ commit, dispatch, state }, text) {
     try {
-      const token = rootState.token;
-      const result = await APIPOST('getFilteredTasks', filters, token);
+      commit('SET_SEARCH_TEXT', text);
+      commit('REMOVE_GROUP_FROM_STATUS', null); // Minden státusz csoport és task eltávolítása a store-ból
+      const result = await dispatch('fetchTask', {
+        statusId: null,
+        page: null,
+        itemsPerPage: null
+      });
+      //serverItemLengthByStatus frissítése a kapott adatok alapján
+      if (result.success && result.tasks) {
+        const tasksByStatus = {};
+        result.tasks.forEach((task) => {
+          if (!tasksByStatus[task.status_exohu_id]) {
+            tasksByStatus[task.status_exohu_id] = [];
+          }
+          tasksByStatus[task.status_exohu_id].push(task);
+        });
 
-      if (result.data.status === 200) {
-        const tasks = result.data.data || [];
-        //TODO: a visszatérő adatok alapján updatelni a statusGroups-ot is, hogy csak azok jelenjenek meg, amikben van találat és a számláló értékeket is helyesen mutassa
-        commit('SET_TASKS_FOR_STATUS', { statusId: 'filtered', tasks });
-        return { success: true, tasks };
-      } else {
-        return {
-          success: false,
-          message: result.data.message || 'Hiba történt'
-        };
+        const statusGroups = {};
+        Object.entries(tasksByStatus).forEach(([statusId, tasks]) => {
+          const statusMeta =
+            state.statuses.find((s) => String(s.id) === String(statusId)) ||
+            state.allowedStatuses.find(
+              (s) => String(s.id) === String(statusId)
+            );
+
+          statusGroups[statusId] = {
+            title: statusMeta?.name || 'Ismeretlen státusz',
+            color: statusMeta?.color || '#ccc',
+            count: tasks.length
+          };
+
+          commit('SET_SERVER_ITEM_LENGTH', {
+            statusId: statusId,
+            data: { count: tasks.length }
+          });
+          commit('SET_TASKS_FOR_STATUS', { statusId, tasks });
+        });
+
+        commit('SET_STATUS_GROUPS', statusGroups);
       }
     } catch (error) {
-      console.error('Error fetching filtered tasks:', error);
-      return {
-        success: false,
-        message: 'Hiba történt az adatok betöltése során'
-      };
-    } finally {
-      commit('SET_LOADING_STATUSES', false);
+      console.error('Error setting search text:', error);
     }
   },
 
-  async updateTask({ commit, rootState }, payload) {
+  clearSearchText({ commit, dispatch }) {
+    try {
+      commit('CLEAR_SEARCH_TEXT');
+      dispatch('fetchInitialData');
+    } catch (error) {
+      console.error('Error clearing search text:', error);
+    }
+  },
+
+  async updateTask({ commit, rootState, state }, payload) {
     try {
       const token = rootState.token;
-      const result = await APIPUT('updateTask', payload, token);
+      const result = await APIPOST('updateTask', payload, token);
 
       if (result.data.status === 200) {
         const responsePayload = result.data.payload;
@@ -394,9 +586,36 @@ export const actions = {
             photoUrl: responsePayload.url
           });
         } else if (payload.column === 'status_by_exohu_id') {
-          // Státusz változtatás - NE frissítsük itt a store-t
-          // A tasks.vue handleStatusChange fogja kezelni a MOVE_TASK_TO_STATUS mutation-nel
-          // Csak a sikeres választ küldjük vissza
+          // Státusz váltás- megkeressük a taskot a régi státuszban, majd áthelyezzük az új státuszba
+          const sourceStatusId =
+            payload.statusId ??
+            Object.keys(state.tasksByStatus).find((statusId) =>
+              state.tasksByStatus[statusId].some(
+                (t) => String(t.id) === String(payload.id)
+              )
+            );
+
+          const task = sourceStatusId
+            ? state.tasksByStatus[sourceStatusId]?.find(
+                (t) => String(t.id) === String(payload.id)
+              )
+            : null;
+
+          if (task) {
+            commit('MOVE_TASK_TO_STATUS', {
+              taskId: responsePayload.id,
+              toStatusId: responsePayload.value,
+              updatedTask: {
+                ...task,
+                status_exohu_id: responsePayload.value
+              }
+            });
+            // commit('UPDATE_TASK_IN_STATUS', {
+            //   statusId: payload.statusId,
+            //   taskId: responsePayload.id,
+            //   updates: { status_exohu_id: responsePayload.value }
+            // });
+          }
         } else if (payload.dbTable === 'task_locations') {
           // Location frissítés
           const task = this.state.task.tasks.tasksByStatus[
@@ -405,7 +624,7 @@ export const actions = {
           if (task) {
             commit('UPDATE_TASK_IN_STATUS', {
               statusId: payload.statusId,
-              taskId: task.id,
+              taskId: responsePayload.id,
               updates: { [responsePayload.column]: responsePayload.value }
             });
           }
@@ -431,7 +650,7 @@ export const actions = {
   async updateTaskLocker({ commit, rootState }, payload) {
     try {
       const token = rootState.token;
-      const result = await APIPUT('updateTask', payload, token);
+      const result = await APIPOST('updateTask', payload, token);
 
       if (result.data.status === 200) {
         const responsePayload = result.data.payload;
@@ -544,10 +763,9 @@ export const actions = {
 
       if (result.data.status === 200) {
         const responsePayload = result.data.payload;
-        const taskId = responsePayload[0]?.taskId;
+        const taskId = responsePayload[0]?.task_id;
 
         commit('SET_TASK_LOCKERS', {
-          statusId: payload.statusId,
           taskId: taskId,
           lockers: responsePayload
         });
@@ -568,23 +786,14 @@ export const actions = {
   async removeLocker({ commit, rootState }, payload) {
     try {
       const token = rootState.token;
-      const result = await APIDELETE('removeLocker', payload, token);
+      const result = await APIPOST('removeLocker', payload, token);
 
       if (result.data.status === 200) {
-        // Megkeressük a taskot
-        const tasks =
-          this.state.task.tasks.tasksByStatus[payload.statusId] || [];
-        const task = tasks.find((t) =>
-          t.lockers?.some((l) => l.id === payload.id)
-        );
-
-        if (task) {
-          commit('REMOVE_TASK_LOCKER', {
-            statusId: payload.statusId,
-            taskId: task.id,
-            lockerId: payload.id
-          });
-        }
+        commit('REMOVE_TASK_LOCKER', {
+          statusId: payload.statusId,
+          taskId: payload.task_id,
+          lockerId: payload.id
+        });
 
         return { success: true, data: result.data };
       } else {
@@ -662,18 +871,17 @@ export const actions = {
     }
   },
 
-  async verifyLocker({ commit, rootState }, { statusId, taskId, data }) {
+  async verifyLocker({ commit, rootState }, payload) {
     try {
       const token = rootState.token;
-      const result = await APIPOST('verifyLocker', data, token);
+      const result = await APIPOST('verifyLocker', payload, token);
 
       if (result.data.status === 200) {
         const responsePayload = result.data.payload;
 
         commit('UPDATE_TASK_LOCKER', {
-          statusId: statusId,
-          taskId: taskId,
-          lockerId: responsePayload.id,
+          taskId: payload.task_id,
+          lockerId: payload.id,
           updates: responsePayload
         });
 

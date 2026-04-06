@@ -5,7 +5,7 @@
   >
     <v-expansion-panel-header @click="handleHeaderClick">
       {{ title }}
-      <span class="text-left ml-2">{{ displayCount }}</span>
+      <span class="text-left ml-2">{{ serverItemsLength }}</span>
     </v-expansion-panel-header>
     <v-expansion-panel-content>
       <TableField
@@ -20,10 +20,14 @@
         :lockerSerials="lockerSerials"
         :companies="companies"
         :priorities="priorities"
-        @eventToAccordion="eventToTask"
+        :server-items-length="serverItemsLength"
+        :page="page"
+        :items-per-page="itemsPerPage"
+        @update:page="handlePageChange"
+        @update:items-per-page="handleItemsPerPageChange"
         @updateLockerData="updateLockerData"
         @bulkUpdateLockerData="bulkUpdateLockerData"
-        @uploadTaskFile="eventToTask"
+        @uploadTaskFile="updateTask"
         @addFee="addFee"
         @addLocker="addLocker"
         @deleteFee="deleteFee"
@@ -51,9 +55,13 @@ export default {
       type: String,
       default: '#ccc'
     },
-    taskCount: {
+    serverItemsLength: {
       type: Number,
       default: 0
+    },
+    searchText: {
+      type: String,
+      default: ''
     },
     headers: Array,
     statuses: Array,
@@ -67,7 +75,9 @@ export default {
   },
   data: () => ({
     isExpanded: false,
-    hasLoadedOnce: false
+    hasLoadedOnce: false,
+    page: 1,
+    itemsPerPage: 10
   }),
   computed: {
     ...mapGetters('task/tasks', ['getTasksForStatus', 'isStatusLoading']),
@@ -80,26 +90,21 @@ export default {
 
     isLoading() {
       return this.isStatusLoading(this.statusId);
-    },
-
-    displayCount() {
-      if (this.hasLoadedOnce) {
-        return this.loadedTasks.length;
-      }
-      return this.taskCount;
     }
   },
   watch: {
-    'loadedTasks.length'(newLength) {
-      if (this.hasLoadedOnce) {
-        this.$emit('countChanged', {
-          statusId: this.statusId,
-          count: newLength
-        });
-      }
-    }
+    // 'loadedTasks.length'(newLength) {
+    //   if (this.hasLoadedOnce) {
+    //     this.$emit('countChanged', {
+    //       statusId: this.statusId,
+    //       count: newLength
+    //     });
+    //   }
+    // }
   },
-  mounted() {},
+  mounted() {
+    this.loadTasksForStatus();
+  },
   methods: {
     handleHeaderClick() {
       this.$nextTick(() => {
@@ -114,10 +119,12 @@ export default {
     },
 
     async loadTasksForStatus() {
-      const result = await this.$store.dispatch(
-        'task/tasks/fetchTasksByStatus',
-        this.statusId
-      );
+      const result = await this.$store.dispatch('task/tasks/fetchTask', {
+        statusId: this.statusId,
+        page: this.page,
+        itemsPerPage: this.itemsPerPage,
+        searchText: this.$store.getters['task/tasks/getFilters'].searchText
+      });
 
       if (result.success) {
         this.hasLoadedOnce = true;
@@ -137,39 +144,29 @@ export default {
       }
     },
 
-    async eventToTask(payload) {
-      const column = payload.column;
+    async handlePageChange(newPage) {
+      // v-data-table emits 1-based page numbers
+      this.page = newPage;
+      if (this.isExpanded) {
+        await this.loadTasksForStatus();
+      }
+    },
 
-      // Ha státusz változik, először frissítjük a backend-ben
-      if (column === 'status_by_exohu_id') {
-        // Először frissítjük a backend-ben
-        const result = await this.$store.dispatch('task/tasks/updateTask', {
-          ...payload,
-          statusId: this.statusId
-        });
+    async handleItemsPerPageChange(newItemsPerPage) {
+      this.itemsPerPage = newItemsPerPage;
+      this.page = 1;
+      if (this.isExpanded) {
+        await this.loadTasksForStatus();
+      }
+    },
 
-        if (result.success) {
-          // Ha sikeres, jelezzük a szülőnek a mozgatást
-          this.$emit('statusChange', {
-            taskId: payload.id,
-            oldStatusId: this.statusId,
-            newStatusId: payload.value,
-            color: payload.color,
-            status_exohu: payload.status_exohu
-          });
-        } else {
-          this.showNotification('error', result.message);
-        }
-      } else {
-        // Egyéb frissítések a store-on keresztül
-        const result = await this.$store.dispatch('task/tasks/updateTask', {
-          ...payload,
-          statusId: this.statusId
-        });
-
-        if (!result.success) {
-          this.showNotification('error', result.message);
-        }
+    async updateTask(payload) {
+      const result = await this.$store.dispatch('task/tasks/updateTask', {
+        ...payload,
+        statusId: this.statusId
+      });
+      if (!result.success) {
+        this.showNotification('error', result.message);
       }
     },
 
@@ -260,9 +257,7 @@ export default {
 
     async verifyLocker(payload) {
       const result = await this.$store.dispatch('task/tasks/verifyLocker', {
-        statusId: this.statusId,
-        taskId: payload.taskId,
-        data: payload.data
+        ...payload
       });
 
       if (!result.success) {

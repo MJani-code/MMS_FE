@@ -4,9 +4,13 @@
       :loading="isLoading"
       v-model="selected"
       :headers="headers"
-      :items="filteredTasks"
+      :items="tasks"
+      :server-items-length="serverItemsLength"
+      :page="page"
+      :items-per-page="itemsPerPage"
+      @update:page="$emit('update:page', $event)"
+      @update:items-per-page="$emit('update:items-per-page', $event)"
       fixed-header
-      :expanded.sync="expanded"
       show-expand
       show-select
       item-key="id"
@@ -16,7 +20,8 @@
       <!-- FilterRow in Desktop view-->
       <template v-slot:body.prepend>
         <tr v-if="!isMobile" class="filterRow">
-          <!-- placeholder td for selection column -->
+          <!-- placeholder td for checkbox and expand icon -->
+          <td></td>
           <td></td>
           <!-- real header cells -->
           <td v-for="(header, index) in headers" :key="index">
@@ -31,6 +36,19 @@
               :placeholder="header.text"
               hide-details="auto"
               multiple
+            />
+            <v-select
+              v-if="header.filterable && header.text === 'Státusz'"
+              v-model="filters[header.value]"
+              :items="statuses"
+              item-value="id"
+              item-text="name"
+              small-chips
+              solo
+              :placeholder="header.text"
+              hide-details="auto"
+              multiple
+              disabled
             />
             <v-text-field
               v-if="header.filterable && header.text === 'Zip'"
@@ -737,6 +755,18 @@ export default {
     isLoading: {
       type: Boolean,
       default: false
+    },
+    serverItemsLength: {
+      type: Number,
+      default: 0
+    },
+    page: {
+      type: Number,
+      default: 1
+    },
+    itemsPerPage: {
+      type: Number,
+      default: 10
     }
   },
   data() {
@@ -744,7 +774,6 @@ export default {
       serials: [],
       filters: {},
       selected: [],
-      expanded: [],
       taskFiles: [],
       filtersAccordion: [],
       rules: [
@@ -761,7 +790,6 @@ export default {
       return this.tasks.filter((task) => {
         return Object.keys(this.filters).every((key) => {
           const filterValue = this.filters[key];
-
           if (!filterValue || filterValue.length === 0) {
             // Ha nincs szűrés, minden elem megjelenik
             return true;
@@ -771,7 +799,6 @@ export default {
             const taskDate = new Date(task.planned_delivery_date); // Feltételezzük, hogy task.date a dátum
             const startDatePlan = new Date(this.filters.startDatePlan);
             const endDatePlan = new Date(this.filters.endDatePlan);
-
             return (
               (!this.filters.startDatePlan || taskDate >= startDatePlan) &&
               (!this.filters.endDatePlan || taskDate <= endDatePlan)
@@ -782,25 +809,21 @@ export default {
             const taskDate = new Date(task.delivery_date); // Feltételezzük, hogy task.date a dátum
             const startDate = new Date(this.filters.startDate);
             const endDate = new Date(this.filters.endDate);
-
             return (
               (!this.filters.startDate || taskDate >= startDate) &&
               (!this.filters.endDate || taskDate <= endDate)
             );
           }
-
           if (key === 'startCreatedAt' || key === 'endCreatedAt') {
             // Ha a 'startCreatedAt' vagy 'endCreatedAt' oszlopról van szó, ellenőrizzük a tól-ig intervallumot
             const taskDate = new Date(task.createdAt);
             const startDate = new Date(this.filters.startCreatedAt);
             const endDate = new Date(this.filters.endCreatedAt);
-
             return (
               (!this.filters.startCreatedAt || taskDate >= startDate) &&
               (!this.filters.endCreatedAt || taskDate <= endDate)
             );
           }
-
           if (key === 'responsibles') {
             // Ha a 'responsibles' oszlopról van szó, ellenőrizzük, hogy bármelyik felelős benne van-e
             if (Array.isArray(filterValue) && filterValue.length > 0) {
@@ -810,7 +833,6 @@ export default {
             }
             return true; // Ha nincs szűrés, minden elem megjelenik
           }
-
           if (key === 'serial') {
             // Ha a 'serial' oszlopról van szó, ellenőrizzük, hogy bármelyik felelős benne van-e
             if (filterValue.length > 0) {
@@ -824,7 +846,6 @@ export default {
             }
             return true; // Ha nincs szűrés, minden elem megjelenik
           }
-
           if (key === 'taskTypes') {
             // Ha a 'tasTypes' oszlopról van szó, ellenőrizzük, hogy bármelyik típus benne van-e
             if (Array.isArray(filterValue) && filterValue.length > 0) {
@@ -834,13 +855,11 @@ export default {
             }
             return true; // Ha nincs szűrés, minden elem megjelenik
           }
-
           if (Array.isArray(filterValue)) {
             // Ha az összes lehetséges típus ki van jelölve, akkor minden elem megjelenik
             const allSelected = filterValue.length === this.taskTypes.length;
             return allSelected || filterValue.includes(task[key]);
           }
-
           // Más mezők egyszerű összehasonlítása
           return String(task[key])
             .toLowerCase()
@@ -973,7 +992,7 @@ export default {
         return;
       }
 
-      this.$emit('eventToAccordion', {
+      this.$store.dispatch('task/tasks/updateTask', {
         id: selectedItem.id,
         dbTable: header.dbTable,
         dbColumn: header.dbColumn,
@@ -1002,24 +1021,14 @@ export default {
       this.$emit('updateLockerData', data);
     },
     addLocker(header, item) {
-      if (item.lockers.length < this.lockerSerialsLengths) {
-        this.$store.dispatch('notification/addNotification', {
-          type: 'error',
-          message: 'ez az elem már szerepel a listában',
-          timeout: 5000
-        });
-        return;
-      } else {
-        const newValue = item.lockers.slice(-1)[0];
-        this.$emit('addLocker', {
-          task_id: item.id,
-          tof_shop_id: item.tof_shop_id,
-          task_locations_id: item.location_id,
-          dbTable: header.dbTable,
-          dbColumn: header.dbColumn,
-          value: newValue
-        });
-      }
+      this.$store.dispatch('task/tasks/addLocker', {
+        task_id: item.id,
+        tof_shop_id: item.tof_shop_id,
+        task_locations_id: item.location_id,
+        dbTable: header.dbTable,
+        dbColumn: header.dbColumn,
+        value: item.lockers.slice(-1)[0]
+      });
     },
     getLengthOfSerials(value) {
       if (value != undefined) {
@@ -1027,12 +1036,15 @@ export default {
         this.lockerSerialsLengths = lockerSerialsLengths;
       }
     },
-    removeLocker(item) {
-      this.$emit('removeLocker', {
-        value: item.serial,
-        id: item.id,
-        taskId: item.task_id
+    async removeLocker(payload) {
+      const result = await this.$store.dispatch('task/tasks/removeLocker', {
+        ...payload,
+        statusId: this.statusId
       });
+
+      if (!result.success) {
+        this.showNotification('error', result.message);
+      }
     },
     uploadTaskFile(item) {
       this.$emit('uploadTaskFile', item);
@@ -1053,7 +1065,7 @@ export default {
       this.$emit('deletePhoto', data);
     },
     verifyLocker(locker) {
-      this.$emit('verifyLocker', locker);
+      this.$emit('verifyLocker', locker.data);
     },
     tableClass() {
       return 'table-row';
