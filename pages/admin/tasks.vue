@@ -23,8 +23,8 @@
         :allowed-statuses="tasks.allowedStatuses"
         :location-types="tasks.locationTypes"
         :task-types="tasks.taskTypes"
+        :responsibles="tasks.responsibles"
         :locker-serials="tasks.lockerSerials"
-        :companies="tasks.companies"
         :priorities="tasks.priorities"
       >
       </AccordionField>
@@ -69,6 +69,7 @@ export default {
       storeAllowedStatuses: (state) => state.allowedStatuses,
       storeLocationTypes: (state) => state.locationTypes,
       storeTaskTypes: (state) => state.taskTypes,
+      storeResponsibles: (state) => state.responsibles,
       storeLockerSerials: (state) => state.lockerSerials,
       storeCompanies: (state) => state.companies,
       storePriorities: (state) => state.priorities,
@@ -96,6 +97,7 @@ export default {
         allowedStatuses: this.storeAllowedStatuses,
         locationTypes: this.storeLocationTypes,
         taskTypes: this.storeTaskTypes,
+        responsibles: this.storeResponsibles,
         lockerSerials: this.storeLockerSerials,
         companies: this.storeCompanies,
         priorities: this.storePriorities,

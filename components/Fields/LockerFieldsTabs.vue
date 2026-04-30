@@ -317,7 +317,7 @@ export default {
       //   })));
     },
     updateLockerData(value, lockerId, dbTable, dbColumn) {
-      this.$emit('updateLockerData', {
+      this.$store.dispatch('task/tasks/updateTaskLocker', {
         id: lockerId,
         task_id: this.taskId,
         dbTable: dbTable,

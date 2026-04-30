@@ -86,7 +86,7 @@
             <v-row>
               <v-col class="col-12 col-sm-3 col-md-3 col-lg-2 col-xl-2">
                 <template>
-                  <form @submit.prevent="uploadTaskFile(item)">
+                  <form @submit.prevent="uploadTaskMedia(item)">
                     <v-file-input
                       :rules="rules"
                       v-model="taskFiles"
@@ -217,7 +217,6 @@
             <LockerField
               :locker="locker"
               :taskId="item.id"
-              @updateLockerData="updateLockerData"
               @verifyLocker="verifyLocker"
             />
           </v-col>
@@ -281,7 +280,7 @@ export default {
         return true;
       }
     },
-    uploadTaskFile(data) {
+    uploadTaskMedia(data) {
       // store uploadTaskFile action
       const response = this.$store.dispatch('task/tasks/uploadMedia', {
         taskId: data.id,
@@ -291,17 +290,10 @@ export default {
         file: this.taskFiles
       });
       return response;
-
-      // this.$emit('uploadTaskFile', {
-      //   taskId: data.id,
-      //   locationId: data.location_id,
-      //   fileUpload: true,
-      //   file: this.taskFiles
-      // });
     },
     updateLocationData(item, dbTable, dbColumn, key) {
-      this.$emit(
-        'updateTask',
+      this.$store.dispatch(
+        'task/tasks/updateTask',
         {
           dbTable: dbTable,
           dbColumn: dbColumn
@@ -309,11 +301,18 @@ export default {
         { id: item.location_id, value: this[key] }
       );
     },
-    updateLockerData(data) {
-      this.$emit('updateLockerData', data);
-    },
-    addFee(data) {
-      this.$emit('addFee', data);
+    // updateLockerData(data) {
+    //   this.$emit('updateLockerData', data);
+    // },
+    async addFee(payload) {
+      const result = await this.$store.dispatch('task/tasks/addFee', {
+        ...payload,
+        statusId: this.statusId
+      });
+
+      if (!result.success) {
+        this.showNotification('error', result.message);
+      }
     },
     deleteFee(data) {
       this.$emit('deleteFee', data);

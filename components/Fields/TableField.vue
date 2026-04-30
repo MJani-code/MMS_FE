@@ -126,7 +126,7 @@
             <v-select
               v-if="header.filterable && header.text === 'Megbízottak'"
               v-model="filters[header.value]"
-              :items="companies"
+              :items="responsibles"
               item-value="id"
               item-text="name"
               small-chips
@@ -539,7 +539,7 @@
       <template #[`item.responsibles`]="{ header, item }">
         <v-select
           v-model="item.responsibles"
-          :items="companies"
+          :items="responsibles"
           item-value="id"
           item-text="name"
           small-chips
@@ -660,8 +660,8 @@
       <template v-slot:footer>
         <v-btn
           v-if="
-            filteredTasks.length > 0 &&
-            filteredTasks[0].status_exohu_id === 9 &&
+            tasks.length > 0 &&
+            tasks[0].status_exohu_id === 9 &&
             $store.getters['hasPermission']('21')
           "
           color="primary"
@@ -673,8 +673,8 @@
         </v-btn>
         <v-btn
           v-if="
-            filteredTasks.length > 0 &&
-            filteredTasks[0].status_exohu_id === 6 &&
+            tasks.length > 0 &&
+            tasks[0].status_exohu_id === 6 &&
             $store.getters['hasPermission']('24')
           "
           color="primary"
@@ -696,8 +696,6 @@
           :fees="fees"
           :rules="rules"
           @updateTask="updateTask"
-          @updateLockerData="updateLockerData"
-          @uploadTaskFile="uploadTaskFile"
           @addFee="addFee"
           @deleteFee="deleteFee"
           @verifyLocker="verifyLocker"
@@ -744,7 +742,7 @@ export default {
     lockerSerials: {
       type: Array
     },
-    companies: {
+    responsibles: {
       type: Array,
       required: true
     },
@@ -786,87 +784,87 @@ export default {
     };
   },
   computed: {
-    filteredTasks() {
-      return this.tasks.filter((task) => {
-        return Object.keys(this.filters).every((key) => {
-          const filterValue = this.filters[key];
-          if (!filterValue || filterValue.length === 0) {
-            // Ha nincs szűrés, minden elem megjelenik
-            return true;
-          }
-          if (key === 'startDatePlan' || key === 'endDatePlan') {
-            // Ha a dátum oszlopról van szó, ellenőrizzük a tól-ig intervallumot
-            const taskDate = new Date(task.planned_delivery_date); // Feltételezzük, hogy task.date a dátum
-            const startDatePlan = new Date(this.filters.startDatePlan);
-            const endDatePlan = new Date(this.filters.endDatePlan);
-            return (
-              (!this.filters.startDatePlan || taskDate >= startDatePlan) &&
-              (!this.filters.endDatePlan || taskDate <= endDatePlan)
-            );
-          }
-          if (key === 'startDate' || key === 'endDate') {
-            // Ha a dátum oszlopról van szó, ellenőrizzük a tól-ig intervallumot
-            const taskDate = new Date(task.delivery_date); // Feltételezzük, hogy task.date a dátum
-            const startDate = new Date(this.filters.startDate);
-            const endDate = new Date(this.filters.endDate);
-            return (
-              (!this.filters.startDate || taskDate >= startDate) &&
-              (!this.filters.endDate || taskDate <= endDate)
-            );
-          }
-          if (key === 'startCreatedAt' || key === 'endCreatedAt') {
-            // Ha a 'startCreatedAt' vagy 'endCreatedAt' oszlopról van szó, ellenőrizzük a tól-ig intervallumot
-            const taskDate = new Date(task.createdAt);
-            const startDate = new Date(this.filters.startCreatedAt);
-            const endDate = new Date(this.filters.endCreatedAt);
-            return (
-              (!this.filters.startCreatedAt || taskDate >= startDate) &&
-              (!this.filters.endCreatedAt || taskDate <= endDate)
-            );
-          }
-          if (key === 'responsibles') {
-            // Ha a 'responsibles' oszlopról van szó, ellenőrizzük, hogy bármelyik felelős benne van-e
-            if (Array.isArray(filterValue) && filterValue.length > 0) {
-              return filterValue.some((responsibleId) =>
-                task.responsibles.includes(responsibleId)
-              );
-            }
-            return true; // Ha nincs szűrés, minden elem megjelenik
-          }
-          if (key === 'serial') {
-            // Ha a 'serial' oszlopról van szó, ellenőrizzük, hogy bármelyik felelős benne van-e
-            if (filterValue.length > 0) {
-              return task.lockers.some(
-                (locker) =>
-                  locker.serial &&
-                  locker.serial
-                    .toLowerCase()
-                    .includes(filterValue.toLowerCase())
-              );
-            }
-            return true; // Ha nincs szűrés, minden elem megjelenik
-          }
-          if (key === 'taskTypes') {
-            // Ha a 'tasTypes' oszlopról van szó, ellenőrizzük, hogy bármelyik típus benne van-e
-            if (Array.isArray(filterValue) && filterValue.length > 0) {
-              return filterValue.some((taskTypeId) =>
-                task.taskTypes.includes(taskTypeId)
-              );
-            }
-            return true; // Ha nincs szűrés, minden elem megjelenik
-          }
-          if (Array.isArray(filterValue)) {
-            // Ha az összes lehetséges típus ki van jelölve, akkor minden elem megjelenik
-            const allSelected = filterValue.length === this.taskTypes.length;
-            return allSelected || filterValue.includes(task[key]);
-          }
-          // Más mezők egyszerű összehasonlítása
-          return String(task[key])
-            .toLowerCase()
-            .includes(String(filterValue).toLowerCase());
-        });
-      });
-    }
+    // filteredTasks() {
+    //   return this.tasks.filter((task) => {
+    //     return Object.keys(this.filters).every((key) => {
+    //       const filterValue = this.filters[key];
+    //       if (!filterValue || filterValue.length === 0) {
+    //         // Ha nincs szűrés, minden elem megjelenik
+    //         return true;
+    //       }
+    //       if (key === 'startDatePlan' || key === 'endDatePlan') {
+    //         // Ha a dátum oszlopról van szó, ellenőrizzük a tól-ig intervallumot
+    //         const taskDate = new Date(task.planned_delivery_date); // Feltételezzük, hogy task.date a dátum
+    //         const startDatePlan = new Date(this.filters.startDatePlan);
+    //         const endDatePlan = new Date(this.filters.endDatePlan);
+    //         return (
+    //           (!this.filters.startDatePlan || taskDate >= startDatePlan) &&
+    //           (!this.filters.endDatePlan || taskDate <= endDatePlan)
+    //         );
+    //       }
+    //       if (key === 'startDate' || key === 'endDate') {
+    //         // Ha a dátum oszlopról van szó, ellenőrizzük a tól-ig intervallumot
+    //         const taskDate = new Date(task.delivery_date); // Feltételezzük, hogy task.date a dátum
+    //         const startDate = new Date(this.filters.startDate);
+    //         const endDate = new Date(this.filters.endDate);
+    //         return (
+    //           (!this.filters.startDate || taskDate >= startDate) &&
+    //           (!this.filters.endDate || taskDate <= endDate)
+    //         );
+    //       }
+    //       if (key === 'startCreatedAt' || key === 'endCreatedAt') {
+    //         // Ha a 'startCreatedAt' vagy 'endCreatedAt' oszlopról van szó, ellenőrizzük a tól-ig intervallumot
+    //         const taskDate = new Date(task.createdAt);
+    //         const startDate = new Date(this.filters.startCreatedAt);
+    //         const endDate = new Date(this.filters.endCreatedAt);
+    //         return (
+    //           (!this.filters.startCreatedAt || taskDate >= startDate) &&
+    //           (!this.filters.endCreatedAt || taskDate <= endDate)
+    //         );
+    //       }
+    //       if (key === 'responsibles') {
+    //         // Ha a 'responsibles' oszlopról van szó, ellenőrizzük, hogy bármelyik felelős benne van-e
+    //         if (Array.isArray(filterValue) && filterValue.length > 0) {
+    //           return filterValue.some((responsibleId) =>
+    //             task.responsibles.includes(responsibleId)
+    //           );
+    //         }
+    //         return true; // Ha nincs szűrés, minden elem megjelenik
+    //       }
+    //       if (key === 'serial') {
+    //         // Ha a 'serial' oszlopról van szó, ellenőrizzük, hogy bármelyik felelős benne van-e
+    //         if (filterValue.length > 0) {
+    //           return task.lockers.some(
+    //             (locker) =>
+    //               locker.serial &&
+    //               locker.serial
+    //                 .toLowerCase()
+    //                 .includes(filterValue.toLowerCase())
+    //           );
+    //         }
+    //         return true; // Ha nincs szűrés, minden elem megjelenik
+    //       }
+    //       if (key === 'taskTypes') {
+    //         // Ha a 'tasTypes' oszlopról van szó, ellenőrizzük, hogy bármelyik típus benne van-e
+    //         if (Array.isArray(filterValue) && filterValue.length > 0) {
+    //           return filterValue.some((taskTypeId) =>
+    //             task.taskTypes.includes(taskTypeId)
+    //           );
+    //         }
+    //         return true; // Ha nincs szűrés, minden elem megjelenik
+    //       }
+    //       if (Array.isArray(filterValue)) {
+    //         // Ha az összes lehetséges típus ki van jelölve, akkor minden elem megjelenik
+    //         const allSelected = filterValue.length === this.taskTypes.length;
+    //         return allSelected || filterValue.includes(task[key]);
+    //       }
+    //       // Más mezők egyszerű összehasonlítása
+    //       return String(task[key])
+    //         .toLowerCase()
+    //         .includes(String(filterValue).toLowerCase());
+    //     });
+    //   });
+    // }
   },
   mounted() {
     this.checkMobile();
@@ -978,11 +976,20 @@ export default {
       }
       // Ha több elem van kiválasztva akkor egy bulk frissítést hajtunk végre
       if (this.selected.length > 0) {
-        const response = await this.bulkUpdateTask(header, selectedItem);
-        if (response.status !== 200) {
+        const response = await this.$store.dispatch(
+          'task/tasks/bulkUpdateTask',
+          {
+            taskIds: this.selected.map((item) => item.id),
+            column: header.dbColumn,
+            value: selectedItem['value'],
+            color: color,
+            status_exohu: status_exohu
+          }
+        );
+        if (!response.success) {
           this.showNotification('error', response.message);
         } else {
-          this.$emit('bulkUpdateLockerData', response.payload);
+          this.$emit('bulkUpdateLockerData', response.data.payload);
           this.showNotification(
             'success',
             ` ${this.selected.length} db kiválasztott elemek frissítése sikeres volt`
@@ -1002,24 +1009,10 @@ export default {
         status_exohu: status_exohu
       });
     },
-    bulkUpdateTask(header, selectedItem) {
-      const response = this.$store.dispatch(
-        'task/updateTaskInBatch/updateTask',
-        {
-          taskIds: this.selected.map((item) => item.id),
-          column: header.dbColumn,
-          value: selectedItem['value']
-        }
-      );
-      return response;
-    },
-    getColorOfSelectedStatus(statusId) {
-      return this.allowedStatuses.find((status) => status.id === statusId)
-        .color;
-    },
-    updateLockerData(data) {
-      this.$emit('updateLockerData', data);
-    },
+    // getColorOfSelectedStatus(statusId) {
+    //   return this.allowedStatuses.find((status) => status.id === statusId)
+    //     .color;
+    // },
     addLocker(header, item) {
       this.$store.dispatch('task/tasks/addLocker', {
         task_id: item.id,
@@ -1045,9 +1038,6 @@ export default {
       if (!result.success) {
         this.showNotification('error', result.message);
       }
-    },
-    uploadTaskFile(item) {
-      this.$emit('uploadTaskFile', item);
     },
     addFee(data) {
       this.$emit('addFee', data);

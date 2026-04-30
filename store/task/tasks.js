@@ -27,7 +27,7 @@ export const state = () => ({
   locationTypes: [],
   taskTypes: [],
   lockerSerials: [],
-  companies: [],
+  responsibles: [],
   priorities: [],
 
   // Loading states
@@ -106,7 +106,7 @@ export const mutations = {
     state.locationTypes = payload.locationTypes || [];
     state.taskTypes = payload.taskTypes || [];
     state.lockerSerials = payload.lockerSerials || [];
-    state.companies = payload.companies || [];
+    state.responsibles = payload.responsibles || [];
     state.priorities = payload.priorities || [];
   },
 
@@ -576,16 +576,8 @@ export const actions = {
 
       if (result.data.status === 200) {
         const responsePayload = result.data.payload;
-        const isPhotoUpload = responsePayload?.photoUpload;
 
-        if (isPhotoUpload) {
-          // Fotó feltöltés
-          commit('ADD_TASK_PHOTO', {
-            statusId: payload.statusId,
-            locationId: responsePayload.locationId,
-            photoUrl: responsePayload.url
-          });
-        } else if (payload.column === 'status_by_exohu_id') {
+        if (payload.column === 'status_by_exohu_id') {
           // Státusz váltás- megkeressük a taskot a régi státuszban, majd áthelyezzük az új státuszba
           const sourceStatusId =
             payload.statusId ??
@@ -610,23 +602,6 @@ export const actions = {
                 status_exohu_id: responsePayload.value
               }
             });
-            // commit('UPDATE_TASK_IN_STATUS', {
-            //   statusId: payload.statusId,
-            //   taskId: responsePayload.id,
-            //   updates: { status_exohu_id: responsePayload.value }
-            // });
-          }
-        } else if (payload.dbTable === 'task_locations') {
-          // Location frissítés
-          const task = this.state.task.tasks.tasksByStatus[
-            payload.statusId
-          ]?.find((t) => t.location_id === responsePayload.id);
-          if (task) {
-            commit('UPDATE_TASK_IN_STATUS', {
-              statusId: payload.statusId,
-              taskId: responsePayload.id,
-              updates: { [responsePayload.column]: responsePayload.value }
-            });
           }
         } else {
           // Task frissítés
@@ -644,6 +619,60 @@ export const actions = {
     } catch (error) {
       console.error('Error updating task:', error);
       return { success: false, message: 'Hiba történt a frissítés során' };
+    }
+  },
+
+  async bulkUpdateTask({ commit, rootState, state }, payload) {
+    try {
+      const token = rootState.token;
+      const result = await APIPOST('updateTaskInBatch', payload, token);
+
+      if (result.data.status === 200) {
+        if (
+          payload.column === 'status_by_exohu_id' &&
+          Array.isArray(payload.taskIds)
+        ) {
+          payload.taskIds.forEach((taskId) => {
+            const sourceStatusId = Object.keys(state.tasksByStatus).find(
+              (statusId) =>
+                state.tasksByStatus[statusId].some(
+                  (t) => String(t.id) === String(taskId)
+                )
+            );
+
+            const task = sourceStatusId
+              ? state.tasksByStatus[sourceStatusId]?.find(
+                  (t) => String(t.id) === String(taskId)
+                )
+              : null;
+
+            if (task) {
+              commit('MOVE_TASK_TO_STATUS', {
+                taskId,
+                toStatusId: payload.value,
+                updatedTask: {
+                  ...task,
+                  status_exohu_id: payload.value
+                }
+              });
+            }
+          });
+        }
+
+        return { success: true, data: result.data };
+      }
+
+      return {
+        success: false,
+        message: result.data.message || 'Hiba történt',
+        data: result.data
+      };
+    } catch (error) {
+      console.error('Error bulk updating tasks:', error);
+      return {
+        success: false,
+        message: 'Hiba történt a tömeges frissítés során'
+      };
     }
   },
 

@@ -17,6 +17,7 @@
         :allowedStatuses="allowedStatuses"
         :locationTypes="locationTypes"
         :taskTypes="taskTypes"
+        :responsibles="responsibles"
         :lockerSerials="lockerSerials"
         :companies="companies"
         :priorities="priorities"
@@ -27,7 +28,6 @@
         @update:items-per-page="handleItemsPerPageChange"
         @updateLockerData="updateLockerData"
         @bulkUpdateLockerData="bulkUpdateLockerData"
-        @uploadTaskFile="updateTask"
         @addFee="addFee"
         @addLocker="addLocker"
         @deleteFee="deleteFee"
@@ -59,16 +59,13 @@ export default {
       type: Number,
       default: 0
     },
-    searchText: {
-      type: String,
-      default: ''
-    },
     headers: Array,
     statuses: Array,
     fees: Array,
     allowedStatuses: Array,
     locationTypes: Array,
     taskTypes: Array,
+    responsibles: Array,
     lockerSerials: Array,
     companies: Array,
     priorities: Array
