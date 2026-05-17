@@ -56,6 +56,7 @@
               :placeholder="header.text"
               solo
               hide-details="auto"
+              @input="filter(header.value)"
             />
             <v-text-field
               v-if="header.filterable && header.text === 'Település'"
@@ -63,6 +64,7 @@
               :placeholder="header.text"
               solo
               hide-details="auto"
+              @input="filter(header.value)"
             />
             <v-text-field
               v-if="header.filterable && header.text === 'Cím'"
@@ -148,6 +150,7 @@
               :placeholder="header.text"
               solo
               hide-details="auto"
+              @input="filter(header.value)"
             />
             <v-text-field
               v-if="header.filterable && header.text === 'Serial'"
@@ -712,6 +715,10 @@ import TableExpandedField from './TableExpandedField.vue';
 export default {
   components: { TableExpandedField },
   props: {
+    statusId: {
+      type: [String, Number],
+      required: true
+    },
     tasks: {
       type: Array,
       required: true
@@ -874,6 +881,23 @@ export default {
     window.removeEventListener('resize', this.checkMobile);
   },
   methods: {
+    filter(headerValue) {
+      if (this.filters[headerValue] === '') {
+        console.log(this.statusId);
+        console.log(this.itemsPerPage);
+        //TODO: Ha a szűrő értéke üresre változik, akkor újra kell kérni az adatokat a backendtől, hogy a szűrés törlődjön
+      }
+      //setFilter
+      this.$store.dispatch('task/tasks/setFilter', {
+        [headerValue]: this.filters[headerValue],
+        statusId: this.statusId,
+        itemsPerPage: this.itemsPerPage,
+        page: this.page
+      });
+
+      //store filter kiíratása console-ra
+      console.log('Current filters:', this.$store.state.task.tasks.filters);
+    },
     checkLockerCondition(locker) {
       if (
         locker.fault ||
