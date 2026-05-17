@@ -9,6 +9,7 @@
     </v-expansion-panel-header>
     <v-expansion-panel-content>
       <TableField
+        :statusId="statusId"
         :isLoading="isLoading"
         :tasks="loadedTasks"
         :headers="headers"
