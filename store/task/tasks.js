@@ -90,6 +90,10 @@ export const mutations = {
     state.filters.searchText = text;
   },
 
+  SET_FILTER(state, { key, value }) {
+    state.filters[key] = value;
+  },
+
   CLEAR_SEARCH_TEXT(state) {
     state.filters.searchText = null;
   },
@@ -477,7 +481,7 @@ export const actions = {
       const token = rootState.token;
       const result = await APIPOST(
         'getTask',
-        { statusId, page, itemsPerPage, searchText: state.filters.searchText },
+        { statusId, page, itemsPerPage, filters: state.filters },
         token
       );
 
@@ -557,6 +561,30 @@ export const actions = {
       }
     } catch (error) {
       console.error('Error setting search text:', error);
+    }
+  },
+
+  async setFilter({ commit }, payload) {
+    try {
+      if (payload && Object.prototype.hasOwnProperty.call(payload, 'key')) {
+        commit('SET_FILTER', { key: payload.key, value: payload.value });
+        return;
+      }
+
+      if (payload && typeof payload === 'object') {
+        Object.entries(payload).forEach(([key, value]) => {
+          commit('SET_FILTER', { key, value });
+        });
+      }
+
+      //fetchTask meghívása a szűrő értékek alapján
+      await this.dispatch('task/tasks/fetchTask', {
+        statusId: payload.statusId ?? null,
+        page: payload.page ?? null,
+        itemsPerPage: payload.itemsPerPage ?? null
+      });
+    } catch (error) {
+      console.error('Error setting filter:', error);
     }
   },
 
