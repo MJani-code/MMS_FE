@@ -8,6 +8,9 @@ import {
 
 export const taskMixin = {
   methods: {
+    getActiveLocale() {
+      return this.$i18n?.locale || this.$store?.state?.locale || 'hu';
+    },
     showNotification($type, $message) {
       this.$store.dispatch('notification/addNotification', {
         type: $type,
@@ -18,7 +21,11 @@ export const taskMixin = {
     async fetchTasks() {
       try {
         const token = this.$store.state.token;
-        const response = await APIGET('getAllTask', {}, token);
+        const response = await APIGET(
+          'getAllTask',
+          { locale: this.getActiveLocale() },
+          token
+        );
         return await response;
       } catch (error) {
         console.error('Error fetching tasks', error);
@@ -30,7 +37,7 @@ export const taskMixin = {
         const token = this.$store.state.token;
         const response = await APIGET(
           'Locations_GetCountryPublicLocations',
-          {},
+          { locale: this.getActiveLocale() },
           token
         );
         return await response;

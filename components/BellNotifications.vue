@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="d-flex align-center justify-center" style="position: relative">
     <!-- Bell icon -->
     <div class="d-flex ga-12 justify-center">
       <v-badge

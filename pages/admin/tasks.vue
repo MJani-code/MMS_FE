@@ -42,7 +42,7 @@
     </v-expansion-panels>
   </div>
   <v-sheet v-else>
-    <v-card-title class="text-h5">Nincs megjeleníthető adat</v-card-title>
+    <v-card-title class="text-h5">{{ $t('tasks.noData') }}</v-card-title>
   </v-sheet>
 </template>
 
@@ -50,6 +50,105 @@
 import { taskMixin } from '@/mixins/taskMixin.js';
 import AccordionField from '../../components/Fields/AccordionField.vue';
 import axios from 'axios';
+
+const FALLBACK_LOCALE = 'hu';
+
+function normalizeLocale(locale) {
+  if (!locale) return FALLBACK_LOCALE;
+  return String(locale).toLowerCase().split('-')[0] || FALLBACK_LOCALE;
+}
+
+function pickLocalizedValue(source, baseKey, locale) {
+  if (!source || typeof source !== 'object') {
+    return undefined;
+  }
+
+  const normalizedLocale = normalizeLocale(locale);
+  const localeCandidates = [normalizedLocale, FALLBACK_LOCALE, 'en'];
+
+  if (source.translations && typeof source.translations === 'object') {
+    for (const candidate of localeCandidates) {
+      const localized = source.translations[candidate];
+      if (localized && localized[baseKey] !== undefined) {
+        return localized[baseKey];
+      }
+    }
+  }
+
+  for (const candidate of localeCandidates) {
+    const localizedKey = `${baseKey}_${candidate}`;
+    if (source[localizedKey] !== undefined) {
+      return source[localizedKey];
+    }
+  }
+
+  return source[baseKey];
+}
+
+function localizeNamedArray(items, locale) {
+  if (!Array.isArray(items)) return [];
+
+  return items.map((item) => ({
+    ...item,
+    name: pickLocalizedValue(item, 'name', locale) ?? item.name
+  }));
+}
+
+function localizeHeaders(headers, locale) {
+  if (!Array.isArray(headers)) return [];
+
+  return headers.map((header) => ({
+    ...header,
+    text: pickLocalizedValue(header, 'text', locale) ?? header.text
+  }));
+}
+
+function localizeTasks(tasks, locale) {
+  if (!Array.isArray(tasks)) return [];
+
+  return tasks.map((task) => ({
+    ...task,
+    status_exohu:
+      pickLocalizedValue(task, 'status_exohu', locale) ?? task.status_exohu,
+    status_name:
+      pickLocalizedValue(task, 'status_name', locale) ?? task.status_name
+  }));
+}
+
+function getUnknownStatusLabel(locale) {
+  switch (normalizeLocale(locale)) {
+    case 'en':
+      return 'Unknown status';
+    case 'sl':
+      return 'Neznan status';
+    default:
+      return 'Ismeretlen státusz';
+  }
+}
+
+function localizeStatusGroups(statuses, tasks, locale) {
+  if (!Array.isArray(statuses) || !Array.isArray(tasks)) return {};
+
+  const statusMap = statuses.reduce((map, status) => {
+    map[status.id] = pickLocalizedValue(status, 'name', locale) ?? status.name;
+    return map;
+  }, {});
+
+  return tasks.reduce((groups, task) => {
+    const statusId = task.status_exohu_id;
+    const statusText = statusMap[statusId] || getUnknownStatusLabel(locale);
+
+    if (!groups[statusId]) {
+      groups[statusId] = {
+        title: statusText,
+        tasks: []
+      };
+    }
+
+    groups[statusId].tasks.push(task);
+    return groups;
+  }, {});
+}
 
 export default {
   name: 'AdminTasks',
@@ -66,16 +165,6 @@ export default {
         fees: []
       },
       searchQuery: '',
-      adminFilterOptions: [
-        { text: 'Összes tétel', value: null },
-        { text: 'Adminban aktiv', value: true },
-        { text: 'Adminban nem aktív', value: false }
-      ],
-      serialFilterOptions: [
-        { text: 'Összes', value: null },
-        { text: 'Van serial', value: true },
-        { text: 'Nincs serial', value: false }
-      ],
       selectedAdminFilter: null,
       selectedSerialFilter: null,
       expandedAccordions: [] // Nyitott accordionok ID-jai
@@ -94,6 +183,20 @@ export default {
     // }
   },
   computed: {
+    adminFilterOptions() {
+      return [
+        { text: this.$t('tasks.filters.allItems'), value: null },
+        { text: this.$t('tasks.filters.adminActive'), value: true },
+        { text: this.$t('tasks.filters.adminInactive'), value: false }
+      ];
+    },
+    serialFilterOptions() {
+      return [
+        { text: this.$t('tasks.filters.all'), value: null },
+        { text: this.$t('tasks.filters.hasSerial'), value: true },
+        { text: this.$t('tasks.filters.noSerial'), value: false }
+      ];
+    },
     groupedTasks() {
       if (!this.tasks.data || !this.tasks.statuses) {
         return {};
@@ -127,25 +230,16 @@ export default {
         }
       }
 
-      const statusMap = this.tasks.statuses.reduce((map, status) => {
-        map[status.id] = status.name;
-        return map;
-      }, {});
-
-      return filteredTasks.reduce((groups, task) => {
-        const statusId = task.status_exohu_id;
-        const statusText = statusMap[statusId] || 'Ismeretlen státusz';
-
-        if (!groups[statusId]) {
-          groups[statusId] = {
-            title: statusText,
-            tasks: []
-          };
-        }
-
-        groups[statusId].tasks.push(task);
-        return groups;
-      }, {});
+      return localizeStatusGroups(
+        this.tasks.statuses,
+        filteredTasks,
+        this.$i18n.locale
+      );
+    }
+  },
+  watch: {
+    async '$i18n.locale'() {
+      await this.getTasks();
     }
   },
   async mounted() {
@@ -185,11 +279,11 @@ export default {
     },
     showModal() {
       this.$store.dispatch('notification/showModal', {
-        message: 'Biztosan törölni szeretnéd?',
+        message: this.$t('tasks.deleteConfirm'),
         buttons: [
-          { text: 'Igen', style: 'primary', action: '' },
+          { text: this.$t('common.yes'), style: 'primary', action: '' },
           {
-            text: 'Mégse',
+            text: this.$t('common.cancel'),
             style: 'secondary',
             action: () => this.$store.dispatch('notification/hideModal')
           }
@@ -229,7 +323,20 @@ export default {
     async getTasks() {
       const result = await this.fetchTasks();
       if (result.data.status === 200) {
-        this.tasks = result.data;
+        const locale = this.$i18n.locale;
+        const payload = result.data;
+        this.tasks = {
+          ...payload,
+          data: localizeTasks(payload.data || [], locale),
+          headers: localizeHeaders(payload.headers || [], locale),
+          statuses: localizeNamedArray(payload.statuses || [], locale),
+          locationTypes: localizeNamedArray(
+            payload.locationTypes || [],
+            locale
+          ),
+          fees: localizeNamedArray(payload.fees || [], locale),
+          companies: localizeNamedArray(payload.companies || [], locale)
+        };
         this.tasks.headers.unshift({ text: '', value: 'data-table-expand' });
       } else {
         this.showNotification('error', result.data.message);

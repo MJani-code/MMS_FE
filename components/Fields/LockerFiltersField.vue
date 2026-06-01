@@ -17,7 +17,7 @@
         />
         <v-text-field
           v-model="search"
-          label="Keresés"
+          :label="$t('tasks.searchLabel')"
           hide-details
           @input="
             $emit('update-filter', {
