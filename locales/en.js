@@ -1,6 +1,7 @@
 export default {
   common: {
     cancel: 'Cancel',
+    save: 'Save',
     yes: 'Yes',
     genericError: 'An error occurred during the operation.'
   },
@@ -21,6 +22,25 @@ export default {
     passwordLabel: 'Password',
     submit: 'Sign in'
   },
+  profile: {
+    title: 'User profile',
+    firstName: 'First name',
+    lastName: 'Last name',
+    email: 'Email',
+    currentPassword: 'Current password',
+    newPassword: 'New password',
+    newPasswordConfirm: 'Confirm new password',
+    edit: 'Edit',
+    saveProfile: 'Save profile',
+    validation: {
+      currentPasswordRequired:
+        'Your current password is required to save changes',
+      passwordUppercase: 'Password must contain at least one uppercase letter',
+      passwordNumber: 'Password must contain at least one number',
+      passwordMinLength: 'Password must be at least 8 characters long',
+      passwordsDoNotMatch: 'Passwords do not match'
+    }
+  },
   validation: {
     required: 'This field is required',
     invalidEmail: 'Invalid email format'
@@ -31,6 +51,60 @@ export default {
     unknownStatus: 'Unknown status',
     deleteConfirm: 'Are you sure you want to delete it?',
     filterPanel: 'Filters',
+    downloadTig: 'Download TIG',
+    downloadTasks: 'Download Tasks',
+    download: {
+      menu: 'Download',
+      newPoints: 'Download new points'
+    },
+    addTask: {
+      menu: 'Add new',
+      loadLocations: 'Load locations',
+      addTask: 'Add task'
+    },
+    createTaskBatch: {
+      title: 'Add locations',
+      fileLabel: 'Add file',
+      filePlaceholder: 'Select a file',
+      filesSuffix: 'files',
+      upload: 'Upload',
+      fileTooLarge: 'File size must not exceed 10MB'
+    },
+    createTask: {
+      title: 'Create task',
+      location: 'Location',
+      taskType: 'Task type',
+      locker: 'Locker',
+      fixingMethod: 'Fixing method',
+      requiredSitePreparation: 'Required site preparation',
+      note: 'Note',
+      issueType: 'Issue type',
+      compartmentNumber: 'Compartment number',
+      addIssue: 'Add new issue',
+      description: 'Description',
+      deadline: 'Deadline',
+      responsible: 'Responsible',
+      upload: 'Upload'
+    },
+    lockerFilters: {
+      brandLabel: 'Brand',
+      batteryLevel: 'Battery level',
+      lockerActivationOn: 'Enable locker activation check',
+      lockerActivationOff: 'Disable locker activation check',
+      pkCheckOn: 'Enable PK check',
+      pkCheckOff: 'Disable PK check',
+      connectionCheckOn: 'Enable connection check',
+      connectionCheckOff: 'Disable connection check'
+    },
+    notifications: {
+      taskAssignedAt: 'You received a {type} task at {location}',
+      noNew: 'You have no new notifications'
+    },
+    table: {
+      copiedToClipboard: 'Text copied to clipboard',
+      bulkUpdateSuccess: '{count} selected items were updated successfully',
+      itemAlreadyInList: 'This item is already in the list'
+    },
     filters: {
       allItems: 'All items',
       adminActive: 'Active in admin',
@@ -51,6 +125,9 @@ export default {
       toPlanned: 'To',
       fromActual: 'From',
       toActual: 'To'
+    },
+    taskFilter: {
+      active: 'Active'
     },
     expanded: {
       locationPhotosTab: 'Location photos',
@@ -113,6 +190,87 @@ export default {
       usedParts: 'Used parts',
       description: 'Description',
       delete: 'Delete'
+    }
+  },
+  lockers: {
+    utilization: {
+      title: 'Locker utilization',
+      panelTitle: 'Utilization',
+      weekly: 'Weekly utilization',
+      monthly: 'Monthly utilization',
+      yearly: 'Yearly utilization'
+    },
+    list: {
+      lockerStationId: 'LockerStationId',
+      lastConnection: 'Last connection',
+      version: 'Version',
+      uuid: 'UUID',
+      lockerStatus: 'Locker status',
+      technicalStatus: 'Technical status'
+    },
+    details: {
+      title: 'Locker details',
+      id: 'ID',
+      name: 'Name',
+      address: 'Address',
+      status: 'Status',
+      lastConnection: 'Last connection',
+      version: 'Version'
+    }
+  },
+  parts: {
+    stock: {
+      title: 'Stock',
+      addButton: 'Add',
+      fields: {
+        name: 'Name',
+        partNumber: 'Part number',
+        owner: 'Owner',
+        category: 'Category',
+        supplier: 'Supplier',
+        manufacturer: 'Manufacturer',
+        warehouse: 'Warehouse',
+        unitPrice: 'Unit price',
+        currency: 'Currency',
+        quantity: 'Quantity',
+        reference: 'Supplier reference',
+        note: 'Note'
+      },
+      headers: {
+        partName: 'Part name',
+        partNumber: 'Part number',
+        category: 'Category',
+        manufacturer: 'Manufacturer',
+        owner: 'Owner',
+        supplier: 'Supplier',
+        warehouse: 'Warehouse',
+        goodStockQuantity: 'Quantity (good stock)',
+        badStockQuantity: 'Quantity (bad stock)',
+        actions: 'Actions',
+        history: 'History'
+      },
+      formTitle: {
+        addQuantity: 'Add quantity to an existing part',
+        newItem: 'Create new item',
+        edit: 'Edit'
+      }
+    },
+    history: {
+      loadingText: 'Loading... Please wait',
+      headers: {
+        id: 'ID',
+        taskId: 'Task ID',
+        taskTypes: 'Task type',
+        tofShopId: 'TofShopId',
+        boxId: 'BoxId',
+        serial: 'Serial',
+        changeAmount: 'Quantity',
+        reason: 'Operation',
+        reference: 'Reference',
+        note: 'Note',
+        createdBy: 'User',
+        createdAt: 'Date'
+      }
     }
   }
 };

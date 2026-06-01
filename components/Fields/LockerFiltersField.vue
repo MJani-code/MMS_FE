@@ -7,7 +7,7 @@
           :items="brands"
           item-text="name"
           item-value="id"
-          label="Gyártó"
+          :label="$t('tasks.lockerFilters.brandLabel')"
           @change="
             $emit('update-filter', {
               key: 'brand',
@@ -32,7 +32,7 @@
           :max="100"
           hide-details
           class="mt-4 pt-0"
-          label="Akkumulátor szint"
+          :label="$t('tasks.lockerFilters.batteryLevel')"
           @change="
             $emit('update-filter', {
               key: 'range',
@@ -85,8 +85,8 @@
           v-model="isPassive"
           :label="
             isPassive
-              ? 'Locker aktiválás ellenőrző kikapcsolása'
-              : 'Locker aktiválás ellenőrző bekapcsolása'
+              ? $t('tasks.lockerFilters.lockerActivationOff')
+              : $t('tasks.lockerFilters.lockerActivationOn')
           "
           @change="
             $emit('update-filter', {
@@ -99,8 +99,8 @@
           v-model="privateKey1Error"
           :label="
             privateKey1Error
-              ? 'PK ellenőrző kikpcsolása'
-              : 'PK ellenőrző bekapcsolása'
+              ? $t('tasks.lockerFilters.pkCheckOff')
+              : $t('tasks.lockerFilters.pkCheckOn')
           "
           @change="
             $emit('update-filter', {
@@ -113,8 +113,8 @@
           v-model="isConnectionError"
           :label="
             isConnectionError
-              ? 'Kapcsolódás ellenőrző kikapcsolása'
-              : 'Kapcsolódás ellenőrző bekacsolása'
+              ? $t('tasks.lockerFilters.connectionCheckOff')
+              : $t('tasks.lockerFilters.connectionCheckOn')
           "
           @change="
             $emit('update-filter', {
@@ -153,7 +153,7 @@ export default {
       brands: [
         {
           id: 0,
-          name: 'Összes'
+          name: this.$t('tasks.filters.all')
         },
         {
           id: 1,

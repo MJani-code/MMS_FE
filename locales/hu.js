@@ -1,6 +1,7 @@
 export default {
   common: {
     cancel: 'Mégse',
+    save: 'Mentés',
     yes: 'Igen',
     genericError: 'Hiba történt a művelet során.'
   },
@@ -21,6 +22,26 @@ export default {
     passwordLabel: 'Jelszó',
     submit: 'Bejelentkezés'
   },
+  profile: {
+    title: 'Felhasználói profil',
+    firstName: 'Keresztnév',
+    lastName: 'Vezetéknév',
+    email: 'E-mail',
+    currentPassword: 'Jelszó',
+    newPassword: 'Új jelszó',
+    newPasswordConfirm: 'Új jelszó ismét',
+    edit: 'Szerkesztés',
+    saveProfile: 'Profil mentése',
+    validation: {
+      currentPasswordRequired:
+        'A módosításhoz szükséges a jelenlegi jelszavad!',
+      passwordUppercase: 'A jelszónak legalább egy nagybetűt kell tartalmaznia',
+      passwordNumber: 'A jelszónak legalább egy számot kell tartalmaznia',
+      passwordMinLength:
+        'A jelszónak legalább 8 karakter hosszúnak kell lennie',
+      passwordsDoNotMatch: 'A jelszavak nem egyeznek meg'
+    }
+  },
   validation: {
     required: 'Kötelező kitölteni',
     invalidEmail: 'Érvénytelen email formátum'
@@ -31,6 +52,60 @@ export default {
     unknownStatus: 'Ismeretlen státusz',
     deleteConfirm: 'Biztosan törölni szeretnéd?',
     filterPanel: 'Szűrők',
+    downloadTig: 'TIG letöltés',
+    downloadTasks: 'Megbízások letöltése',
+    download: {
+      menu: 'Letöltés',
+      newPoints: 'Új pontok letöltése'
+    },
+    addTask: {
+      menu: 'Új hozzáadása',
+      loadLocations: 'Helyszínek betöltése',
+      addTask: 'Megbízás hozzáadása'
+    },
+    createTaskBatch: {
+      title: 'Helyszínek hozzáadása',
+      fileLabel: 'File hozzáadása',
+      filePlaceholder: 'Válaszd ki a file-t',
+      filesSuffix: 'file',
+      upload: 'Feltöltés',
+      fileTooLarge: 'A file mérete nem lehet nagyobb 10MB-nál'
+    },
+    createTask: {
+      title: 'Megbízás létrehozása',
+      location: 'Helyszín',
+      taskType: 'Megbízás típusa',
+      locker: 'Locker',
+      fixingMethod: 'Rögzítés módja',
+      requiredSitePreparation: 'Szükséges helyszín előkészítés',
+      note: 'Megjegyzés',
+      issueType: 'Hibatípus',
+      compartmentNumber: 'Rekesz szám',
+      addIssue: 'Új hiba hozzáadása',
+      description: 'Leírás',
+      deadline: 'Határidő',
+      responsible: 'Megbízott',
+      upload: 'Feltöltés'
+    },
+    lockerFilters: {
+      brandLabel: 'Gyártó',
+      batteryLevel: 'Akkumulátor szint',
+      lockerActivationOn: 'Locker aktiválás ellenőrző bekapcsolása',
+      lockerActivationOff: 'Locker aktiválás ellenőrző kikapcsolása',
+      pkCheckOn: 'PK ellenőrző bekapcsolása',
+      pkCheckOff: 'PK ellenőrző kikapcsolása',
+      connectionCheckOn: 'Kapcsolódás ellenőrző bekapcsolása',
+      connectionCheckOff: 'Kapcsolódás ellenőrző kikapcsolása'
+    },
+    notifications: {
+      taskAssignedAt: '{type} megbízást kaptál {location} helyszínen',
+      noNew: 'Nincsenek új értesítéseid'
+    },
+    table: {
+      copiedToClipboard: 'Szöveg másolva a vágólapra',
+      bulkUpdateSuccess: '{count} db kiválasztott elem frissítése sikeres volt',
+      itemAlreadyInList: 'Ez az elem már szerepel a listában'
+    },
     filters: {
       allItems: 'Összes tétel',
       adminActive: 'Adminban aktív',
@@ -51,6 +126,9 @@ export default {
       toPlanned: 'Ig',
       fromActual: 'Tól',
       toActual: 'Ig'
+    },
+    taskFilter: {
+      active: 'Aktív'
     },
     expanded: {
       locationPhotosTab: 'Helyszín fotók',
@@ -113,6 +191,87 @@ export default {
       usedParts: 'Felhasznált alkatrészek',
       description: 'Leírás',
       delete: 'Törlés'
+    }
+  },
+  lockers: {
+    utilization: {
+      title: 'Locker kihasználtság',
+      panelTitle: 'Kihasználtság',
+      weekly: 'Heti telítettség',
+      monthly: 'Havi telítettség',
+      yearly: 'Éves telítettség'
+    },
+    list: {
+      lockerStationId: 'LockerStationId',
+      lastConnection: 'Utolsó csatlakozás',
+      version: 'Verzió',
+      uuid: 'UUID',
+      lockerStatus: 'Locker állapot',
+      technicalStatus: 'Műszaki állapot'
+    },
+    details: {
+      title: 'Locker részletek',
+      id: 'ID',
+      name: 'Név',
+      address: 'Cím',
+      status: 'Státusz',
+      lastConnection: 'Utolsó csatlakozás',
+      version: 'Verzió'
+    }
+  },
+  parts: {
+    stock: {
+      title: 'Készlet',
+      addButton: 'Hozzáadás',
+      fields: {
+        name: 'Név',
+        partNumber: 'Cikkszám',
+        owner: 'Tulajdonos',
+        category: 'Kategória',
+        supplier: 'Beszállító',
+        manufacturer: 'Gyártó',
+        warehouse: 'Raktár',
+        unitPrice: 'Egységár',
+        currency: 'Valuta',
+        quantity: 'Mennyiség',
+        reference: 'Szállítói azonosító',
+        note: 'Megjegyzés'
+      },
+      headers: {
+        partName: 'Alkatrész név',
+        partNumber: 'Cikkszám',
+        category: 'Kategória',
+        manufacturer: 'Gyártó',
+        owner: 'Tulajdonos',
+        supplier: 'Beszállító',
+        warehouse: 'Raktár',
+        goodStockQuantity: 'Mennyiség (jó készlet)',
+        badStockQuantity: 'Mennyiség (rossz készlet)',
+        actions: 'Műveletek',
+        history: 'Előzmények'
+      },
+      formTitle: {
+        addQuantity: 'Mennyiség hozzáadása egy meglévő alkatrészhez',
+        newItem: 'Új cikk felvitele',
+        edit: 'Szerkesztés'
+      }
+    },
+    history: {
+      loadingText: 'Betöltés folyamatban, kérlek várj',
+      headers: {
+        id: 'ID',
+        taskId: 'Task ID',
+        taskTypes: 'Feladat típus',
+        tofShopId: 'TofShopId',
+        boxId: 'BoxId',
+        serial: 'Serial',
+        changeAmount: 'Mennyiség',
+        reason: 'Művelet',
+        reference: 'Referencia',
+        note: 'Megjegyzés',
+        createdBy: 'Felhasználó',
+        createdAt: 'Dátum'
+      }
     }
   }
 };

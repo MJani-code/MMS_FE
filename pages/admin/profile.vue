@@ -5,7 +5,7 @@
         <template>
           <v-card class="">
             <v-card-title class="profile-title">
-              Felhasználói profil
+              {{ $t('profile.title') }}
             </v-card-title>
             <v-card-text>
               <v-form ref="form" @submit.prevent="onSubmit">
@@ -17,7 +17,7 @@
                       color="primary"
                       :readonly="!editMode"
                       :filled="!editMode"
-                      label="Vezetéknév"
+                      :label="$t('profile.lastName')"
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="6" md="6" lg="6" xl="6">
@@ -27,7 +27,7 @@
                       color="primary"
                       :readonly="!editMode"
                       :filled="!editMode"
-                      label="Keresztnév"
+                      :label="$t('profile.firstName')"
                     ></v-text-field>
                   </v-col>
                 </v-row>
@@ -39,7 +39,7 @@
                       color="primary"
                       :readonly="!editMode"
                       :filled="!editMode"
-                      label="E-mail"
+                      :label="$t('profile.email')"
                     ></v-text-field>
                   </v-col>
                   <v-col v-if="editMode" cols="12" lg="6" xl="6">
@@ -49,7 +49,7 @@
                       type="password"
                       color="primary"
                       :readonly="!editMode"
-                      label="Jelszó"
+                      :label="$t('profile.currentPassword')"
                       :rules="passwordRule"
                     ></v-text-field>
                   </v-col>
@@ -61,7 +61,7 @@
                       color="primary"
                       :readonly="!editMode"
                       :filled="!editMode"
-                      label="Új jelszó"
+                      :label="$t('profile.newPassword')"
                       :rules="newPasswordRule"
                     ></v-text-field>
                   </v-col>
@@ -73,7 +73,7 @@
                       color="primary"
                       :readonly="!editMode"
                       :filled="!editMode"
-                      label="Új jelszó ismét"
+                      :label="$t('profile.newPasswordConfirm')"
                       :rules="newPasswordConfirmRule"
                     ></v-text-field>
                   </v-col>
@@ -84,19 +84,22 @@
                     v-if="editMode"
                     class="ma-3"
                     @click="editMode = !editMode"
-                    >Mégsem</v-btn
+                    >{{ $t('common.cancel') }}</v-btn
                   >
                   <v-btn
                     v-if="editMode"
                     type="submit"
                     class="ma-3"
                     color="primary"
-                    >Profil mentése</v-btn
+                    >{{ $t('profile.saveProfile') }}</v-btn
                   >
                 </v-card-actions>
               </v-form>
-              <v-btn v-if="!editMode" class="ma-3" @click="editMode = !editMode"
-                >Szerkesztés</v-btn
+              <v-btn
+                v-if="!editMode"
+                class="ma-3"
+                @click="editMode = !editMode"
+                >{{ $t('profile.edit') }}</v-btn
               >
             </v-card-text>
           </v-card>
@@ -127,7 +130,7 @@ export default {
       alertMessage: '',
       alertType: '',
       passwordRule: [
-        (v) => !!v || 'A módosításhoz szükséges a jelenlegi jelszavad!'
+        (v) => !!v || this.$t('profile.validation.currentPasswordRequired')
       ]
     };
   },
@@ -137,20 +140,18 @@ export default {
         (v) =>
           !v ||
           /[A-Z]/.test(v) ||
-          'A jelszónak legalább egy nagybetűt kell tartalmaznia',
+          this.$t('profile.validation.passwordUppercase'),
         (v) =>
-          !v ||
-          /[0-9]/.test(v) ||
-          'A jelszónak legalább egy számot kell tartalmaznia',
+          !v || /[0-9]/.test(v) || this.$t('profile.validation.passwordNumber'),
         (v) =>
-          !v ||
-          v.length >= 8 ||
-          'A jelszónak legalább 8 karakter hosszúnak kell lennie'
+          !v || v.length >= 8 || this.$t('profile.validation.passwordMinLength')
       ];
     },
     newPasswordConfirmRule() {
       return [
-        (v) => v === this.user.newPassword || 'A jelszavak nem egyeznek meg'
+        (v) =>
+          v === this.user.newPassword ||
+          this.$t('profile.validation.passwordsDoNotMatch')
       ];
     }
   },

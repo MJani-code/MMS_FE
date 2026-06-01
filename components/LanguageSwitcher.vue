@@ -1,57 +1,60 @@
 <template>
-  <v-menu
-    v-model="menu"
-    offset-y
-    bottom
-    left
-    transition="slide-y-transition"
-    :close-on-content-click="true"
-    min-width="160"
-  >
-    <template #activator="{ on, attrs }">
-      <v-btn
-        text
-        rounded
-        v-bind="attrs"
-        v-on="on"
-        class="lang-btn px-2"
-        :ripple="false"
-      >
-        <span class="lang-flag mr-1">{{ currentLang.flag }}</span>
-        <span class="lang-code text-uppercase font-weight-medium">{{
-          currentLang.code
-        }}</span>
-        <v-icon small class="ml-1" :class="{ 'rotate-180': menu }"
-          >mdi-chevron-down</v-icon
+  <div>
+    <v-menu
+      v-model="menu"
+      offset-y
+      bottom
+      left
+      transition="slide-y-transition"
+      :close-on-content-click="true"
+      min-width="160"
+    >
+      <template #activator="{ on, attrs }">
+        <v-btn
+          text
+          rounded
+          v-bind="attrs"
+          v-on="on"
+          class="lang-btn px-2"
+          :ripple="false"
+          :disabled="isSwitching"
         >
-      </v-btn>
-    </template>
+          <span class="lang-flag mr-1">{{ currentLang.flag }}</span>
+          <span class="lang-code text-uppercase font-weight-medium">{{
+            currentLang.code
+          }}</span>
+          <v-icon small class="ml-1" :class="{ 'rotate-180': menu }"
+            >mdi-chevron-down</v-icon
+          >
+        </v-btn>
+      </template>
 
-    <v-list dense class="lang-menu py-1" elevation="4">
-      <v-list-item
-        v-for="lang in languages"
-        :key="lang.code"
-        @click="switchLang(lang.code)"
-        class="lang-item px-3"
-        :class="{ 'lang-item--active': currentLocale === lang.code }"
-      >
-        <v-list-item-icon class="mr-2 my-auto">
-          <span class="lang-flag">{{ lang.flag }}</span>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title class="lang-name">{{
-            lang.name
-          }}</v-list-item-title>
-        </v-list-item-content>
-        <v-list-item-icon
-          v-if="currentLocale === lang.code"
-          class="my-auto ml-2"
+      <v-list dense class="lang-menu py-1" elevation="4">
+        <v-list-item
+          v-for="lang in languages"
+          :key="lang.code"
+          @click="switchLang(lang.code)"
+          class="lang-item px-3"
+          :class="{ 'lang-item--active': currentLocale === lang.code }"
         >
-          <v-icon small color="primary">mdi-check</v-icon>
-        </v-list-item-icon>
-      </v-list-item>
-    </v-list>
-  </v-menu>
+          <v-list-item-icon class="mr-2 my-auto">
+            <span class="lang-flag">{{ lang.flag }}</span>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title class="lang-name">{{
+              lang.name
+            }}</v-list-item-title>
+          </v-list-item-content>
+          <v-list-item-icon
+            v-if="currentLocale === lang.code"
+            class="my-auto ml-2"
+          >
+            <v-icon small color="primary">mdi-check</v-icon>
+          </v-list-item-icon>
+        </v-list-item>
+      </v-list>
+    </v-menu>
+  </div>
 </template>
 
 <script>
@@ -61,6 +64,7 @@ export default {
   data() {
     return {
       menu: false,
+      isSwitching: false,
       languages: [
         { code: 'hu', name: 'Magyar', flag: '🇭🇺' },
         { code: 'en', name: 'English', flag: '🇬🇧' },
@@ -85,15 +89,30 @@ export default {
   },
 
   methods: {
-    switchLang(code) {
+    async switchLang(code) {
+      if (this.isSwitching || code === this.currentLocale) {
+        this.menu = false;
+        return;
+      }
+
+      this.isSwitching = true;
+      const isTasksRoute = this.$route?.path === '/admin/tasks';
       if (this.$store) {
+        if (isTasksRoute) {
+          this.$store.commit('turnOnLoading');
+        }
         this.$store.commit('setLocale', code);
       }
-      if (this.$i18n) {
-        this.$i18n.setLocale(code);
+
+      try {
+        if (this.$i18n) {
+          await this.$i18n.setLocale(code);
+        }
+      } finally {
+        this.$emit('change', code);
+        this.menu = false;
+        this.isSwitching = false;
       }
-      this.$emit('change', code);
-      this.menu = false;
     }
   }
 };

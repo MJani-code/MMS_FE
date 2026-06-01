@@ -46,20 +46,25 @@
             >
             <v-card-text>
               <div>
-                <strong>lockerStationId:</strong> {{ locker.lockerStationId }}
+                <strong>{{ $t('lockers.list.lockerStationId') }}:</strong>
+                {{ locker.lockerStationId }}
               </div>
               <div>
-                <strong>Utolsó csatlakozás:</strong>
+                <strong>{{ $t('lockers.list.lastConnection') }}:</strong>
                 {{ formatDate(lockerListData.lastConnectionTimestamp) }}
               </div>
               <div>
-                <strong>Verzió:</strong> {{ lockerListData.currentVersion }}
+                <strong>{{ $t('lockers.list.version') }}:</strong>
+                {{ lockerListData.currentVersion }}
               </div>
-              <div><strong>uuid:</strong> {{ lockerListData.uuid }}</div>
+              <div>
+                <strong>{{ $t('lockers.list.uuid') }}:</strong>
+                {{ lockerListData.uuid }}
+              </div>
             </v-card-text>
             <v-divider class="ma-2"></v-divider>
             <div>
-              <strong>Locker állapot</strong>
+              <strong>{{ $t('lockers.list.lockerStatus') }}</strong>
             </div>
             <div class="progress-circular-container d-flex">
               <div>
@@ -155,7 +160,7 @@
             </div>
             <v-divider class="ma-2"></v-divider>
             <div>
-              <strong>Műszaki állapot</strong>
+              <strong>{{ $t('lockers.list.technicalStatus') }}</strong>
             </div>
             <v-card-actions>
               <v-icon :color="lockerListData.isPassive ? 'red' : 'green'"
@@ -275,13 +280,6 @@ export default {
 </script>
 
 <style scoped>
-.v-card {
-  /* transition: transform 0.2s; */
-  /* cursor: pointer; */
-}
-.v-card:hover {
-  /* transform: scale(1.05); */
-}
 .v-progress-circular {
   margin: 0.2rem;
 }

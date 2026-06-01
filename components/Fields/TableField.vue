@@ -648,7 +648,7 @@
           class="ma-2"
           @click="downloadTig"
         >
-          TIG letöltés
+          {{ $t('tasks.downloadTig') }}
         </v-btn>
         <v-btn
           v-if="
@@ -661,7 +661,7 @@
           class="ma-2"
           @click="downloadTasks"
         >
-          Letöltés
+          {{ $t('tasks.downloadTasks') }}
         </v-btn>
       </template>
 
@@ -866,7 +866,10 @@ export default {
       navigator.clipboard
         .writeText(text)
         .then(() => {
-          this.showNotification('success', 'Szöveg másolva a vágólapra');
+          this.showNotification(
+            'success',
+            this.$t('tasks.table.copiedToClipboard')
+          );
         })
         .catch((err) => {
           this.showNotification('error', err);
@@ -954,7 +957,9 @@ export default {
           this.$emit('bulkUpdateLockerData', response.payload);
           this.showNotification(
             'success',
-            ` ${this.selected.length} db kiválasztott elemek frissítése sikeres volt`
+            this.$t('tasks.table.bulkUpdateSuccess', {
+              count: this.selected.length
+            })
           );
           this.selected = [];
         }
@@ -990,7 +995,7 @@ export default {
       if (item.lockers.length < this.lockerSerialsLengths) {
         this.$store.dispatch('notification/addNotification', {
           type: 'error',
-          message: 'ez az elem már szerepel a listában',
+          message: this.$t('tasks.table.itemAlreadyInList'),
           timeout: 5000
         });
         return;

@@ -34,9 +34,12 @@
             style="border-bottom: 2px solid gray"
           >
             <p class="text-body-2 mb-4">
-              <!-- a typeName legyen bold -->
-              <strong>{{ notification.typeNames }}</strong> megbízást kaptál
-              {{ notification.location }} helyszínen
+              {{
+                $t('tasks.notifications.taskAssignedAt', {
+                  type: notification.typeNames,
+                  location: notification.location
+                })
+              }}
             </p>
             <!-- létrehozva:  -->
             <p class="text-body-3">{{ notification.createdAt }}</p>
@@ -45,7 +48,7 @@
 
         <!-- No notifications -->
         <template v-else>
-          <p class="text-body-2 mb-4">Nincsenek új értesítéseid</p>
+          <p class="text-body-2 mb-4">{{ $t('tasks.notifications.noNew') }}</p>
         </template>
       </v-sheet>
     </template>
@@ -54,7 +57,6 @@
 
 <script>
 import { taskMixin } from '@/mixins/taskMixin.js';
-import { toRef } from 'vue';
 
 export default {
   mixins: [taskMixin],

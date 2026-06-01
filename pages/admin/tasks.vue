@@ -170,18 +170,6 @@ export default {
       expandedAccordions: [] // Nyitott accordionok ID-jai
     };
   },
-  watch: {
-    // '$store.state.notification.bellEvent': {
-    //   handler(newVal) {
-    //     if (newVal && newVal.type === 'special' && newVal.toRefresh) {
-    //       this.turnOnLoading();
-    //       this.getTasks();
-    //       this.$store.commit('notification/setBellEvent', null);
-    //     }
-    //   },
-    //   immediate: true
-    // }
-  },
   computed: {
     adminFilterOptions() {
       return [

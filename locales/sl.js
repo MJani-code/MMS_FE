@@ -1,6 +1,7 @@
 export default {
   common: {
     cancel: 'Preklici',
+    save: 'Shrani',
     yes: 'Da',
     genericError: 'Med postopkom je prislo do napake.'
   },
@@ -21,6 +22,24 @@ export default {
     passwordLabel: 'Geslo',
     submit: 'Prijava'
   },
+  profile: {
+    title: 'Uporabniski profil',
+    firstName: 'Ime',
+    lastName: 'Priimek',
+    email: 'E-posta',
+    currentPassword: 'Trenutno geslo',
+    newPassword: 'Novo geslo',
+    newPasswordConfirm: 'Ponovi novo geslo',
+    edit: 'Uredi',
+    saveProfile: 'Shrani profil',
+    validation: {
+      currentPasswordRequired: 'Za spremembo je potrebno trenutno geslo',
+      passwordUppercase: 'Geslo mora vsebovati vsaj eno veliko crko',
+      passwordNumber: 'Geslo mora vsebovati vsaj eno stevilko',
+      passwordMinLength: 'Geslo mora imeti vsaj 8 znakov',
+      passwordsDoNotMatch: 'Gesli se ne ujemata'
+    }
+  },
   validation: {
     required: 'To polje je obvezno',
     invalidEmail: 'Neveljavna oblika e-poste'
@@ -31,6 +50,60 @@ export default {
     unknownStatus: 'Neznan status',
     deleteConfirm: 'Ali res zelite izbrisati?',
     filterPanel: 'Filtri',
+    downloadTig: 'Preuzmi TIG',
+    downloadTasks: 'Preuzmi naloge',
+    download: {
+      menu: 'Prenos',
+      newPoints: 'Prenos novih tock'
+    },
+    addTask: {
+      menu: 'Dodaj novo',
+      loadLocations: 'Nalozi lokacije',
+      addTask: 'Dodaj nalogo'
+    },
+    createTaskBatch: {
+      title: 'Dodaj lokacije',
+      fileLabel: 'Dodaj datoteko',
+      filePlaceholder: 'Izberi datoteko',
+      filesSuffix: 'datoteke',
+      upload: 'Nalozi',
+      fileTooLarge: 'Velikost datoteke ne sme presegati 10MB'
+    },
+    createTask: {
+      title: 'Ustvari nalogo',
+      location: 'Lokacija',
+      taskType: 'Vrsta naloge',
+      locker: 'Omarica',
+      fixingMethod: 'Nacin pritrditve',
+      requiredSitePreparation: 'Potrebna priprava lokacije',
+      note: 'Opomba',
+      issueType: 'Vrsta napake',
+      compartmentNumber: 'Stevilka predala',
+      addIssue: 'Dodaj novo napako',
+      description: 'Opis',
+      deadline: 'Rok',
+      responsible: 'Odgovorna oseba',
+      upload: 'Nalozi'
+    },
+    lockerFilters: {
+      brandLabel: 'Znamka',
+      batteryLevel: 'Raven baterije',
+      lockerActivationOn: 'Vklopi preverjanje aktivacije omarice',
+      lockerActivationOff: 'Izklopi preverjanje aktivacije omarice',
+      pkCheckOn: 'Vklopi PK preverjanje',
+      pkCheckOff: 'Izklopi PK preverjanje',
+      connectionCheckOn: 'Vklopi preverjanje povezave',
+      connectionCheckOff: 'Izklopi preverjanje povezave'
+    },
+    notifications: {
+      taskAssignedAt: 'Prejeli ste nalogo {type} na lokaciji {location}',
+      noNew: 'Nimate novih obvestil'
+    },
+    table: {
+      copiedToClipboard: 'Besedilo kopirano v odlozisce',
+      bulkUpdateSuccess: 'Uspesno posodobljenih izbranih elementov: {count}',
+      itemAlreadyInList: 'Ta element je ze na seznamu'
+    },
     filters: {
       allItems: 'Vsi elementi',
       adminActive: 'Aktivno v adminu',
@@ -51,6 +124,9 @@ export default {
       toPlanned: 'Do',
       fromActual: 'Od',
       toActual: 'Do'
+    },
+    taskFilter: {
+      active: 'Aktivno'
     },
     expanded: {
       locationPhotosTab: 'Fotografije lokacije',
@@ -113,6 +189,87 @@ export default {
       usedParts: 'Uporabljeni deli',
       description: 'Opis',
       delete: 'Izbrisi'
+    }
+  },
+  lockers: {
+    utilization: {
+      title: 'Izkoriscenost omaric',
+      panelTitle: 'Izkoriscenost',
+      weekly: 'Tedenska izkoriscenost',
+      monthly: 'Mesecna izkoriscenost',
+      yearly: 'Letna izkoriscenost'
+    },
+    list: {
+      lockerStationId: 'LockerStationId',
+      lastConnection: 'Zadnja povezava',
+      version: 'Verzija',
+      uuid: 'UUID',
+      lockerStatus: 'Stanje omarice',
+      technicalStatus: 'Tehnicno stanje'
+    },
+    details: {
+      title: 'Podrobnosti omarice',
+      id: 'ID',
+      name: 'Naziv',
+      address: 'Naslov',
+      status: 'Status',
+      lastConnection: 'Zadnja povezava',
+      version: 'Verzija'
+    }
+  },
+  parts: {
+    stock: {
+      title: 'Zaloga',
+      addButton: 'Dodaj',
+      fields: {
+        name: 'Naziv',
+        partNumber: 'Stevilka dela',
+        owner: 'Lastnik',
+        category: 'Kategorija',
+        supplier: 'Dobavitelj',
+        manufacturer: 'Proizvajalec',
+        warehouse: 'Skladisce',
+        unitPrice: 'Cena na enoto',
+        currency: 'Valuta',
+        quantity: 'Kolicina',
+        reference: 'Dobaviteljeva referenca',
+        note: 'Opomba'
+      },
+      headers: {
+        partName: 'Naziv dela',
+        partNumber: 'Stevilka dela',
+        category: 'Kategorija',
+        manufacturer: 'Proizvajalec',
+        owner: 'Lastnik',
+        supplier: 'Dobavitelj',
+        warehouse: 'Skladisce',
+        goodStockQuantity: 'Kolicina (dobra zaloga)',
+        badStockQuantity: 'Kolicina (slaba zaloga)',
+        actions: 'Dejanja',
+        history: 'Zgodovina'
+      },
+      formTitle: {
+        addQuantity: 'Dodaj kolicino k obstojecemu delu',
+        newItem: 'Dodaj nov artikel',
+        edit: 'Uredi'
+      }
+    },
+    history: {
+      loadingText: 'Nalaganje... pocakajte',
+      headers: {
+        id: 'ID',
+        taskId: 'Task ID',
+        taskTypes: 'Vrsta naloge',
+        tofShopId: 'TofShopId',
+        boxId: 'BoxId',
+        serial: 'Serial',
+        changeAmount: 'Kolicina',
+        reason: 'Operacija',
+        reference: 'Referenca',
+        note: 'Opomba',
+        createdBy: 'Uporabnik',
+        createdAt: 'Datum'
+      }
     }
   }
 };
