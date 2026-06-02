@@ -11,6 +11,25 @@ export const taskMixin = {
     getActiveLocale() {
       return this.$i18n?.locale || this.$store?.state?.locale || 'hu';
     },
+    addLocaleToPayload(payload) {
+      const locale = this.getActiveLocale();
+
+      if (payload instanceof FormData) {
+        if (payload.has('locale')) {
+          payload.set('locale', locale);
+        } else {
+          payload.append('locale', locale);
+        }
+        return payload;
+      }
+
+      if (payload && typeof payload === 'object') {
+        payload.locale = locale;
+        return payload;
+      }
+
+      return { locale };
+    },
     showNotification($type, $message) {
       this.$store.dispatch('notification/addNotification', {
         type: $type,
@@ -47,6 +66,7 @@ export const taskMixin = {
       }
     },
     updateTask(payload) {
+      payload = this.addLocaleToPayload(payload);
       if (payload.file) {
         try {
           const token = this.$store.state.token;
@@ -69,6 +89,7 @@ export const taskMixin = {
     addFee(payload) {
       try {
         const token = this.$store.state.token;
+        payload = this.addLocaleToPayload(payload);
         const response = APIPOST('addFee', payload, token);
         return response;
       } catch (error) {
@@ -79,6 +100,7 @@ export const taskMixin = {
     addLocker(payload) {
       try {
         const token = this.$store.state.token;
+        payload = this.addLocaleToPayload(payload);
         const response = APIPOST('addLocker', payload, token);
         return response;
       } catch (error) {
@@ -89,6 +111,7 @@ export const taskMixin = {
     deleteFee(payload) {
       try {
         const token = this.$store.state.token;
+        payload = this.addLocaleToPayload(payload);
         const response = APIPOST('deleteFee', payload, token);
         return response;
       } catch (error) {
@@ -99,6 +122,7 @@ export const taskMixin = {
     removeLocker(payload) {
       try {
         const token = this.$store.state.token;
+        payload = this.addLocaleToPayload(payload);
         const response = APIPOST('removeLocker', payload, token);
         return response;
       } catch (error) {
@@ -129,6 +153,7 @@ export const taskMixin = {
     uploadBatchTasks(payload) {
       try {
         const token = this.$store.state.token;
+        payload = this.addLocaleToPayload(payload);
         const response = APIPOST2('createTaskBatch', payload, token);
         return response;
       } catch (error) {
@@ -159,6 +184,7 @@ export const taskMixin = {
     verifyLocker(payload) {
       try {
         const token = this.$store.state.token;
+        payload = this.addLocaleToPayload(payload);
         const response = APIPOST('verifyLocker', payload, token);
         return response;
       } catch (error) {
@@ -169,6 +195,7 @@ export const taskMixin = {
     getLockerDataFromLos(payload) {
       try {
         const token = this.$store.state.token;
+        payload = this.addLocaleToPayload(payload);
         const response = APIPOST('getLockerFromLos', payload, token);
         return response;
       } catch (error) {
@@ -179,11 +206,8 @@ export const taskMixin = {
     getDataForCreateTask(payload) {
       try {
         const token = this.$store.state.token;
-        const response = APIPOST(
-          'getDataForCreateTask',
-          { locale: this.getActiveLocale() },
-          token
-        );
+        payload = this.addLocaleToPayload(payload);
+        const response = APIPOST('getDataForCreateTask', payload, token);
         return response;
       } catch (error) {
         console.error('Error fetching task creation data', error);
@@ -193,6 +217,7 @@ export const taskMixin = {
     createTask(payload) {
       try {
         const token = this.$store.state.token;
+        payload = this.addLocaleToPayload(payload);
         const response = APIPOST('createTask', payload, token);
         return response;
       } catch (error) {
@@ -203,6 +228,7 @@ export const taskMixin = {
     deletePhoto(payload) {
       try {
         const token = this.$store.state.token;
+        payload = this.addLocaleToPayload(payload);
         const response = APIPOST('deleteMedia', payload, token);
         return response;
       } catch (error) {
@@ -212,6 +238,7 @@ export const taskMixin = {
     },
     async fetchIssues(payload, token) {
       try {
+        payload = this.addLocaleToPayload(payload);
         const response = await APIPOST('getTaskLockersIssues', payload, token);
         return await response;
       } catch (error) {
@@ -221,6 +248,7 @@ export const taskMixin = {
     },
     async downloadNewPoints(payload, token) {
       try {
+        payload = this.addLocaleToPayload(payload);
         const response = await APIPOST(
           'downloadNewPoints',
           payload,
@@ -246,6 +274,7 @@ export const taskMixin = {
     async markNotificationsAsRead(payload) {
       try {
         const token = this.$store.state.token;
+        payload = this.addLocaleToPayload(payload);
         const response = await APIPOST('readNotifications', payload, token);
         return response;
       } catch (error) {
@@ -255,11 +284,11 @@ export const taskMixin = {
     },
     async addIntervention(taskId, interventionData, token) {
       try {
-        const response = await APIPOST(
-          'addIntervention',
-          { taskId: taskId, interventions: [interventionData] },
-          token
-        );
+        const payload = this.addLocaleToPayload({
+          taskId: taskId,
+          interventions: [interventionData]
+        });
+        const response = await APIPOST('addIntervention', payload, token);
         return response;
       } catch (error) {
         console.error('Error adding intervention', error);
@@ -268,6 +297,7 @@ export const taskMixin = {
     },
     async deleteIntervention(data, token) {
       try {
+        data = this.addLocaleToPayload(data);
         const response = await APIPOST('deleteIntervention', data, token);
         return response;
       } catch (error) {
@@ -295,6 +325,7 @@ export const taskMixin = {
     },
     async addStockItem(token, item) {
       try {
+        item = this.addLocaleToPayload(item);
         const response = await APIPOST('addPartToStock', item, token);
         return response;
       } catch (error) {
@@ -304,6 +335,7 @@ export const taskMixin = {
     },
     async updateStockItem(token, item) {
       try {
+        item = this.addLocaleToPayload(item);
         const response = await APIPOST('updatePartInStock', item, token);
         return response;
       } catch (error) {
@@ -313,6 +345,7 @@ export const taskMixin = {
     },
     async getPartsHistory(token, data) {
       try {
+        data = this.addLocaleToPayload(data);
         const response = await APIPOST('getPartsHistory', data, token);
         return response;
       } catch (error) {
@@ -322,6 +355,7 @@ export const taskMixin = {
     },
     async updateTaskInBatch(token, data) {
       try {
+        data = this.addLocaleToPayload(data);
         const response = await APIPOST('updateTaskInBatch', data, token);
         return response;
       } catch (error) {
