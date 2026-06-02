@@ -193,6 +193,11 @@ export default {
     }
   },
   lockers: {
+    filters: 'Filters',
+    lockers: 'Lockers',
+    total: 'Total',
+    totalUnits: 'Units',
+    order: 'Order',
     utilization: {
       title: 'Locker utilization',
       panelTitle: 'Utilization',
@@ -200,6 +205,12 @@ export default {
       monthly: 'Monthly utilization',
       yearly: 'Yearly utilization'
     },
+    sortOptions: [
+      { text: 'Locker Station ID', value: 'lockerStationId' },
+      { text: 'Faulty Compartments', value: 'faultyCompartments' },
+      { text: 'Compartment Occupation', value: 'compartmentOccupation' },
+      { text: 'Connection Time', value: 'lastConnectionTimestamp' }
+    ],
     list: {
       lockerStationId: 'LockerStationId',
       lastConnection: 'Last connection',

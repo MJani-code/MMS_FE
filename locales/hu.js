@@ -194,6 +194,11 @@ export default {
     }
   },
   lockers: {
+    filters: 'Szűrők',
+    lockers: 'Automaták',
+    total: 'Összesen',
+    order: 'Rendezés',
+    totalUnits: 'db',
     utilization: {
       title: 'Locker kihasználtság',
       panelTitle: 'Kihasználtság',
@@ -201,6 +206,12 @@ export default {
       monthly: 'Havi telítettség',
       yearly: 'Éves telítettség'
     },
+    sortOptions: [
+      { text: 'Locker Station ID', value: 'lockerStationId' },
+      { text: 'Hibás rekeszek', value: 'faultyCompartments' },
+      { text: 'Rekesztelítettség', value: 'compartmentOccupation' },
+      { text: 'Csatlakozási idő', value: 'lastConnectionTimestamp' }
+    ],
     list: {
       lockerStationId: 'LockerStationId',
       lastConnection: 'Utolsó csatlakozás',

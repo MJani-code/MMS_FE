@@ -19,7 +19,11 @@
           :ripple="false"
           :disabled="isSwitching"
         >
-          <span class="lang-flag mr-1">{{ currentLang.flag }}</span>
+          <img
+            :src="currentLang.flagSrc"
+            :alt="currentLang.code"
+            class="lang-flag mr-1"
+          />
           <span class="lang-code text-uppercase font-weight-medium">{{
             currentLang.code
           }}</span>
@@ -38,7 +42,7 @@
           :class="{ 'lang-item--active': currentLocale === lang.code }"
         >
           <v-list-item-icon class="mr-2 my-auto">
-            <span class="lang-flag">{{ lang.flag }}</span>
+            <img :src="lang.flagSrc" :alt="lang.code" class="lang-flag" />
           </v-list-item-icon>
           <v-list-item-content>
             <v-list-item-title class="lang-name">{{
@@ -66,9 +70,9 @@ export default {
       menu: false,
       isSwitching: false,
       languages: [
-        { code: 'hu', name: 'Magyar', flag: '🇭🇺' },
-        { code: 'en', name: 'English', flag: '🇬🇧' },
-        { code: 'sl', name: 'Slovenščina', flag: '🇸🇮' }
+        { code: 'hu', name: 'Magyar', flagSrc: '/flags/hu.svg' },
+        { code: 'en', name: 'English', flagSrc: '/flags/en.svg' },
+        { code: 'sl', name: 'Slovenščina', flagSrc: '/flags/sl.svg' }
       ]
     };
   },
@@ -131,9 +135,12 @@ export default {
 }
 
 .lang-flag {
-  font-size: 0.85rem;
-  line-height: 1;
-  font-weight: 700;
+  width: 18px;
+  height: 12px;
+  border-radius: 2px;
+  object-fit: cover;
+  display: inline-block;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15);
 }
 
 .lang-code {

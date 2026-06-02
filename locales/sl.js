@@ -192,6 +192,11 @@ export default {
     }
   },
   lockers: {
+    filters: 'Filtri',
+    lockers: 'Omarice',
+    total: 'Skupaj',
+    totalUnits: 'Enote',
+    order: 'Razvrstitev',
     utilization: {
       title: 'Izkoriscenost omaric',
       panelTitle: 'Izkoriscenost',
@@ -199,6 +204,12 @@ export default {
       monthly: 'Mesecna izkoriscenost',
       yearly: 'Letna izkoriscenost'
     },
+    sortOptions: [
+      { text: 'Locker Station ID', value: 'lockerStationId' },
+      { text: 'Okvarjeni predali', value: 'faultyCompartments' },
+      { text: 'Zasedenost predalov', value: 'compartmentOccupation' },
+      { text: 'Cas povezave', value: 'lastConnectionTimestamp' }
+    ],
     list: {
       lockerStationId: 'LockerStationId',
       lastConnection: 'Zadnja povezava',
