@@ -323,7 +323,8 @@ export default {
             locale
           ),
           fees: localizeNamedArray(payload.fees || [], locale),
-          companies: localizeNamedArray(payload.companies || [], locale)
+          companies: localizeNamedArray(payload.companies || [], locale),
+          taskTypes: localizeNamedArray(payload.taskTypes || [], locale)
         };
         this.tasks.headers.unshift({ text: '', value: 'data-table-expand' });
       } else {

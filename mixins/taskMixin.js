@@ -179,7 +179,11 @@ export const taskMixin = {
     getDataForCreateTask(payload) {
       try {
         const token = this.$store.state.token;
-        const response = APIPOST('getDataForCreateTask', payload, token);
+        const response = APIPOST(
+          'getDataForCreateTask',
+          { locale: this.getActiveLocale() },
+          token
+        );
         return response;
       } catch (error) {
         console.error('Error fetching task creation data', error);
