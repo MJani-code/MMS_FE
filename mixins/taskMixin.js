@@ -9,26 +9,51 @@ import {
 export const taskMixin = {
   methods: {
     getActiveLocale() {
-      return this.$i18n?.locale || this.$store?.state?.locale || 'hu';
+      if (this.$i18n && this.$i18n.locale) {
+        return this.$i18n.locale;
+      }
+
+      if (this.$store && this.$store.state && this.$store.state.locale) {
+        return this.$store.state.locale;
+      }
+
+      if (typeof window !== 'undefined') {
+        const appLocale = localStorage.getItem('appLocale');
+        if (appLocale) {
+          return appLocale;
+        }
+
+        const storedData = localStorage.getItem('data');
+        if (storedData) {
+          try {
+            const parsed = JSON.parse(storedData);
+            if (parsed && parsed.locale) {
+              return parsed.locale;
+            }
+          } catch (_error) {
+            // Ignore parsing errors and use fallback.
+          }
+        }
+      }
+
+      return 'hu';
     },
     addLocaleToPayload(payload) {
-      const locale = this.getActiveLocale();
-
       if (payload instanceof FormData) {
-        if (payload.has('locale')) {
-          payload.set('locale', locale);
-        } else {
-          payload.append('locale', locale);
+        if (!payload.has('locale')) {
+          payload.append('locale', this.getActiveLocale());
         }
         return payload;
       }
 
       if (payload && typeof payload === 'object') {
-        payload.locale = locale;
+        if (!payload.locale) {
+          payload.locale = this.getActiveLocale();
+        }
         return payload;
       }
 
-      return { locale };
+      return { locale: this.getActiveLocale() };
     },
     showNotification($type, $message) {
       this.$store.dispatch('notification/addNotification', {
@@ -142,6 +167,7 @@ export const taskMixin = {
     },
     updateUser(payload) {
       try {
+        payload = this.addLocaleToPayload(payload);
         const token = this.$store.state.token;
         const response = APIPOST('updateUser', payload, token);
         return response;
