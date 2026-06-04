@@ -20,6 +20,18 @@
           <!-- real header cells -->
           <td v-for="(header, index) in headers" :key="index">
             <v-select
+              v-if="header.filterable && header.value === 'priorityId'"
+              v-model="filters[header.value]"
+              :items="priorities"
+              item-value="id"
+              item-text="name"
+              small-chips
+              solo
+              :placeholder="header.text"
+              hide-details="auto"
+              multiple
+            />
+            <v-select
               v-if="header.filterable && header.value === 'taskTypes'"
               v-model="filters[header.value]"
               :items="taskTypes"
