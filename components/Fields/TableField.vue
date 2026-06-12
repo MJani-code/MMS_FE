@@ -18,7 +18,7 @@
       class="elevation-1 custom-table"
     >
       <!-- FilterRow in Desktop view-->
-      <template #[`body.prepend`]>
+      <template v-slot:body.prepend>
         <tr v-if="!isMobile" class="filterRow">
           <!-- placeholder td for checkbox and expand icon -->
           <td></td>
@@ -26,19 +26,7 @@
           <!-- real header cells -->
           <td v-for="(header, index) in headers" :key="index">
             <v-select
-              v-if="header.filterable && header.value === 'priorityId'"
-              v-model="filters[header.value]"
-              :items="priorities"
-              item-value="id"
-              item-text="name"
-              small-chips
-              solo
-              :placeholder="header.text"
-              hide-details="auto"
-              multiple
-            />
-            <v-select
-              v-if="header.filterable && header.value === 'taskTypes'"
+              v-if="header.filterable && header.text === 'Típus'"
               v-model="filters[header.value]"
               :items="taskTypes"
               item-value="id"
@@ -63,7 +51,7 @@
               disabled
             />
             <v-text-field
-              v-if="header.filterable && header.value === 'zip'"
+              v-if="header.filterable && header.text === 'Zip'"
               v-model="filters[header.value]"
               :placeholder="header.text"
               solo
@@ -71,7 +59,7 @@
               @input="filter(header.value)"
             />
             <v-text-field
-              v-if="header.filterable && header.value === 'city'"
+              v-if="header.filterable && header.text === 'Település'"
               v-model="filters[header.value]"
               :placeholder="header.text"
               solo
@@ -79,14 +67,14 @@
               @input="filter(header.value)"
             />
             <v-text-field
-              v-if="header.filterable && header.value === 'address'"
+              v-if="header.filterable && header.text === 'Cím'"
               v-model="filters[header.value]"
               :placeholder="header.text"
               solo
               hide-details="auto"
             />
             <v-select
-              v-if="header.filterable && header.value === 'location_type'"
+              v-if="header.filterable && header.text === 'Lokáció típus'"
               v-model="filters[header.value]"
               :items="locationTypes"
               item-value="id"
@@ -99,42 +87,46 @@
             />
             <v-text-field
               v-if="
-                header.filterable && header.value === 'planned_delivery_date'
+                header.filterable && header.text === 'Kivitelezési dátum(terv)'
               "
               v-model="filters.startDatePlan"
               type="datetime-local"
               class="datetime"
-              :label="$t('tasks.filters.fromPlanned')"
+              label="Tól"
               hide-details="auto"
             />
             <v-text-field
               v-if="
-                header.filterable && header.value === 'planned_delivery_date'
+                header.filterable && header.text === 'Kivitelezési dátum(terv)'
               "
               v-model="filters.endDatePlan"
               type="datetime-local"
               class="datetime"
-              :label="$t('tasks.filters.toPlanned')"
+              label="Ig"
               hide-details="auto"
             />
             <v-text-field
-              v-if="header.filterable && header.value === 'delivery_date'"
+              v-if="
+                header.filterable && header.text === 'Kivitelezési dátum(tény)'
+              "
               v-model="filters.startDate"
               type="datetime-local"
               class="datetime"
-              :label="$t('tasks.filters.fromActual')"
+              label="Tól"
               hide-details="auto"
             />
             <v-text-field
-              v-if="header.filterable && header.value === 'delivery_date'"
+              v-if="
+                header.filterable && header.text === 'Kivitelezési dátum(tény)'
+              "
               v-model="filters.endDate"
               type="datetime-local"
               class="datetime"
-              :label="$t('tasks.filters.toActual')"
+              label="Ig"
               hide-details="auto"
             />
             <v-select
-              v-if="header.filterable && header.value === 'responsibles'"
+              v-if="header.filterable && header.text === 'Megbízottak'"
               v-model="filters[header.value]"
               :items="responsibles"
               item-value="id"
@@ -146,14 +138,14 @@
               multiple
             />
             <v-text-field
-              v-if="header.filterable && header.value === 'tof_shop_id'"
+              v-if="header.filterable && header.text === 'Tof Shop Id'"
               v-model="filters[header.value]"
               :placeholder="header.text"
               solo
               hide-details="auto"
             />
             <v-text-field
-              v-if="header.filterable && header.value === 'box_id'"
+              v-if="header.filterable && header.text === 'Box Id'"
               v-model="filters[header.value]"
               :placeholder="header.text"
               solo
@@ -161,33 +153,33 @@
               @input="filter(header.value)"
             />
             <v-text-field
-              v-if="header.filterable && header.value === 'serial'"
+              v-if="header.filterable && header.text === 'Serial'"
               v-model="filters[header.value]"
               :placeholder="header.text"
               solo
               hide-details="auto"
             />
             <v-text-field
-              v-if="header.filterable && header.value === 'createdBy'"
+              v-if="header.filterable && header.text === 'Létrehozta'"
               v-model="filters.createdBy"
               :placeholder="header.text"
               solo
               hide-details="auto"
             />
             <v-text-field
-              v-if="header.filterable && header.value === 'createdAt'"
+              v-if="header.filterable && header.text === 'Létrehozva'"
               v-model="filters.startCreatedAt"
               type="datetime-local"
               class="datetime"
-              :label="$t('tasks.filters.fromCreatedAt')"
+              label="Tól"
               hide-details="auto"
             />
             <v-text-field
-              v-if="header.filterable && header.value === 'createdAt'"
+              v-if="header.filterable && header.text === 'Létrehozva'"
               v-model="filters.endCreatedAt"
               type="datetime-local"
               class="datetime"
-              :label="$t('tasks.filters.toCreatedAt')"
+              label="Ig"
               hide-details="auto"
             />
           </td>
@@ -196,9 +188,7 @@
         <!-- FilterRow in Mobile view-->
         <v-expansion-panels v-else v-model="filtersAccordion">
           <v-expansion-panel class="accordion">
-            <v-expansion-panel-header>{{
-              $t('tasks.filterPanel')
-            }}</v-expansion-panel-header>
+            <v-expansion-panel-header>Szűrők</v-expansion-panel-header>
             <v-expansion-panel-content>
               <v-row>
                 <v-col cols="4" md="4" sm="2">
@@ -209,7 +199,7 @@
                     item-text="name"
                     small-chips
                     solo
-                    :placeholder="$t('tasks.filters.type')"
+                    placeholder="Típus"
                     hide-details="auto"
                     multiple
                   />
@@ -217,7 +207,7 @@
                 <v-col cols="4" md="4" sm="2">
                   <v-text-field
                     v-model="filters['zip']"
-                    :placeholder="$t('tasks.filters.zip')"
+                    placeholder="Zip"
                     solo
                     hide-details="auto"
                   />
@@ -225,7 +215,7 @@
                 <v-col cols="4" md="4" sm="2">
                   <v-text-field
                     v-model="filters['city']"
-                    :placeholder="$t('tasks.filters.city')"
+                    placeholder="City"
                     solo
                     hide-details="auto"
                   />
@@ -235,7 +225,7 @@
                 <v-col cols="4" md="4" sm="2">
                   <v-text-field
                     v-model="filters['tof_shop_id']"
-                    :placeholder="$t('tasks.filters.tofShopId')"
+                    placeholder="Tof ShopId"
                     solo
                     hide-details="auto"
                   />
@@ -243,7 +233,7 @@
                 <v-col cols="4" md="4" sm="2">
                   <v-text-field
                     v-model="filters['box_id']"
-                    :placeholder="$t('tasks.filters.boxId')"
+                    placeholder="Box Id"
                     solo
                     hide-details="auto"
                   />
@@ -251,7 +241,7 @@
                 <v-col cols="12" md="4" sm="2">
                   <v-text-field
                     v-model="filters['serial']"
-                    :placeholder="$t('tasks.filters.serial')"
+                    placeholder="Serial"
                     solo
                     hide-details="auto"
                   />
@@ -263,7 +253,7 @@
                     v-model="filters.startDatePlan"
                     type="datetime-local"
                     class="datetime"
-                    :label="$t('tasks.filters.fromPlanned')"
+                    label="Tól (tervezett)"
                     hide-details="auto"
                   />
                 </v-col>
@@ -272,7 +262,7 @@
                     v-model="filters.endDatePlan"
                     type="datetime-local"
                     class="datetime"
-                    :label="$t('tasks.filters.toPlanned')"
+                    label="Ig (tervezett)"
                     hide-details="auto"
                   />
                 </v-col>
@@ -283,7 +273,7 @@
                     v-model="filters.startDate"
                     type="datetime-local"
                     class="datetime"
-                    :label="$t('tasks.filters.fromActual')"
+                    label="Tól (tény)"
                     hide-details="auto"
                   />
                 </v-col>
@@ -292,7 +282,7 @@
                     v-model="filters.endDate"
                     type="datetime-local"
                     class="datetime"
-                    :label="$t('tasks.filters.toActual')"
+                    label="Ig (tény)"
                     hide-details="auto"
                   />
                 </v-col>
@@ -301,7 +291,7 @@
                 <v-col cols="12" md="4" sm="2">
                   <v-text-field
                     v-model="filters.createdBy"
-                    :placeholder="$t('tasks.filters.createdBy')"
+                    placeholder="Létrehozta"
                     solo
                     hide-details="auto"
                   />
@@ -682,7 +672,7 @@
           class="ma-2"
           @click="downloadTig"
         >
-          {{ $t('tasks.downloadTig') }}
+          TIG letöltés
         </v-btn>
         <v-btn
           v-if="
@@ -695,7 +685,7 @@
           class="ma-2"
           @click="downloadTasks"
         >
-          {{ $t('tasks.downloadTasks') }}
+          Letöltés
         </v-btn>
       </template>
 
@@ -924,10 +914,7 @@ export default {
       navigator.clipboard
         .writeText(text)
         .then(() => {
-          this.showNotification(
-            'success',
-            this.$t('tasks.table.copiedToClipboard')
-          );
+          this.showNotification('success', 'Szöveg másolva a vágólapra');
         })
         .catch((err) => {
           this.showNotification('error', err);
@@ -1029,9 +1016,7 @@ export default {
           this.$emit('bulkUpdateLockerData', response.data.payload);
           this.showNotification(
             'success',
-            this.$t('tasks.table.bulkUpdateSuccess', {
-              count: this.selected.length
-            })
+            ` ${this.selected.length} db kiválasztott elemek frissítése sikeres volt`
           );
           this.selected = [];
         }
@@ -1053,24 +1038,14 @@ export default {
     //     .color;
     // },
     addLocker(header, item) {
-      if (item.lockers.length < this.lockerSerialsLengths) {
-        this.$store.dispatch('notification/addNotification', {
-          type: 'error',
-          message: this.$t('tasks.table.itemAlreadyInList'),
-          timeout: 5000
-        });
-        return;
-      } else {
-        const newValue = item.lockers.slice(-1)[0];
-        this.$emit('addLocker', {
-          task_id: item.id,
-          tof_shop_id: item.tof_shop_id,
-          task_locations_id: item.location_id,
-          dbTable: header.dbTable,
-          dbColumn: header.dbColumn,
-          value: newValue
-        });
-      }
+      this.$store.dispatch('task/tasks/addLocker', {
+        task_id: item.id,
+        tof_shop_id: item.tof_shop_id,
+        task_locations_id: item.location_id,
+        dbTable: header.dbTable,
+        dbColumn: header.dbColumn,
+        value: item.lockers.slice(-1)[0]
+      });
     },
     getLengthOfSerials(value) {
       if (value != undefined) {

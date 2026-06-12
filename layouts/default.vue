@@ -10,9 +10,9 @@
     >
       <v-list>
         <v-list-item>
-          <v-list-item-title>
-            <b>{{ $t('nav.greeting', { name: firstName }) }}</b>
-          </v-list-item-title>
+          <v-list-item-title
+            ><b>Szia, {{ firstName }}</b></v-list-item-title
+          >
         </v-list-item>
         <v-list-item
           v-for="(item, index) in routers"
@@ -25,7 +25,7 @@
           </v-list-item-action>
           <v-list-item-content>
             <v-list-item-title>
-              {{ $t(item.titleKey) }}
+              {{ item.title }}
             </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
@@ -34,7 +34,7 @@
             <v-icon>mdi-logout</v-icon>
           </v-list-item-action>
           <v-list-item-content>
-            <v-list-item-title>{{ $t('nav.logout') }}</v-list-item-title>
+            <v-list-item-title> Kijelentkezés </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </v-list>
@@ -47,7 +47,6 @@
       <v-toolbar-title :style="{ color: 'white' }">MMS </v-toolbar-title>
       <v-spacer />
       <div class="d-flex" style="gap: 20px">
-        <LanguageSwitcher :style="{ color: 'white' }" />
         <v-icon @click="$vuetify.theme.dark = !$vuetify.theme.dark">
           {{
             $vuetify.theme.dark
@@ -69,7 +68,7 @@
     <v-footer :absolute="!fixed" app>
       <span
         >&copy; {{ new Date().getFullYear() }} BY: Martolin. Version:
-        1.0.5</span
+        1.0.4</span
       >
     </v-footer>
   </v-app>
@@ -81,17 +80,10 @@ import Notification from '../components/Notification.vue';
 import Modal from '../components/Modal.vue';
 import BounceLoader from '../components/BounceLoader.vue';
 import BellNotifications from '../components/BellNotifications.vue';
-import LanguageSwitcher from '../components/LanguageSwitcher.vue';
 
 export default {
   name: 'DefaultLayout',
-  components: {
-    Notification,
-    Modal,
-    BounceLoader,
-    BellNotifications,
-    LanguageSwitcher
-  },
+  components: { Notification, Modal, BounceLoader, BellNotifications },
   data() {
     return {
       themeChangeIcon: '',
@@ -115,15 +107,15 @@ export default {
   methods: {
     logout() {
       this.$store.dispatch('notification/showModal', {
-        message: this.$t('nav.logoutConfirm'),
+        message: 'Biztosan kijelentkezel?',
         buttons: [
           {
-            text: this.$t('common.cancel'),
+            text: 'Mégse',
             style: 'secondary',
             action: () => this.$store.dispatch('notification/hideModal')
           },
           {
-            text: this.$t('common.yes'),
+            text: 'Igen',
             style: 'primary',
             action: () => this.logOutConfirm()
           }

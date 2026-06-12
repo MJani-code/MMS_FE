@@ -2,9 +2,7 @@
   <v-row>
     <v-col cols="12" sm="8" md="8" lg="4" xl="4">
       <div v-for="(item, index) in taskItemsToInvoice" :key="index">
-        <v-list-item-title class="mb-2"
-          >{{ $t('tasks.fees.addItems') }}
-        </v-list-item-title>
+        <v-list-item-title class="mb-2">Tételek hozzáadása </v-list-item-title>
         <v-form ref="form" @submit.prevent="addItem(item)">
           <v-select
             v-model="serial"
@@ -15,7 +13,7 @@
             small-chips
             solo
             hide-details="auto"
-            :placeholder="$t('tasks.fees.lockerPlaceholder')"
+            placeholder="Locker"
             class="mb-4 ml-2"
           />
           <v-select
@@ -28,7 +26,7 @@
             solo
             hide-details="auto"
             :disabled="disabled"
-            :placeholder="$t('tasks.fees.itemsPlaceholder')"
+            placeholder="Tételek"
             class="mb-4 ml-2"
           />
           <v-text-field
@@ -37,20 +35,20 @@
             :label="placeholder(item.feeId)"
             :rules="rules.quantity"
             :disabled="disabled"
-            :placeholder="$t('tasks.fees.quantityPlaceholder')"
+            placeholder="Mennyiség"
             class="mb-4 ml-2"
           />
           <v-text-field
             v-if="getFeeType(item.feeId) === 5"
             v-model="item.otherItems"
-            :label="$t('tasks.fees.noteLabel')"
+            label="Megjegyzés"
             required
             class="mb-4 ml-2"
           />
           <v-row class="d-flex justify-end px-4">
-            <v-btn type="submit" :disabled="disabled" class="mt-4 mb-4 ml-2">{{
-              $t('tasks.fees.addButton')
-            }}</v-btn>
+            <v-btn type="submit" :disabled="disabled" class="mt-4 mb-4 ml-2"
+              >Hozzáad</v-btn
+            >
           </v-row>
         </v-form>
       </div>
@@ -59,19 +57,11 @@
     <v-divider vertical class="divider-vertical"></v-divider>
     <v-col cols="12" sm="8" md="4" lg="6" xl="5">
       <v-list class="transparent">
-        <v-list-item-title>
-          {{ $t('tasks.fees.addedItems') }}
-        </v-list-item-title>
+        <v-list-item-title> Hozzáadott tételek </v-list-item-title>
         <v-list-item class="pa-0">
-          <v-list-item-subtitle>{{
-            $t('tasks.fees.nameColumn')
-          }}</v-list-item-subtitle>
-          <v-list-item-subtitle>{{
-            $t('tasks.fees.quantityColumn')
-          }}</v-list-item-subtitle>
-          <v-list-item-subtitle>{{
-            $t('tasks.fees.valueColumn')
-          }}</v-list-item-subtitle>
+          <v-list-item-subtitle>Megnevezés</v-list-item-subtitle>
+          <v-list-item-subtitle>Mennyiség</v-list-item-subtitle>
+          <v-list-item-subtitle>Érték</v-list-item-subtitle>
         </v-list-item>
         <v-list-item
           v-for="(addedItem, index) in taskFees"
@@ -100,9 +90,7 @@
           </v-list-item-icon>
         </v-list-item>
         <div class="d-flex">
-          <v-list-item-subtitle>
-            {{ $t('tasks.fees.total') }}:
-          </v-list-item-subtitle>
+          <v-list-item-subtitle> Összesen: </v-list-item-subtitle>
           <v-list-item-subtitle class="text-right">
             {{ addedItemsTotal }}
           </v-list-item-subtitle>
@@ -149,13 +137,12 @@ export default {
             if (this.taskTypes.includes(4)) {
               return true;
             }
-            return !!v || this.$t('tasks.fees.validation.lockerRequired');
+            return !!v || 'Kötelező megadni locker azonosítót';
           }
         ],
-        fees: [(v) => !!v || this.$t('tasks.fees.validation.feeRequired')],
-        quantity: [
-          (v) => !!v || this.$t('tasks.fees.validation.quantityRequired')
-        ]
+        //lockerSerials: [(v) => !!v || 'Kötelező megadni locker azonosítót'],
+        fees: [(v) => !!v || 'Kötelező megadni díjat'],
+        quantity: [(v) => !!v || 'Kötelező megadni mennyiséget']
       },
       serial: '',
       serials: ['1', '2'],
@@ -212,15 +199,15 @@ export default {
     placeholder(feeId) {
       switch (feeId) {
         case 1:
-          return this.$t('tasks.fees.units.km');
+          return 'Megtett km';
         case 2:
-          return this.$t('tasks.fees.units.piece');
+          return 'Db';
         case 3:
-          return this.$t('tasks.fees.units.piece');
+          return 'Db';
         case 4:
-          return this.$t('tasks.fees.units.workHour');
+          return 'Munkaóra';
         case 5:
-          return this.$t('tasks.fees.units.amount');
+          return 'Összeg';
         default:
           return '';
       }

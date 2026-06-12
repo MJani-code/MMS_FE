@@ -1,9 +1,7 @@
 <template>
   <v-expansion-panels v-model="expansionPanel" class="mt-4">
     <v-expansion-panel>
-      <v-expansion-panel-header>{{
-        $t('lockers.utilization.panelTitle')
-      }}</v-expansion-panel-header>
+      <v-expansion-panel-header>Kihasználtság</v-expansion-panel-header>
       <v-expansion-panel-content color="#fafafa">
         <v-range-slider
           v-model="utilizationWeekly"
@@ -11,7 +9,7 @@
           :max="100"
           hide-details
           class="mt-4 pt-0"
-          :label="$t('lockers.utilization.weekly')"
+          label="Heti telitettség"
           @change="
             $emit('update-filter', {
               key: 'utilizationWeekly',
@@ -60,7 +58,7 @@
           :max="100"
           hide-details
           class="mt-4 pt-0"
-          :label="$t('lockers.utilization.monthly')"
+          label="Havi telitettség"
           @change="
             $emit('update-filter', {
               key: 'utilizationMonthly',
@@ -109,7 +107,7 @@
           :max="100"
           hide-details
           class="mt-4 pt-0"
-          :label="$t('lockers.utilization.yearly')"
+          label="Éves telitettség"
           @change="
             $emit('update-filter', {
               key: 'utilizationYearly',

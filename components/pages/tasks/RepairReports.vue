@@ -13,17 +13,13 @@
 
         <v-expansion-panel-content class="pt-2">
           <v-row align="center">
-            <v-card-subtitle
-              >{{ $t('tasks.repairReports.issues') }}:</v-card-subtitle
-            >
+            <v-card-subtitle>Hibák:</v-card-subtitle>
             <v-chip v-for="(issue, index) in intervention.issues" :key="index">
               {{ issue.issueTypeName }}
             </v-chip>
           </v-row>
           <v-row align="center" class="pt-2">
-            <v-card-subtitle
-              >{{ $t('tasks.repairReports.usedParts') }}:</v-card-subtitle
-            >
+            <v-card-subtitle>Felhasznált alkatrészek:</v-card-subtitle>
             <v-chip v-for="(part, index) in intervention.parts" :key="index">
               {{ part.name }} ({{ part.quantity }})
             </v-chip>
@@ -32,7 +28,7 @@
             <v-col cols="12">
               <v-textarea
                 v-model="intervention.notes"
-                :label="$t('tasks.repairReports.description')"
+                label="Leírás"
                 outlined
                 disabled
               ></v-textarea>
@@ -47,8 +43,7 @@
                   deleteIntervention(intervention.id, intervention.issues)
                 "
               >
-                <v-icon left>mdi-delete</v-icon>
-                {{ $t('tasks.repairReports.delete') }}
+                <v-icon left>mdi-delete</v-icon> Törlés
               </v-btn>
             </v-col>
           </v-row>

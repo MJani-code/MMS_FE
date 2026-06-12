@@ -3,29 +3,17 @@
     <v-row>
       <v-col cols="12">
         <v-card class="pa-4">
-          <v-card-title>{{ $t('lockers.details.title') }}</v-card-title>
+          <v-card-title>Locker Részletek</v-card-title>
           <v-card-text>
+            <div><strong>ID:</strong> locker.id</div>
+            <div><strong>Név:</strong> locker.name</div>
+            <div><strong>Cím:</strong> locker.address</div>
+            <div><strong>Státusz:</strong> locker.status</div>
             <div>
-              <strong>{{ $t('lockers.details.id') }}:</strong> locker.id
-            </div>
-            <div>
-              <strong>{{ $t('lockers.details.name') }}:</strong> locker.name
-            </div>
-            <div>
-              <strong>{{ $t('lockers.details.address') }}:</strong>
-              locker.address
-            </div>
-            <div>
-              <strong>{{ $t('lockers.details.status') }}:</strong> locker.status
-            </div>
-            <div>
-              <strong>{{ $t('lockers.details.lastConnection') }}:</strong>
+              <strong>Utolsó csatlakozás:</strong>
               formatDate(locker.lastConnection)
             </div>
-            <div>
-              <strong>{{ $t('lockers.details.version') }}:</strong>
-              locker.version
-            </div>
+            <div><strong>Verzió:</strong> locker.version</div>
           </v-card-text>
         </v-card>
       </v-col>

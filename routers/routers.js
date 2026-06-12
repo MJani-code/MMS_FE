@@ -1,25 +1,25 @@
 //prettier-ignore
 export const routers = [{
     icon: 'mdi-home-account',
-  titleKey: 'nav.routers.lockers',
+    title: 'Automaták',
     to: '/admin/lockers'
   },
   // tasks management
   {
     icon: 'mdi-file-document',
-    titleKey: 'nav.routers.tasks',
+    title: 'Megbízások',
     to: '/admin/tasks'
   },
   // parts management
   {
     icon: 'mdi-tools',
-    titleKey: 'nav.routers.parts',
+    title: 'Alkatrészek',
     to: '/admin/parts'
   },
   // profile
   {
     icon: 'mdi-cog-outline',
-    titleKey: 'nav.routers.profile',
+    title: 'Profil',
     to: '/admin/profile'
   }
 ];

@@ -7,7 +7,7 @@
           <v-icon v-if="isMobile">mdi-image-marker</v-icon>
           <span v-else>
             <v-icon>mdi-image-marker</v-icon>
-            {{ $t('tasks.expanded.locationPhotosTab') }}</span
+            Helyszín fotók</span
           >
         </v-tab>
 
@@ -16,7 +16,7 @@
           <v-icon v-if="isMobile">mdi-map-marker-alert</v-icon>
           <span v-else>
             <v-icon>mdi-map-marker-alert</v-icon>
-            {{ $t('tasks.expanded.taskDetailsTab') }}</span
+            Megbízás részletei</span
           >
         </v-tab>
 
@@ -25,7 +25,7 @@
           <v-icon v-if="isMobile">mdi-cash-check</v-icon>
           <span v-else>
             <v-icon>mdi-cash-check</v-icon>
-            {{ $t('tasks.expanded.feesTab') }}</span
+            Díjak</span
           ></v-tab
         >
 
@@ -94,7 +94,7 @@
                       prepend-icon="mdi-camera"
                       color="primary"
                       counter
-                      :label="$t('tasks.expanded.uploadImageLabel')"
+                      label="Kép feltöltés"
                       outlined
                       required
                       :disabled="isToDisable(item)"
@@ -103,7 +103,7 @@
                       type="submit"
                       :disabled="isToDisable(item)"
                       class="mt-4 mb-4"
-                      >{{ $t('tasks.expanded.uploadButton') }}</v-btn
+                      >Feltöltés</v-btn
                     >
                   </form>
                 </template>
@@ -121,7 +121,7 @@
             <v-col cols="12" sm="3">
               <v-text-field
                 v-model="fixingMethod"
-                :label="$t('tasks.expanded.fixingMethod')"
+                label="Rögzítési mód"
                 :disabled="isToDisable(item)"
                 @change="
                   updateLocationData(
@@ -135,7 +135,7 @@
               </v-text-field>
               <v-text-field
                 v-model="sitePreparation"
-                :label="$t('tasks.expanded.sitePreparation')"
+                label="Helyszín kialakítási feladat"
                 :disabled="isToDisable(item)"
                 @change="
                   updateLocationData(
@@ -148,7 +148,7 @@
               ></v-text-field>
               <v-textarea
                 v-model="comment"
-                :label="$t('tasks.expanded.taskDescription')"
+                label="Megbízás leírása"
                 :disabled="isToDisable(item)"
                 @change="
                   updateLocationData(
@@ -161,9 +161,9 @@
               ></v-textarea>
               <v-textarea
                 v-model="lockerApproach"
-                :label="$t('tasks.expanded.approach')"
+                label="Megközelítés"
                 :disabled="isToDisable(item)"
-                :placeholder="$t('tasks.expanded.approachPlaceholder')"
+                placeholder="Add meg, hogyan találja meg a címzett.."
                 @change="
                   updateLocationData(
                     item,
@@ -175,7 +175,7 @@
               ></v-textarea>
               <v-textarea
                 v-model="feedback"
-                :label="$t('tasks.expanded.report')"
+                label="Report"
                 :disabled="isToDisable(item)"
                 @change="
                   updateLocationData(
@@ -329,10 +329,10 @@ export default {
     },
     showModal(photo) {
       this.$store.dispatch('notification/showModal', {
-        message: this.$t('tasks.deleteConfirm'),
+        message: 'Biztosan törölni szeretnéd?',
         buttons: [
           {
-            text: this.$t('common.yes'),
+            text: 'Igen',
             style: 'primary',
             loading: this.$store.state.task.tasks.loadingDeleteMedia,
             action: () =>
@@ -347,7 +347,7 @@ export default {
                 })
           },
           {
-            text: this.$t('common.cancel'),
+            text: 'Mégse',
             style: 'secondary',
             loading: false,
             action: () => this.$store.dispatch('notification/hideModal')

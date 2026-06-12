@@ -1,6 +1,6 @@
 <template>
   <v-data-table
-    :headers="tableHeaders"
+    :headers="headers"
     :items="stock"
     :expanded.sync="expanded"
     item-key="stockId"
@@ -8,13 +8,13 @@
     sort-by="partName"
     class="elevation-1 parts-data-table"
   >
-    <template v-slot:[`item.quantity`]="{ item }">
+    <template v-slot:item.quantity="{ item }">
       <v-chip :color="item.quantity >= item.minStock ? 'green' : 'red'">
         {{ item.quantity }}
       </v-chip>
     </template>
 
-    <template v-slot:[`item.badQuantity`]="{ item }">
+    <template v-slot:item.badQuantity="{ item }">
       <v-chip :color="item.badQuantity > 0 ? 'red' : 'green'">
         {{ item.badQuantity }}
       </v-chip>
@@ -22,7 +22,7 @@
 
     <template v-slot:top>
       <v-toolbar flat>
-        <v-toolbar-title>{{ $t('parts.stock.title') }}</v-toolbar-title>
+        <v-toolbar-title>Készlet</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
         <v-spacer></v-spacer>
 
@@ -36,7 +36,7 @@
               v-on="on"
               @click="editedIndex = -1"
             >
-              {{ $t('parts.stock.addButton') }}
+              Hozzáadás
             </v-btn>
           </template>
 
@@ -52,7 +52,7 @@
                     <v-col cols="12" sm="6" md="4">
                       <v-text-field
                         v-model="editedItem.partName"
-                        :label="$t('parts.stock.fields.name')"
+                        label="Név"
                         :disabled="addingItem"
                         @change="editedItem.partNameChanged = true"
                       ></v-text-field>
@@ -60,7 +60,7 @@
                     <v-col cols="12" sm="6" md="4">
                       <v-text-field
                         v-model="editedItem.partNumber"
-                        :label="$t('parts.stock.fields.partNumber')"
+                        label="Cikkszám"
                         :disabled="addingItem"
                         @change="editedItem.partNumberChanged = true"
                       ></v-text-field>
@@ -71,7 +71,7 @@
                         :items="companies"
                         item-text="name"
                         item-value="id"
-                        :label="$t('parts.stock.fields.owner')"
+                        label="Tulajdonos"
                         :disabled="addingItem"
                         @change="editedItem.ownerIdChanged = true"
                       ></v-select>
@@ -82,7 +82,7 @@
                         :items="categories"
                         item-text="name"
                         item-value="id"
-                        :label="$t('parts.stock.fields.category')"
+                        label="Kategória"
                         :disabled="addingItem"
                         @change="editedItem.categoryIdChanged = true"
                       ></v-select>
@@ -93,7 +93,7 @@
                         :items="suppliers"
                         item-text="name"
                         item-value="id"
-                        :label="$t('parts.stock.fields.supplier')"
+                        label="Beszállító"
                         :disabled="addingItem"
                         @change="editedItem.supplierIdChanged = true"
                       ></v-select>
@@ -104,7 +104,7 @@
                         :items="manufacturers"
                         item-text="name"
                         item-value="id"
-                        :label="$t('parts.stock.fields.manufacturer')"
+                        label="Gyártó"
                         :disabled="addingItem"
                         @change="editedItem.manufacturerIdChanged = true"
                       ></v-select>
@@ -115,7 +115,7 @@
                         :items="warehouses"
                         item-text="name"
                         item-value="id"
-                        :label="$t('parts.stock.fields.warehouse')"
+                        label="Raktár"
                         :disabled="addingItem"
                         @change="editedItem.warehouseIdChanged = true"
                       ></v-select>
@@ -124,7 +124,7 @@
                       <v-text-field
                         v-model="editedItem.unitPrice"
                         type="number"
-                        :label="$t('parts.stock.fields.unitPrice')"
+                        label="Egységár"
                         :disabled="addingItem"
                         @change="editedItem.unitPriceChanged = true"
                       ></v-text-field>
@@ -133,7 +133,7 @@
                       <v-select
                         v-model="editedItem.currency"
                         :items="currencies"
-                        :label="$t('parts.stock.fields.currency')"
+                        label="Valuta"
                         item-text="currency"
                         item-value="currency"
                         :disabled="addingItem"
@@ -144,7 +144,7 @@
                       <v-text-field
                         v-model="editedItem.quantity"
                         @change="quantityChanged(editedItem)"
-                        :label="$t('parts.stock.fields.quantity')"
+                        label="Mennyiség"
                         type="number"
                       ></v-text-field>
                     </v-col>
@@ -156,13 +156,13 @@
                     >
                       <v-text-field
                         v-model="editedItem.reference"
-                        :label="$t('parts.stock.fields.reference')"
+                        label="Szállítói azonosító"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12">
                       <v-textarea
                         v-model="editedItem.note"
-                        :label="$t('parts.stock.fields.note')"
+                        label="Megjegyzés"
                       ></v-textarea>
                     </v-col>
                   </v-row>
@@ -171,12 +171,8 @@
 
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn class="secondary" text @click="close">{{
-                  $t('common.cancel')
-                }}</v-btn>
-                <v-btn class="primary" text @click="save(method)">{{
-                  $t('common.save')
-                }}</v-btn>
+                <v-btn class="secondary" text @click="close"> Cancel </v-btn>
+                <v-btn class="primary" text @click="save(method)"> Save </v-btn>
               </v-card-actions>
             </v-card>
           </v-form>
@@ -196,7 +192,7 @@
       </td>
     </template>
 
-    <template v-slot:[`item.actions`]="{ item }">
+    <template v-slot:item.actions="{ item }">
       <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
     </template>
   </v-data-table>
@@ -246,6 +242,33 @@ export default {
       dialogDelete: false,
       localDialog: this.dialog,
       addingItem: false,
+      headers: [
+        {
+          text: 'Alkatrész név',
+          align: 'center',
+          sortable: false,
+          value: 'partName'
+        },
+        { text: 'Cikkszám', align: 'center', value: 'partNumber' },
+        { text: 'Kategória', align: 'center', value: 'category' },
+        { text: 'Gyártó', align: 'center', value: 'manufacturerName' },
+        { text: 'Tulajdonos', align: 'center', value: 'ownerName' },
+        { text: 'Beszállító', align: 'center', value: 'supplier' },
+        { text: 'Raktár', align: 'center', value: 'warehouseName' },
+        { text: 'Mennyiség (jó készlet)', align: 'center', value: 'quantity' },
+        {
+          text: 'Mennyiség (rossz készlet)',
+          align: 'center',
+          value: 'badQuantity'
+        },
+        {
+          text: 'Műveletek',
+          align: 'center',
+          value: 'actions',
+          sortable: false
+        },
+        { text: 'Előzmények', align: 'center', value: 'data-table-expand' }
+      ],
       editedIndex: -1,
       editedItem: {
         partName: '',
@@ -296,77 +319,14 @@ export default {
   },
 
   computed: {
-    tableHeaders() {
-      return [
-        {
-          text: this.$t('parts.stock.headers.partName'),
-          align: 'center',
-          sortable: false,
-          value: 'partName'
-        },
-        {
-          text: this.$t('parts.stock.headers.partNumber'),
-          align: 'center',
-          value: 'partNumber'
-        },
-        {
-          text: this.$t('parts.stock.headers.category'),
-          align: 'center',
-          value: 'category'
-        },
-        {
-          text: this.$t('parts.stock.headers.manufacturer'),
-          align: 'center',
-          value: 'manufacturerName'
-        },
-        {
-          text: this.$t('parts.stock.headers.owner'),
-          align: 'center',
-          value: 'ownerName'
-        },
-        {
-          text: this.$t('parts.stock.headers.supplier'),
-          align: 'center',
-          value: 'supplier'
-        },
-        {
-          text: this.$t('parts.stock.headers.warehouse'),
-          align: 'center',
-          value: 'warehouseName'
-        },
-        {
-          text: this.$t('parts.stock.headers.goodStockQuantity'),
-          align: 'center',
-          value: 'quantity'
-        },
-        {
-          text: this.$t('parts.stock.headers.badStockQuantity'),
-          align: 'center',
-          value: 'badQuantity'
-        },
-        {
-          text: this.$t('parts.stock.headers.actions'),
-          align: 'center',
-          value: 'actions',
-          sortable: false
-        },
-        {
-          text: this.$t('parts.stock.headers.history'),
-          align: 'center',
-          value: 'data-table-expand'
-        }
-      ];
-    },
     stockItems() {
       return this.initialize();
     },
     formTitle() {
       if (this.addingItem) {
-        return this.$t('parts.stock.formTitle.addQuantity');
+        return 'Mennyiség hozzáadása egy meglévő alkatrészhez';
       }
-      return this.editedIndex === -1
-        ? this.$t('parts.stock.formTitle.newItem')
-        : this.$t('parts.stock.formTitle.edit');
+      return this.editedIndex === -1 ? 'Új cikk felvitele' : 'Szerkesztés';
     },
     method() {
       if (this.addingItem) {

@@ -2,7 +2,7 @@
   <v-row justify="center">
     <v-dialog :value="isOpen" max-width="290">
       <v-card>
-        <v-card-title>{{ $t('tasks.createTaskBatch.title') }}</v-card-title>
+        <v-card-title>Helyszínek hozzáadása</v-card-title>
         <v-form ref="createTaskBatch" @submit.prevent="onSubmit">
           <v-file-input
             v-model="files"
@@ -10,8 +10,8 @@
             accept=".xls, .xlsx"
             color="primary"
             class="ma-4"
-            :label="$t('tasks.createTaskBatch.fileLabel')"
-            :placeholder="$t('tasks.createTaskBatch.filePlaceholder')"
+            label="File hozzáadása"
+            placeholder="Válaszd ki a file-t"
             prepend-icon="mdi-paperclip"
             outlined
             :show-size="1000"
@@ -25,16 +25,13 @@
                 v-else-if="index === 2"
                 class="text-overline grey--text text--darken-3 mx-2"
               >
-                +{{ files.length - 2 }}
-                {{ $t('tasks.createTaskBatch.filesSuffix') }}
+                +{{ files.length - 2 }} File(s)
               </span>
             </template>
           </v-file-input>
           <v-card-actions>
-            <v-btn @click="closeModal">{{ $t('common.cancel') }}</v-btn>
-            <v-btn type="submit" class="primary">{{
-              $t('tasks.createTaskBatch.upload')
-            }}</v-btn>
+            <v-btn @click="closeModal">Mégsem</v-btn>
+            <v-btn type="submit" class="primary">Feltöltés</v-btn>
           </v-card-actions>
         </v-form>
       </v-card>
@@ -52,7 +49,7 @@ export default {
         (value) =>
           !value ||
           value.size < 2000000 ||
-          this.$t('tasks.createTaskBatch.fileTooLarge')
+          'A file mérete nem lehet nagyobb 10MB-nál'
       ]
     };
   },

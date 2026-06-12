@@ -1,72 +1,6 @@
 // store/task/tasks.js
 import { APIGET, APIPOST, APIPOST2, APIPUT, APIDELETE } from '@/api/apiHelper';
 
-const FALLBACK_LOCALE = 'hu';
-
-function normalizeLocale(locale) {
-  if (!locale) return FALLBACK_LOCALE;
-  return String(locale).toLowerCase().split('-')[0] || FALLBACK_LOCALE;
-}
-
-function pickLocalizedValue(source, baseKey, locale) {
-  if (!source || typeof source !== 'object') {
-    return undefined;
-  }
-
-  const normalizedLocale = normalizeLocale(locale);
-  const localeCandidates = [normalizedLocale, FALLBACK_LOCALE, 'en'];
-
-  if (source.translations && typeof source.translations === 'object') {
-    for (const candidate of localeCandidates) {
-      const localized = source.translations[candidate];
-      if (localized && localized[baseKey] !== undefined) {
-        return localized[baseKey];
-      }
-    }
-  }
-
-  for (const candidate of localeCandidates) {
-    const localizedKey = `${baseKey}_${candidate}`;
-    if (source[localizedKey] !== undefined) {
-      return source[localizedKey];
-    }
-  }
-
-  return source[baseKey];
-}
-
-function localizeNamedArray(items, locale) {
-  if (!Array.isArray(items)) return [];
-
-  return items.map((item) => ({
-    ...item,
-    name: pickLocalizedValue(item, 'name', locale) ?? item.name
-  }));
-}
-
-function localizeHeaders(headers, locale) {
-  if (!Array.isArray(headers)) return [];
-
-  return headers.map((header) => ({
-    ...header,
-    text: pickLocalizedValue(header, 'text', locale) ?? header.text
-  }));
-}
-
-function localizeStatusGroups(groups, locale) {
-  if (!groups || typeof groups !== 'object') return {};
-
-  return Object.fromEntries(
-    Object.entries(groups).map(([statusId, group]) => [
-      statusId,
-      {
-        ...group,
-        title: pickLocalizedValue(group, 'title', locale) ?? group.title
-      }
-    ])
-  );
-}
-
 export const state = () => ({
   //filters
   filters: {
@@ -501,36 +435,22 @@ export const actions = {
     commit('SET_LOADING_STATUSES', true);
     try {
       const token = rootState.token;
-      const locale = rootState.locale || FALLBACK_LOCALE;
-      const result = await APIGET('getInitialData', { locale }, token);
+      const result = await APIGET('getInitialData', null, token);
 
       if (result.data.status === 200) {
         const payload = result.data.payload;
-        const localizedPayload = {
-          ...payload,
-          headers: localizeHeaders(payload.headers, locale),
-          statuses: localizeNamedArray(payload.statuses, locale),
-          fees: localizeNamedArray(payload.fees, locale),
-          allowedStatuses: localizeNamedArray(payload.allowedStatuses, locale),
-          locationTypes: localizeNamedArray(payload.locationTypes, locale),
-          taskTypes: localizeNamedArray(payload.taskTypes, locale),
-          lockerSerials: localizeNamedArray(payload.lockerSerials, locale),
-          responsibles: localizeNamedArray(payload.responsibles, locale),
-          priorities: localizeNamedArray(payload.priorities, locale),
-          statusGroups: localizeStatusGroups(payload.statusGroups, locale)
-        };
 
         // Meta adatok mentése
-        commit('SET_META_DATA', localizedPayload);
+        commit('SET_META_DATA', payload);
 
         // Státusz csoportok mentése
-        commit('SET_STATUS_GROUPS', localizedPayload.statusGroups || {});
+        commit('SET_STATUS_GROUPS', payload.statusGroups || {});
 
         // Server item length mentése
-        if (localizedPayload.statusGroups) {
+        if (payload.statusGroups) {
           commit('SET_SERVER_ITEM_LENGTH', {
             statusId: null,
-            data: localizedPayload.statusGroups
+            data: payload.statusGroups
           });
         }
 
@@ -561,13 +481,7 @@ export const actions = {
       const token = rootState.token;
       const result = await APIPOST(
         'getTask',
-        {
-          statusId,
-          page,
-          itemsPerPage,
-          filters: state.filters,
-          locale: rootState.locale || FALLBACK_LOCALE
-        },
+        { statusId, page, itemsPerPage, filters: state.filters },
         token
       );
 

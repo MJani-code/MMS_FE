@@ -2,11 +2,9 @@
   <v-col cols="12" sm="4" md="8" lg="11" xl="11" style="padding-top: unset">
     <v-card :style="{ width: cardWidth }">
       <v-tabs v-model="tab" background-color="primary" dark show-arrows>
-        <v-tab> {{ $t('tasks.lockerTabs.check') }} </v-tab>
-        <v-tab> {{ $t('tasks.lockerTabs.repair') }} </v-tab>
-        <v-tab class="tab-general">
-          {{ $t('tasks.lockerTabs.general') }}
-        </v-tab>
+        <v-tab> Ellenőrző </v-tab>
+        <v-tab> Javítás </v-tab>
+        <v-tab class="tab-general"> Általános </v-tab>
       </v-tabs>
 
       <v-tabs-slider color="teal lighten-3"></v-tabs-slider>
@@ -15,9 +13,8 @@
         <!-- Check -->
         <v-tab-item class="tabitem-check">
           <v-form>
-            <v-btn color="primary" class="mx-2" small @click="verifyLocker">{{
-              $t('tasks.lockerTabs.statusCheckButton')
-            }}</v-btn
+            <v-btn color="primary" class="mx-2" small @click="verifyLocker"
+              >Állapot ellenőrző</v-btn
             ><br /><br />
             <div class="px-2">
               <v-icon :color="locker.is_registered ? 'success' : 'error'"
@@ -36,7 +33,7 @@
             </div>
             <br />
             <v-list-item-title class="ml-2"
-              >{{ $t('tasks.lockerTabs.lastConnection') }}:
+              >Utolsó csatlakozási idő:
               <span
                 :class="isConnectionLost ? 'error--text' : 'success--text'"
                 >{{ formattedLastConnectionTimestamp }}</span
@@ -46,7 +43,7 @@
             <v-col cols="12" sm="6" md="6" lg="5" xl="5">
               <v-textarea
                 v-model="fault"
-                :label="$t('tasks.lockerTabs.fault')"
+                label="Hiba"
                 @change="
                   updateLockerData(fault, locker.id, 'task_lockers', 'fault')
                 "
@@ -72,7 +69,7 @@
                         :items="issues"
                         item-text="name"
                         item-value="id"
-                        :label="$t('tasks.lockerTabs.selectIssue')"
+                        label="Hiba kiválasztása"
                         multiple
                         chips
                         clearable
@@ -83,7 +80,7 @@
                         :items="interventionList"
                         item-text="name"
                         item-value="id"
-                        :label="$t('tasks.lockerTabs.selectIntervention')"
+                        label="Beavatkozás kiválasztása"
                         chips
                         clearable
                       >
@@ -97,7 +94,7 @@
                         :items="spareparts"
                         item-text="name"
                         item-value="stockId"
-                        :label="$t('tasks.lockerTabs.addSparePart')"
+                        label="Alkatrész hozzáadása"
                         multiple
                         chips
                         clearable
@@ -113,13 +110,13 @@
                                 solved: val
                               })))
                         "
-                        :label="$t('tasks.lockerTabs.issueFixed')"
+                        label="Hiba kijavítva"
                       ></v-checkbox>
                     </v-row>
                     <v-row class="px-4">
                       <v-textarea
                         v-model="newIntervention['notes']"
-                        :label="$t('tasks.lockerTabs.description')"
+                        label="Leírás"
                         counter="500"
                         auto-grow
                         outlined
@@ -128,9 +125,7 @@
                     </v-row>
                     <v-row class="d-flex justify-end">
                       <div class="px-4">
-                        <v-btn type="submit" class="mb-2" small>{{
-                          $t('tasks.lockerTabs.addButton')
-                        }}</v-btn>
+                        <v-btn type="submit" class="mb-2" small>Hozzáad</v-btn>
                       </div>
                     </v-row>
                   </v-form>
@@ -154,7 +149,7 @@
               <v-col cols="12" sm="6" md="6" lg="2" xl="2">
                 <v-text-field
                   v-model="brand"
-                  :label="$t('tasks.lockerTabs.brand')"
+                  label="Brand"
                   class="px-2"
                   @change="
                     updateLockerData(brand, locker.id, 'task_lockers', 'brand')
@@ -164,7 +159,7 @@
               <v-col cols="12" sm="6" md="6" lg="2" xl="2">
                 <v-text-field
                   v-model="type"
-                  :label="$t('tasks.lockerTabs.type')"
+                  label="Típus"
                   class="px-2"
                   @change="
                     updateLockerData(type, locker.id, 'task_lockers', 'type')
@@ -177,7 +172,7 @@
               <v-col cols="12" sm="6" md="6" lg="2" xl="2">
                 <v-text-field
                   v-model="controllerId"
-                  :label="$t('tasks.lockerTabs.controllerId')"
+                  label="Controller Id"
                   class="px-2"
                   @change="
                     updateLockerData(
@@ -192,7 +187,7 @@
             </v-row>
             <v-checkbox
               v-model="isRegistered"
-              :label="$t('tasks.lockerTabs.registered')"
+              label="Regisztrált"
               class="mt-0 px-2"
               @change="
                 updateLockerData(
@@ -205,7 +200,7 @@
             ></v-checkbox>
             <v-checkbox
               v-model="isActive"
-              :label="$t('tasks.lockerTabs.active')"
+              label="Aktív"
               class="mt-0 px-2"
               @change="
                 updateLockerData(

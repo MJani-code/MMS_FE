@@ -7,7 +7,7 @@
           :items="brands"
           item-text="name"
           item-value="id"
-          :label="$t('tasks.lockerFilters.brandLabel')"
+          label="Gyártó"
           @change="
             $emit('update-filter', {
               key: 'brand',
@@ -17,7 +17,7 @@
         />
         <v-text-field
           v-model="search"
-          :label="$t('tasks.searchLabel')"
+          label="Keresés"
           hide-details
           @input="
             $emit('update-filter', {
@@ -32,7 +32,7 @@
           :max="100"
           hide-details
           class="mt-4 pt-0"
-          :label="$t('tasks.lockerFilters.batteryLevel')"
+          label="Akkumulátor szint"
           @change="
             $emit('update-filter', {
               key: 'range',
@@ -85,8 +85,8 @@
           v-model="isPassive"
           :label="
             isPassive
-              ? $t('tasks.lockerFilters.lockerActivationOff')
-              : $t('tasks.lockerFilters.lockerActivationOn')
+              ? 'Locker aktiválás ellenőrző kikapcsolása'
+              : 'Locker aktiválás ellenőrző bekapcsolása'
           "
           @change="
             $emit('update-filter', {
@@ -99,8 +99,8 @@
           v-model="privateKey1Error"
           :label="
             privateKey1Error
-              ? $t('tasks.lockerFilters.pkCheckOff')
-              : $t('tasks.lockerFilters.pkCheckOn')
+              ? 'PK ellenőrző kikpcsolása'
+              : 'PK ellenőrző bekapcsolása'
           "
           @change="
             $emit('update-filter', {
@@ -113,8 +113,8 @@
           v-model="isConnectionError"
           :label="
             isConnectionError
-              ? $t('tasks.lockerFilters.connectionCheckOff')
-              : $t('tasks.lockerFilters.connectionCheckOn')
+              ? 'Kapcsolódás ellenőrző kikapcsolása'
+              : 'Kapcsolódás ellenőrző bekacsolása'
           "
           @change="
             $emit('update-filter', {
@@ -153,7 +153,7 @@ export default {
       brands: [
         {
           id: 0,
-          name: this.$t('tasks.filters.all')
+          name: 'Összes'
         },
         {
           id: 1,

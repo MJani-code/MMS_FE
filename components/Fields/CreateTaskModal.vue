@@ -2,7 +2,7 @@
   <v-row justify="center">
     <v-dialog :value="isOpen" persistent max-width="600">
       <v-card>
-        <v-card-title>{{ $t('tasks.createTask.title') }}</v-card-title>
+        <v-card-title>Megbízás létrehozása</v-card-title>
         <v-form ref="createTask" @submit.prevent="onSubmit">
           <v-container>
             <v-row>
@@ -13,7 +13,7 @@
                   :items="payload.locations ? payload.locations : []"
                   item-text="nameAndAddress"
                   item-value="tofShopId"
-                  :label="$t('tasks.createTask.location')"
+                  label="Helyszín"
                   :rules="[rules.required]"
                 >
                 </v-combobox>
@@ -24,7 +24,7 @@
                   :items="payload.taskTypes ? payload.taskTypes : []"
                   item-text="name"
                   item-value="id"
-                  :label="$t('tasks.createTask.taskType')"
+                  label="Megbízás típusa"
                   :rules="[rules.required]"
                 >
                 </v-select>
@@ -34,7 +34,7 @@
                   v-model="selectedLockers"
                   :items="filteredLockers"
                   item-text="serial"
-                  :label="$t('tasks.createTask.locker')"
+                  label="Locker"
                   :rules="[rules.required]"
                   multiple
                   @change="updateLockers"
@@ -44,21 +44,21 @@
               <v-col v-if="data.taskType === 3" cols="12" md="4">
                 <v-text-field
                   v-model="data.location.fixingMethod"
-                  :label="$t('tasks.createTask.fixingMethod')"
+                  label="Rögzítés módja"
                   hide-details
                 ></v-text-field>
               </v-col>
               <v-col v-if="data.taskType === 3" cols="12" md="6">
                 <v-text-field
                   v-model="data.location.requiredSitePreparation"
-                  :label="$t('tasks.createTask.requiredSitePreparation')"
+                  label="Szükséges helyszín előkészítés"
                   hide-details
                 ></v-text-field>
               </v-col>
               <v-col v-if="data.taskType === 3" cols="12" md="12">
                 <v-textarea
                   v-model="data.location.comment"
-                  :label="$t('tasks.createTask.note')"
+                  label="Megjegyzés"
                   hide-details
                 ></v-textarea>
               </v-col>
@@ -89,7 +89,7 @@
                         "
                         item-text="name"
                         item-value="id"
-                        :label="$t('tasks.createTask.issueType')"
+                        label="Hibatípus"
                         :rules="[rules.lockerIssueRequired]"
                       >
                       </v-select>
@@ -97,7 +97,7 @@
                     <v-col cols="12" md="12" class="pa-2">
                       <v-text-field
                         v-model="issue.compartmentNumber"
-                        :label="$t('tasks.createTask.compartmentNumber')"
+                        label="Rekesz szám"
                         hide-details
                         :rules="
                           [1, 2].includes(Number(issue.type))
@@ -107,12 +107,12 @@
                       ></v-text-field>
                     </v-col>
                   </v-row>
-                  <v-btn @click="addIssue(index)" class="mt-4">{{
-                    $t('tasks.createTask.addIssue')
-                  }}</v-btn>
+                  <v-btn @click="addIssue(index)" class="mt-4"
+                    >Új hiba hozzáadása</v-btn
+                  >
                   <v-textarea
                     v-model="locker.description"
-                    :label="$t('tasks.createTask.description')"
+                    label="Leírás"
                     hide-details
                   ></v-textarea>
                 </v-card>
@@ -124,7 +124,7 @@
                   v-model="data.plannedDeliveryDate"
                   type="date"
                   class="date"
-                  :label="$t('tasks.createTask.deadline')"
+                  label="Határidő"
                   hide-details="auto"
                 />
               </v-col>
@@ -134,16 +134,14 @@
                   :items="payload.responsibles ? payload.responsibles : []"
                   item-text="name"
                   item-value="id"
-                  :label="$t('tasks.createTask.responsible')"
+                  label="Megbízott"
                 >
                 </v-select>
               </v-col>
             </v-row>
             <v-card-actions>
-              <v-btn @click="closeModal">{{ $t('common.cancel') }}</v-btn>
-              <v-btn type="submit" class="primary">{{
-                $t('tasks.createTask.upload')
-              }}</v-btn>
+              <v-btn @click="closeModal">Mégsem</v-btn>
+              <v-btn type="submit" class="primary">Feltöltés</v-btn>
             </v-card-actions>
           </v-container>
         </v-form>
@@ -173,10 +171,10 @@ export default {
         }
       },
       rules: {
-        required: (value) => !!value || this.$t('validation.required'),
+        required: (value) => !!value || 'Kötelező mező',
         lockerIssueRequired: (value) => {
           if ([1, 2, 8].includes(Number(this.data.taskType))) {
-            return !!value || this.$t('validation.required');
+            return !!value || 'Kötelező mező';
           }
           return true;
         }

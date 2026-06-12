@@ -3,7 +3,6 @@ export const state = () => ({
   token: null,
   roleId: null,
   userId: null,
-  locale: 'hu',
   email: '',
   firstName: '',
   permissions: [],
@@ -14,58 +13,18 @@ export const state = () => ({
 
 export const mutations = {
   setToken(state, response) {
-    const persistedLocale =
-      response.locale ||
-      state.locale ||
-      (typeof window !== 'undefined'
-        ? localStorage.getItem('appLocale')
-        : null) ||
-      'hu';
-    const responseWithLocale = {
-      ...response,
-      locale: persistedLocale
-    };
-
+    const jsonData = JSON.stringify(response);
     state.token = response.data.token;
     state.firstName = response.data.firstName;
     state.roleId = response.data.roleId;
     state.userId = response.data.userId;
     state.email = response.data.email;
     state.permissions = response.data.xtg;
-    state.locale = persistedLocale;
-
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('data', JSON.stringify(responseWithLocale));
-      localStorage.removeItem('appLocale');
-    }
+    localStorage.setItem('data', jsonData); // opcionális: token tárolása localStorage-ban
   },
   clearToken(state) {
     state.token = null;
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('appLocale', state.locale || 'hu');
-      localStorage.removeItem('data');
-    }
-  },
-  setLocale(state, locale) {
-    state.locale = locale;
-
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    const storedData = localStorage.getItem('data');
-    if (!storedData) {
-      localStorage.setItem('appLocale', locale);
-      return;
-    }
-
-    try {
-      const parsed = JSON.parse(storedData);
-      parsed.locale = locale;
-      localStorage.setItem('data', JSON.stringify(parsed));
-    } catch (_error) {
-      localStorage.setItem('appLocale', locale);
-    }
+    localStorage.removeItem('data');
   },
   turnOnLoading(state) {
     state.loading = true;

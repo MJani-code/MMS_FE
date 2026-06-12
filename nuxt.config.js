@@ -45,7 +45,7 @@ export default {
 
   css: ['@/assets/styles.scss'],
 
-  plugins: ['~/plugins/broadcast.js', '~/plugins/i18n-sync.client.js'],
+  plugins: ['~/plugins/broadcast.js'],
 
   // loading: '~/components/BounceLoader.vue',
 
@@ -53,23 +53,7 @@ export default {
 
   buildModules: ['@nuxtjs/eslint-module', '@nuxtjs/vuetify'],
 
-  modules: ['@nuxtjs/i18n'],
-
-  i18n: {
-    strategy: 'no_prefix',
-    defaultLocale: 'hu',
-    lazy: true,
-    langDir: 'locales/',
-    detectBrowserLanguage: false,
-    locales: [
-      { code: 'hu', iso: 'hu-HU', file: 'hu.js', name: 'Magyar' },
-      { code: 'en', iso: 'en-US', file: 'en.js', name: 'English' },
-      { code: 'sl', iso: 'sl-SI', file: 'sl.js', name: 'Slovenscina' }
-    ],
-    vueI18n: {
-      fallbackLocale: 'en'
-    }
-  },
+  modules: [],
 
   vuetify: {
     customVariables: ['~/assets/variables.scss'],

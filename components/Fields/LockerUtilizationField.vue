@@ -1,6 +1,6 @@
 <template>
   <div>
-    <strong>{{ $t('lockers.utilization.title') }}</strong>
+    <strong>Locker kihasználtság</strong>
     <div class="progress-circular-container d-flex">
       <div v-for="(locker, index) in value" :key="index">
         <v-progress-circular
