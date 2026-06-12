@@ -1,5 +1,8 @@
 <template>
   <v-row class="mt-2">
+    <v-col cols="12" class="d-flex justify-end">
+      <LanguageSwitcher />
+    </v-col>
     <v-col cols="12" class="justify-center"> </v-col>
     <v-col cols="12">
       <h1>Maintenance Management System</h1>
@@ -12,7 +15,7 @@
       </button>
       <transition name="fade">
         <div v-if="show" id="login-container">
-          <h1>Bejelentkezés</h1>
+          <h1>{{ $t('login.title') }}</h1>
           <span class="close-btn" v-on:click="show = !show">
             <v-img
               src="https://cdn4.iconfinder.com/data/icons/miu/22/circle_close_delete_-128.png"
@@ -22,22 +25,22 @@
             <v-form ref="form" @submit.prevent="login">
               <v-text-field
                 type="email"
-                label="email"
+                :label="$t('login.emailLabel')"
                 v-model="email"
-                :rules="emailRule"
+                :rules="emailRules"
                 color="primary"
               >
               </v-text-field>
               <v-text-field
                 type="password"
-                label="jelszó"
+                :label="$t('login.passwordLabel')"
                 v-model="password"
-                :rules="passwordRule"
+                :rules="passwordRules"
                 color="primary"
               >
               </v-text-field>
               <v-btn type="submit" block class="mt-2 primary">
-                Bejelentkezés
+                {{ $t('login.submit') }}
               </v-btn>
             </v-form>
           </v-sheet>
@@ -50,10 +53,11 @@
 
 <script>
 import { APIPOST } from '../api/apiHelper';
+import LanguageSwitcher from '../components/LanguageSwitcher.vue';
 
 export default {
   name: 'login',
-  components: {},
+  components: { LanguageSwitcher },
   layout: 'login',
   setup() {
     return {};
@@ -66,15 +70,20 @@ export default {
       error: '',
       email: '',
       password: '',
-      response: [],
-      emailRule: [
-        (v) => !!v || 'Kötelező kitölteni',
-        (v) => /.+@.+\..+/.test(v) || 'Érvénytelen email formátum'
-      ],
-      passwordRule: [(v) => !!v || 'Kötelező kitölteni']
+      response: []
     };
   },
-  computed: {},
+  computed: {
+    emailRules() {
+      return [
+        (v) => !!v || this.$t('validation.required'),
+        (v) => /.+@.+\..+/.test(v) || this.$t('validation.invalidEmail')
+      ];
+    },
+    passwordRules() {
+      return [(v) => !!v || this.$t('validation.required')];
+    }
+  },
   watch: {},
   methods: {
     async login() {
@@ -85,6 +94,7 @@ export default {
         };
         const response = await APIPOST('login', user);
         if (response.data.status === 200) {
+          this.$store.commit('setLocale', this.$i18n.locale);
           this.$store.commit('setToken', response.data);
           this.$router.push('/admin/tasks');
         } else {
@@ -92,7 +102,7 @@ export default {
           this.showNotification('error', this.error);
         }
       } catch (err) {
-        this.error = 'Hiba történt a művelet során. ' + err;
+        this.error = `${this.$t('common.genericError')} ${err}`;
         this.showNotification('error', this.error);
       }
     },
