@@ -464,7 +464,8 @@ export const actions = {
     commit('SET_LOADING_STATUSES', true);
     try {
       const token = rootState.token;
-      const result = await APIGET('getInitialData', null, token);
+      const locale = rootState.locale || FALLBACK_LOCALE;
+      const result = await APIGET('getInitialData', { locale }, token);
 
       if (result.data.status === 200) {
         const payload = result.data.payload;
@@ -508,9 +509,10 @@ export const actions = {
     commit('SET_LOADING_STATUS', { statusId, isLoading: true });
     try {
       const token = rootState.token;
+      const locale = rootState.locale || FALLBACK_LOCALE;
       const result = await APIPOST(
         'getTask',
-        { statusId, page, itemsPerPage, filters: state.filters },
+        { statusId, page, itemsPerPage, filters: state.filters, locale },
         token
       );
 
