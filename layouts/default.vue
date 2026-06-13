@@ -11,7 +11,9 @@
       <v-list>
         <v-list-item>
           <v-list-item-title
-            ><b>Szia, {{ firstName }}</b></v-list-item-title
+            ><b>{{
+              $t('nav.greeting', { name: firstName })
+            }}</b></v-list-item-title
           >
         </v-list-item>
         <v-list-item
@@ -25,7 +27,7 @@
           </v-list-item-action>
           <v-list-item-content>
             <v-list-item-title>
-              {{ item.title }}
+              {{ getRouterTitle(item) }}
             </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
@@ -34,7 +36,7 @@
             <v-icon>mdi-logout</v-icon>
           </v-list-item-action>
           <v-list-item-content>
-            <v-list-item-title> Kijelentkezés </v-list-item-title>
+            <v-list-item-title>{{ $t('nav.logout') }}</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </v-list>
@@ -46,7 +48,7 @@
       />
       <v-toolbar-title :style="{ color: 'white' }">MMS </v-toolbar-title>
       <v-spacer />
-      <div class="d-flex" style="gap: 20px">
+      <div class="d-flex align-center" style="gap: 20px">
         <LanguageSwitcher :style="{ color: 'white' }" />
         <v-icon @click="$vuetify.theme.dark = !$vuetify.theme.dark">
           {{
@@ -55,7 +57,7 @@
               : 'mdi-white-balance-sunny'
           }}
         </v-icon>
-        <bell-notifications :userId="userId" />
+        <bell-notifications class="d-flex align-center" :userId="userId" />
       </div>
     </v-app-bar>
     <v-main class="mx-6">
@@ -99,6 +101,12 @@ export default {
       drawer: false,
       fixed: true,
       routers,
+      routeTitleKeys: {
+        '/admin/lockers': 'nav.routers.lockers',
+        '/admin/tasks': 'nav.routers.tasks',
+        '/admin/parts': 'nav.routers.parts',
+        '/admin/profile': 'nav.routers.profile'
+      },
       miniVariant: false,
       right: true,
       rightDrawer: false,
@@ -113,17 +121,21 @@ export default {
     }
   },
   methods: {
+    getRouterTitle(item) {
+      const titleKey = this.routeTitleKeys[item.to];
+      return titleKey ? this.$t(titleKey) : item.title;
+    },
     logout() {
       this.$store.dispatch('notification/showModal', {
-        message: 'Biztosan kijelentkezel?',
+        message: this.$t('nav.logoutConfirm'),
         buttons: [
           {
-            text: 'Mégse',
+            text: this.$t('common.cancel'),
             style: 'secondary',
             action: () => this.$store.dispatch('notification/hideModal')
           },
           {
-            text: 'Igen',
+            text: this.$t('common.yes'),
             style: 'primary',
             action: () => this.logOutConfirm()
           }

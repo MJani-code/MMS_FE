@@ -35,7 +35,7 @@
       </v-expansion-panels>
     </div>
     <v-sheet v-else>
-      <v-card-title class="text-h5">Nincs megjeleníthető adat</v-card-title>
+      <v-card-title class="text-h5">{{ $t('tasks.noData') }}</v-card-title>
     </v-sheet>
   </div>
 </template>
@@ -52,16 +52,6 @@ export default {
   mixins: [taskMixin],
   data() {
     return {
-      adminFilterOptions: [
-        { text: 'Összes tétel', value: null },
-        { text: 'Adminban aktiv', value: true },
-        { text: 'Adminban nem aktív', value: false }
-      ],
-      serialFilterOptions: [
-        { text: 'Összes', value: null },
-        { text: 'Van serial', value: true },
-        { text: 'Nincs serial', value: false }
-      ],
       selectedAdminFilter: null,
       selectedSerialFilter: null
     };
@@ -94,6 +84,22 @@ export default {
 
     groupedTasks() {
       return this.statusGroups;
+    },
+
+    adminFilterOptions() {
+      return [
+        { text: this.$t('tasks.filters.allItems'), value: null },
+        { text: this.$t('tasks.filters.adminActive'), value: true },
+        { text: this.$t('tasks.filters.adminInactive'), value: false }
+      ];
+    },
+
+    serialFilterOptions() {
+      return [
+        { text: this.$t('tasks.filters.all'), value: null },
+        { text: this.$t('tasks.filters.hasSerial'), value: true },
+        { text: this.$t('tasks.filters.noSerial'), value: false }
+      ];
     },
 
     tasks() {
@@ -177,11 +183,11 @@ export default {
     },
     showModal() {
       this.$store.dispatch('notification/showModal', {
-        message: 'Biztosan törölni szeretnéd?',
+        message: this.$t('tasks.deleteConfirm'),
         buttons: [
-          { text: 'Igen', style: 'primary', action: '' },
+          { text: this.$t('common.yes'), style: 'primary', action: '' },
           {
-            text: 'Mégse',
+            text: this.$t('common.cancel'),
             style: 'secondary',
             action: () => this.$store.dispatch('notification/hideModal')
           }

@@ -531,6 +531,10 @@ export const actions = {
         if (statusId !== null && statusId !== undefined) {
           commit('SET_TASKS_FOR_STATUS', { statusId, tasks });
         }
+        commit('SET_SERVER_ITEM_LENGTH', {
+          statusId,
+          data: { count: result.data.pagination?.totalCount || tasks.length }
+        });
 
         return { success: true, tasks };
       } else {

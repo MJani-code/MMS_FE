@@ -22,7 +22,7 @@
 
     <template v-slot:top>
       <v-toolbar flat>
-        <v-toolbar-title>Készlet</v-toolbar-title>
+        <v-toolbar-title>{{ $t('parts.stock.title') }}</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
         <v-spacer></v-spacer>
 
@@ -36,7 +36,8 @@
               v-on="on"
               @click="editedIndex = -1"
             >
-              Hozzáadás
+              {{ $t('parts.stock.addButton') }}
+              <v-icon right dark>mdi-plus</v-icon>
             </v-btn>
           </template>
 
