@@ -100,16 +100,13 @@ export default {
     //   }
     // }
   },
-  mounted() {
-    this.loadTasksForStatus();
-  },
   methods: {
     handleHeaderClick() {
       this.$nextTick(() => {
         const willBeExpanded = !this.isExpanded;
         this.isExpanded = willBeExpanded;
 
-        // Always (re)load tasks when the accordion is opened. Do not load on close.
+        // Load tasks only when the accordion is opened (lazy load per panel).
         if (willBeExpanded) {
           this.loadTasksForStatus();
         }

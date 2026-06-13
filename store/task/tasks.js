@@ -33,7 +33,8 @@ export const state = () => ({
   // Loading states
   isLoadingStatuses: false,
   loadingStatus: {}, // { [statusId]: boolean }
-  loadingDeleteMedia: false
+  loadingDeleteMedia: false,
+  isSearchLoading: false
 });
 
 export const getters = {
@@ -134,6 +135,10 @@ export const mutations = {
 
   SET_LOADING_DELETE_MEDIA(state, isLoading) {
     state.loadingDeleteMedia = isLoading;
+  },
+
+  SET_SEARCH_LOADING(state, isLoading) {
+    state.isSearchLoading = isLoading;
   },
 
   UPDATE_TASK_IN_STATUS(state, { statusId, taskId, updates }) {
@@ -289,7 +294,10 @@ export const mutations = {
     }
   },
 
-  MOVE_TASK_TO_STATUS(state, { taskId, toStatusId, updatedTask }) {
+  MOVE_TASK_TO_STATUS(
+    state,
+    { taskId, toStatusId, updatedTask, toStatusMeta }
+  ) {
     //kikeressük a régi státuszt a taskId alapján
     const fromStatusId = Object.keys(state.tasksByStatus).find((statusId) =>
       state.tasksByStatus[statusId].some((t) => String(t.id) === String(taskId))
@@ -324,22 +332,25 @@ export const mutations = {
         state.serverItemLengthByStatus[fromStatusId].count - 1
       );
     }
+    const statusMeta =
+      state.statuses.find((s) => String(s.id) === String(toStatusId)) ||
+      state.allowedStatuses.find((s) => String(s.id) === String(toStatusId));
+    const statusName =
+      toStatusMeta?.status_exohu || statusMeta?.name || 'Ismeretlen státusz';
+    const statusColor = toStatusMeta?.color || statusMeta?.color || '#ccc';
+
     if (!state.serverItemLengthByStatus[toStatusId]) {
-      const statusMeta = state.statuses.find(
-        (s) => String(s.id) === String(toStatusId)
-      );
-      const statusName = statusMeta ? statusMeta.name : 'Ismeretlen státusz';
       //statusGroupban is létrehozzuk az új státusz csoportot, ha még nem létezik
       if (!state.statusGroups[toStatusId]) {
         state.statusGroups[toStatusId] = {
-          color: statusMeta?.color || '#ccc',
+          color: statusColor,
           count: 1,
           title: statusName
         };
       }
 
       state.serverItemLengthByStatus[toStatusId] = {
-        color: statusMeta?.color || '#ccc',
+        color: statusColor,
         count: 1,
         title: statusName
       };
@@ -347,6 +358,18 @@ export const mutations = {
       // Ha az új státusz csoport már létezik, növeljük a számlálót
       state.serverItemLengthByStatus[toStatusId].count =
         (state.serverItemLengthByStatus[toStatusId].count || 0) + 1;
+
+      // Ha korábban 0-ra csökkent és töröltük a groupot, hozd vissza az első elemnél.
+      if (!state.statusGroups[toStatusId]) {
+        state.statusGroups[toStatusId] = {
+          color: statusColor,
+          count: state.serverItemLengthByStatus[toStatusId].count,
+          title: statusName
+        };
+      } else {
+        state.statusGroups[toStatusId].count =
+          state.serverItemLengthByStatus[toStatusId].count;
+      }
     }
     //Ha a számláló értéke 0, akkor eltávolítjuk a státusz csoportot
     if (
@@ -355,6 +378,7 @@ export const mutations = {
     ) {
       const { [fromStatusId]: _, ...rest } = state.statusGroups;
       state.statusGroups = rest;
+      delete state.serverItemLengthByStatus[fromStatusId];
     }
   },
 
@@ -376,6 +400,13 @@ export const mutations = {
   },
 
   REMOVE_GROUP_FROM_STATUS(state, statusId) {
+    if (!statusId) {
+      state.statusGroups = {};
+      state.tasksByStatus = {};
+      state.serverItemLengthByStatus = {};
+      return;
+    }
+
     // Eltávolítjuk a státusz csoportot
     const { [statusId]: _, ...rest } = state.statusGroups;
     state.statusGroups = rest;
@@ -385,10 +416,8 @@ export const mutations = {
       delete state.tasksByStatus[statusId];
     }
 
-    //Ha nincs statusId, akkor minden státusz csoportot és taskot eltávolítunk
-    if (!statusId) {
-      state.statusGroups = {};
-      state.tasksByStatus = {};
+    if (state.serverItemLengthByStatus[statusId]) {
+      delete state.serverItemLengthByStatus[statusId];
     }
   },
 
@@ -518,6 +547,7 @@ export const actions = {
   },
 
   async setSearchText({ commit, dispatch, state }, text) {
+    commit('SET_SEARCH_LOADING', true);
     try {
       commit('SET_SEARCH_TEXT', text);
       commit('REMOVE_GROUP_FROM_STATUS', null); // Minden státusz csoport és task eltávolítása a store-ból
@@ -561,6 +591,8 @@ export const actions = {
       }
     } catch (error) {
       console.error('Error setting search text:', error);
+    } finally {
+      commit('SET_SEARCH_LOADING', false);
     }
   },
 
@@ -588,12 +620,83 @@ export const actions = {
     }
   },
 
-  clearSearchText({ commit, dispatch }) {
+  async clearSearchText({ commit, dispatch }) {
+    commit('SET_SEARCH_LOADING', true);
     try {
       commit('CLEAR_SEARCH_TEXT');
-      dispatch('fetchInitialData');
+      await dispatch('fetchInitialData');
     } catch (error) {
       console.error('Error clearing search text:', error);
+    } finally {
+      commit('SET_SEARCH_LOADING', false);
+    }
+  },
+
+  async createTaskBatch({ dispatch, rootState }, payload) {
+    try {
+      const token = rootState.token;
+      const locale = rootState.locale || 'hu';
+
+      const formData = payload instanceof FormData ? payload : new FormData();
+      if (!(payload instanceof FormData) && payload?.file) {
+        formData.append('file', payload.file);
+      }
+      if (!formData.has('locale')) {
+        formData.append('locale', locale);
+      }
+
+      const result = await APIPOST2('createTaskBatch', formData, token);
+
+      if (result.data.status === 200) {
+        await dispatch('fetchInitialData');
+        return {
+          success: true,
+          data: result.data,
+          message: result.data.message
+        };
+      }
+
+      return { success: false, message: result.data.message };
+    } catch (error) {
+      console.error('Error creating task batch:', error);
+      return {
+        success: false,
+        message: 'Hiba történt a kötegelt feladat létrehozása során'
+      };
+    }
+  },
+
+  async uploadBatchTasks({ dispatch }, payload) {
+    return await dispatch('createTaskBatch', payload);
+  },
+
+  async createTask({ dispatch, rootState }, payload) {
+    try {
+      const token = rootState.token;
+      const locale = rootState.locale || 'hu';
+      const requestPayload = {
+        ...(payload || {}),
+        locale
+      };
+
+      const result = await APIPOST('createTask', requestPayload, token);
+
+      if (result.data.status === 200) {
+        await dispatch('fetchInitialData');
+        return {
+          success: true,
+          data: result.data,
+          message: result.data.message
+        };
+      }
+
+      return { success: false, message: result.data.message };
+    } catch (error) {
+      console.error('Error creating task:', error);
+      return {
+        success: false,
+        message: 'Hiba történt a feladat létrehozása során'
+      };
     }
   },
 
@@ -625,6 +728,7 @@ export const actions = {
             commit('MOVE_TASK_TO_STATUS', {
               taskId: responsePayload.id,
               toStatusId: responsePayload.value,
+              toStatusMeta: responsePayload,
               updatedTask: {
                 ...task,
                 status_exohu_id: responsePayload.value
@@ -656,6 +760,8 @@ export const actions = {
       const result = await APIPOST('updateTaskInBatch', payload, token);
 
       if (result.data.status === 200) {
+        const responsePayload = result.data.payload || {};
+
         if (
           payload.column === 'status_by_exohu_id' &&
           Array.isArray(payload.taskIds)
@@ -677,10 +783,11 @@ export const actions = {
             if (task) {
               commit('MOVE_TASK_TO_STATUS', {
                 taskId,
-                toStatusId: payload.value,
+                toStatusId: responsePayload.value ?? payload.value,
+                toStatusMeta: responsePayload,
                 updatedTask: {
                   ...task,
-                  status_exohu_id: payload.value
+                  status_exohu_id: responsePayload.value ?? payload.value
                 }
               });
             }

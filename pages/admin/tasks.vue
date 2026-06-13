@@ -1,48 +1,54 @@
 <template>
-  <div v-if="groupedTasks" class="mt-6">
-    <PagesTasksTaskFilter
-      :admin-filter-options="adminFilterOptions"
-      :serial-filter-options="serialFilterOptions"
-      :tasks="[]"
-      :download-new-points="downloadNewPoints"
-    />
-    <v-expansion-panels v-model="expandedAccordions" multiple>
-      <AccordionField
-        v-for="(group, statusId) in groupedTasks"
-        :key="statusId"
-        :ref="'accordion-' + statusId"
-        :title="group.title"
-        :status-id="statusId"
-        :status-color="group.color"
-        :server-items-length="
-          tasks.serverItemLengthByStatus[statusId]?.count || 0
-        "
-        :headers="tasks.headers"
-        :statuses="tasks.statuses"
-        :fees="tasks.fees"
-        :allowed-statuses="tasks.allowedStatuses"
-        :location-types="tasks.locationTypes"
-        :task-types="tasks.taskTypes"
-        :responsibles="tasks.responsibles"
-        :locker-serials="tasks.lockerSerials"
-        :priorities="tasks.priorities"
-      >
-      </AccordionField>
-    </v-expansion-panels>
+  <div>
+    <BounceLoader :loading="isSearchLoading" />
+    <div v-if="groupedTasks" class="mt-6">
+      <PagesTasksTaskFilter
+        :admin-filter-options="adminFilterOptions"
+        :serial-filter-options="serialFilterOptions"
+        :tasks="[]"
+        :download-new-points="downloadNewPoints"
+        @uploadBatchTasks="handleUploadBatchTasks"
+        @createTask="handleCreateTask"
+      />
+      <v-expansion-panels v-model="expandedAccordions" multiple>
+        <AccordionField
+          v-for="(group, statusId) in groupedTasks"
+          :key="statusId"
+          :ref="'accordion-' + statusId"
+          :title="group.title"
+          :status-id="statusId"
+          :status-color="group.color"
+          :server-items-length="
+            tasks.serverItemLengthByStatus[statusId]?.count || 0
+          "
+          :headers="tasks.headers"
+          :statuses="tasks.statuses"
+          :fees="tasks.fees"
+          :allowed-statuses="tasks.allowedStatuses"
+          :location-types="tasks.locationTypes"
+          :task-types="tasks.taskTypes"
+          :responsibles="tasks.responsibles"
+          :locker-serials="tasks.lockerSerials"
+          :priorities="tasks.priorities"
+        >
+        </AccordionField>
+      </v-expansion-panels>
+    </div>
+    <v-sheet v-else>
+      <v-card-title class="text-h5">Nincs megjeleníthető adat</v-card-title>
+    </v-sheet>
   </div>
-  <v-sheet v-else>
-    <v-card-title class="text-h5">Nincs megjeleníthető adat</v-card-title>
-  </v-sheet>
 </template>
 
 <script>
 import { mapState } from 'vuex';
 import { taskMixin } from '@/mixins/taskMixin.js';
 import AccordionField from '../../components/Fields/AccordionField.vue';
+import BounceLoader from '@/components/BounceLoader.vue';
 
 export default {
   name: 'AdminTasks',
-  components: { AccordionField },
+  components: { AccordionField, BounceLoader },
   mixins: [taskMixin],
   data() {
     return {
@@ -73,7 +79,8 @@ export default {
       storeLockerSerials: (state) => state.lockerSerials,
       storeCompanies: (state) => state.companies,
       storePriorities: (state) => state.priorities,
-      serverItemLengthByStatus: (state) => state.serverItemLengthByStatus
+      serverItemLengthByStatus: (state) => state.serverItemLengthByStatus,
+      isSearchLoading: (state) => state.isSearchLoading
     }),
 
     expandedAccordions: {
@@ -166,40 +173,44 @@ export default {
         ]
       });
     },
-    // async handleUploadBatchTasks(payload) {
-    //   try {
-    //     const result = await this.uploadBatchTasks(payload);
-    //     if (result.data.status === 200) {
-    //       await this.refreshStatusGroups();
-    //       // Frissítjük a nyitott accordion-okat is
-    //       this.refreshOpenAccordions();
-    //       this.showNotification('success', result.data.message);
-    //     } else {
-    //       this.showNotification('error', result.data.message);
-    //     }
-    //   } catch (error) {
-    //     this.showNotification('error', error);
-    //   }
-    //   this.$store.commit('closeCreateTaskBatchModal');
-    //   this.turnOffLoading();
-    // },
-    // async handleCreateTask(payload) {
-    //   try {
-    //     const result = await this.createTask(payload);
-    //     if (result.data.status === 200) {
-    //       await this.refreshStatusGroups();
-    //       // Frissítjük a nyitott accordion-okat is
-    //       this.refreshOpenAccordions();
-    //       this.showNotification('success', result.data.message);
-    //     } else {
-    //       this.showNotification('error', result.data.message);
-    //     }
-    //   } catch (error) {
-    //     this.showNotification('error', error);
-    //   }
-    //   this.$store.commit('closeCreateTaskModal');
-    //   this.turnOffLoading();
-    // },
+    async handleUploadBatchTasks(payload) {
+      try {
+        const result = await this.$store.dispatch(
+          'task/tasks/createTaskBatch',
+          payload
+        );
+
+        if (result.success) {
+          this.showNotification('success', result.message);
+        } else {
+          this.showNotification('error', result.message);
+        }
+      } catch (error) {
+        this.showNotification('error', error.message || error);
+      }
+
+      this.$store.commit('closeCreateTaskBatchModal');
+      this.turnOffLoading();
+    },
+    async handleCreateTask(payload) {
+      try {
+        const result = await this.$store.dispatch(
+          'task/tasks/createTask',
+          payload
+        );
+
+        if (result.success) {
+          this.showNotification('success', result.message);
+        } else {
+          this.showNotification('error', result.message);
+        }
+      } catch (error) {
+        this.showNotification('error', error.message || error);
+      }
+
+      this.$store.commit('closeCreateTaskModal');
+      this.turnOffLoading();
+    },
     // refreshOpenAccordions() {
     //   Object.keys(this.$refs).forEach((refKey) => {
     //     if (refKey.startsWith('accordion-')) {
