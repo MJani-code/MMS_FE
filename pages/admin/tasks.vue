@@ -112,12 +112,27 @@ export default {
       };
     }
   },
+  watch: {
+    '$i18n.locale'(newLocale, oldLocale) {
+      if (newLocale !== oldLocale) {
+        this.reloadWithLocale();
+      }
+    }
+  },
   async mounted() {
     this.turnOnLoading();
     await this.fetchInitialData();
     this.turnOffLoading();
   },
   methods: {
+    async reloadWithLocale() {
+      this.turnOnLoading();
+      try {
+        await this.fetchInitialData();
+      } finally {
+        this.turnOffLoading();
+      }
+    },
     // searchedText(value) {
     // },
     async fetchInitialData() {

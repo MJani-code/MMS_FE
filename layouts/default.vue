@@ -47,6 +47,7 @@
       <v-toolbar-title :style="{ color: 'white' }">MMS </v-toolbar-title>
       <v-spacer />
       <div class="d-flex" style="gap: 20px">
+        <LanguageSwitcher :style="{ color: 'white' }" />
         <v-icon @click="$vuetify.theme.dark = !$vuetify.theme.dark">
           {{
             $vuetify.theme.dark
@@ -80,10 +81,11 @@ import Notification from '../components/Notification.vue';
 import Modal from '../components/Modal.vue';
 import BounceLoader from '../components/BounceLoader.vue';
 import BellNotifications from '../components/BellNotifications.vue';
+import LanguageSwitcher from '../components/LanguageSwitcher.vue';
 
 export default {
   name: 'DefaultLayout',
-  components: { Notification, Modal, BounceLoader, BellNotifications },
+  components: { Notification, Modal, BounceLoader, BellNotifications, LanguageSwitcher },
   data() {
     return {
       themeChangeIcon: '',

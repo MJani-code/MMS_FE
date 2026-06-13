@@ -8,6 +8,37 @@ import {
 
 export const taskMixin = {
   methods: {
+    getActiveLocale() {
+      if (this.$i18n && this.$i18n.locale) {
+        return this.$i18n.locale;
+      }
+      if (this.$store && this.$store.state && this.$store.state.locale) {
+        return this.$store.state.locale;
+      }
+      if (typeof window !== 'undefined') {
+        const appLocale = localStorage.getItem('appLocale');
+        if (appLocale) return appLocale;
+        const storedData = localStorage.getItem('data');
+        if (storedData) {
+          try {
+            const parsed = JSON.parse(storedData);
+            if (parsed && parsed.locale) return parsed.locale;
+          } catch (_error) {}
+        }
+      }
+      return 'hu';
+    },
+    addLocaleToPayload(payload) {
+      if (payload instanceof FormData) {
+        if (!payload.has('locale')) payload.append('locale', this.getActiveLocale());
+        return payload;
+      }
+      if (payload && typeof payload === 'object') {
+        if (!payload.locale) payload.locale = this.getActiveLocale();
+        return payload;
+      }
+      return { locale: this.getActiveLocale() };
+    },
     showNotification($type, $message) {
       this.$store.dispatch('notification/addNotification', {
         type: $type,
@@ -18,7 +49,7 @@ export const taskMixin = {
     async fetchTasks() {
       try {
         const token = this.$store.state.token;
-        const response = await APIGET('getAllTask', {}, token);
+        const response = await APIGET('getAllTask', { locale: this.getActiveLocale() }, token);
         return await response;
       } catch (error) {
         console.error('Error fetching tasks', error);
