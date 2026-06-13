@@ -30,7 +30,8 @@ export const taskMixin = {
     },
     addLocaleToPayload(payload) {
       if (payload instanceof FormData) {
-        if (!payload.has('locale')) payload.append('locale', this.getActiveLocale());
+        if (!payload.has('locale'))
+          payload.append('locale', this.getActiveLocale());
         return payload;
       }
       if (payload && typeof payload === 'object') {
@@ -49,7 +50,11 @@ export const taskMixin = {
     async fetchTasks() {
       try {
         const token = this.$store.state.token;
-        const response = await APIGET('getAllTask', { locale: this.getActiveLocale() }, token);
+        const response = await APIGET(
+          'getAllTask',
+          { locale: this.getActiveLocale() },
+          token
+        );
         return await response;
       } catch (error) {
         console.error('Error fetching tasks', error);

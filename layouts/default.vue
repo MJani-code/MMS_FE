@@ -85,7 +85,13 @@ import LanguageSwitcher from '../components/LanguageSwitcher.vue';
 
 export default {
   name: 'DefaultLayout',
-  components: { Notification, Modal, BounceLoader, BellNotifications, LanguageSwitcher },
+  components: {
+    Notification,
+    Modal,
+    BounceLoader,
+    BellNotifications,
+    LanguageSwitcher
+  },
   data() {
     return {
       themeChangeIcon: '',
