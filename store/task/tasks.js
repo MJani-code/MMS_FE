@@ -1,6 +1,8 @@
 // store/task/tasks.js
 import { APIGET, APIPOST, APIPOST2, APIPUT, APIDELETE } from '@/api/apiHelper';
 
+const FALLBACK_LOCALE = 'hu';
+
 export const state = () => ({
   //filters
   filters: {
