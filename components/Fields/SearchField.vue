@@ -1,7 +1,7 @@
 <template>
   <v-text-field
     v-model="searchText"
-    label="Keresés"
+    :label="$t('tasks.searchLabel')"
     clear-icon="mdi-close-circle"
     clearable
     outlined
