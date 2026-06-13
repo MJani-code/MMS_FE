@@ -1,24 +1,24 @@
 <template>
-  <div>
+  <div class="bell-notifications">
     <!-- Bell icon -->
-    <div class="d-flex ga-12 justify-center">
+    <div class="bell-trigger">
       <v-badge
         v-if="notifications?.data?.length > 0"
         color="red"
         :content="
           notifications?.data?.length > 0 ? notifications?.data?.length : ''
         "
-        style="position: absolute"
+        class="bell-badge"
       >
       </v-badge>
-      <v-icon @click="toggleList">mdi-bell</v-icon>
+      <v-icon class="bell-icon" @click="toggleList">mdi-bell</v-icon>
     </div>
 
     <!-- Show notifications -->
     <template v-if="showList">
       <v-sheet
         class="d-flex align-center justify-center flex-wrap mx-auto px-4 pt-3"
-        style="position: absolute; right: 20px; overflow: scroll"
+        style="position: absolute; right: 40px; top: 60px; overflow: scroll"
         elevation="4"
         width="300"
         max-height="800px"
@@ -148,3 +148,28 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.bell-notifications {
+  display: flex;
+  align-items: center;
+}
+
+.bell-trigger {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.bell-icon {
+  cursor: pointer;
+}
+
+.bell-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+}
+</style>

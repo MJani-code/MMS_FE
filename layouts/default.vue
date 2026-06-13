@@ -48,7 +48,7 @@
       />
       <v-toolbar-title :style="{ color: 'white' }">MMS </v-toolbar-title>
       <v-spacer />
-      <div class="d-flex" style="gap: 20px">
+      <div class="d-flex align-center" style="gap: 20px">
         <LanguageSwitcher :style="{ color: 'white' }" />
         <v-icon @click="$vuetify.theme.dark = !$vuetify.theme.dark">
           {{
@@ -57,7 +57,7 @@
               : 'mdi-white-balance-sunny'
           }}
         </v-icon>
-        <bell-notifications :userId="userId" />
+        <bell-notifications class="d-flex align-center" :userId="userId" />
       </div>
     </v-app-bar>
     <v-main class="mx-6">
