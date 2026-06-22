@@ -298,9 +298,9 @@ export const taskMixin = {
       }
     },
     async markNotificationsAsRead(payload) {
+      console.log('markNotificationsAsRead called with payload:', payload);
       try {
         const token = this.$store.state.token;
-        payload = this.addLocaleToPayload(payload);
         const response = await APIPOST('readNotifications', payload, token);
         return response;
       } catch (error) {
