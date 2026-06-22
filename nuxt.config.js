@@ -55,6 +55,13 @@ export default {
 
   modules: ['@nuxtjs/i18n'],
 
+  publicRuntimeConfig: {
+    appVersion:
+      process.env.APP_VERSION ||
+      process.env.npm_package_version ||
+      require('./package.json').version
+  },
+
   i18n: {
     strategy: 'no_prefix',
     defaultLocale: 'hu',

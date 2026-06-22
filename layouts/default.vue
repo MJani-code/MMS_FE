@@ -69,7 +69,7 @@
     <v-footer :absolute="!fixed" app>
       <span
         >&copy; {{ new Date().getFullYear() }} BY: Martolin. Version:
-        1.0.5</span
+        {{ appVersion }}</span
       >
     </v-footer>
   </v-app>
@@ -110,6 +110,10 @@ export default {
   computed: {
     loading() {
       return this.$store.state.loading;
+    },
+    appVersion() {
+      console.log(this.$config.appVersion);
+      return this.$config.appVersion;
     }
   },
   methods: {
