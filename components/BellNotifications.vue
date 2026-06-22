@@ -18,10 +18,10 @@
     <template v-if="showList">
       <v-sheet
         class="d-flex align-center justify-center flex-wrap mx-auto px-4 pt-3"
-        style="position: absolute; right: 20px; overflow: scroll"
+        style="position: absolute; right: 20px; top: 10px; overflow: scroll"
         elevation="4"
         width="300"
-        max-height="800px"
+        max-height="400px"
         rounded
       >
         <!-- Notifications list -->
@@ -106,7 +106,7 @@ export default {
         const res = await this.downloadNotifications({
           userId: this.userId,
           downloadedIds:
-            this.notifications && this.notifications.data.length
+            this.notifications && this.notifications.data?.length
               ? this.notifications.data.map((n) => n.id).join(',')
               : ''
         });
