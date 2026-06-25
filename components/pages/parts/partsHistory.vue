@@ -3,10 +3,10 @@
     :headers="headers"
     :items="items"
     :loading="loading"
-    loading-text="Loading... Please wait"
+    :loading-text="$t('parts.history.loadingText')"
     class="elevation-1 parts-history"
   >
-    <template v-slot:item.taskTypes="{ item }">
+    <template #[`item.taskTypes`]="{ item }">
       <template v-if="item.taskTypes.length > 0">
         <v-chip
           v-for="(taskType, index) in item.taskTypes"
@@ -18,13 +18,13 @@
       </template>
     </template>
 
-    <template v-slot:item.reason="{ item }">
+    <template #[`item.reason`]="{ item }">
       <v-chip :color="colorForReason(item.reason)">
         {{ item.reason }}
       </v-chip>
     </template>
 
-    <template v-slot:item.createdByName="{ item }">
+    <template #[`item.createdByName`]="{ item }">
       <v-chip :color="colorForUser(item.createdByName)">
         {{ item.createdByName }}
       </v-chip>
@@ -67,60 +67,75 @@ export default {
     dialog: false,
     loading: false,
     dialogDelete: false,
-    headers: [
-      {
-        text: 'id',
-        align: 'center',
-        value: 'id'
-      },
-      {
-        text: 'Task ID',
-        align: 'center',
-        value: 'taskId'
-      },
-      { text: 'feladat típus', align: 'center', value: 'taskTypes' },
-      { text: 'tofShopId', align: 'center', value: 'tofShopId' },
-      { text: 'boxId', align: 'center', value: 'boxId' },
-      {
-        text: 'serial',
-        align: 'center',
-        value: 'serial'
-      },
-      {
-        text: 'mennyiség',
-        align: 'center',
-        value: 'changeAmount'
-      },
-      {
-        text: 'művelet',
-        align: 'center',
-        value: 'reason'
-      },
-      {
-        text: 'referencia',
-        align: 'center',
-        value: 'reference'
-      },
-      {
-        text: 'megjegyzés',
-        align: 'center',
-        value: 'note'
-      },
-      {
-        text: 'felhasználó',
-        align: 'center',
-        value: 'createdByName'
-      },
-      {
-        text: 'dátum',
-        align: 'center',
-        value: 'createdAt'
-      }
-    ],
     items: []
   }),
 
-  computed: {},
+  computed: {
+    headers() {
+      return [
+        {
+          text: this.$t('parts.history.headers.id'),
+          align: 'center',
+          value: 'id'
+        },
+        {
+          text: this.$t('parts.history.headers.taskId'),
+          align: 'center',
+          value: 'taskId'
+        },
+        {
+          text: this.$t('parts.history.headers.taskTypes'),
+          align: 'center',
+          value: 'taskTypes'
+        },
+        {
+          text: this.$t('parts.history.headers.tofShopId'),
+          align: 'center',
+          value: 'tofShopId'
+        },
+        {
+          text: this.$t('parts.history.headers.boxId'),
+          align: 'center',
+          value: 'boxId'
+        },
+        {
+          text: this.$t('parts.history.headers.serial'),
+          align: 'center',
+          value: 'serial'
+        },
+        {
+          text: this.$t('parts.history.headers.changeAmount'),
+          align: 'center',
+          value: 'changeAmount'
+        },
+        {
+          text: this.$t('parts.history.headers.reason'),
+          align: 'center',
+          value: 'reason'
+        },
+        {
+          text: this.$t('parts.history.headers.reference'),
+          align: 'center',
+          value: 'reference'
+        },
+        {
+          text: this.$t('parts.history.headers.note'),
+          align: 'center',
+          value: 'note'
+        },
+        {
+          text: this.$t('parts.history.headers.createdBy'),
+          align: 'center',
+          value: 'createdByName'
+        },
+        {
+          text: this.$t('parts.history.headers.createdAt'),
+          align: 'center',
+          value: 'createdAt'
+        }
+      ];
+    }
+  },
 
   watch: {
     '$store.state.sparePartStock.stockItems': {

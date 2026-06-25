@@ -121,7 +121,7 @@
             <v-col cols="12" sm="3">
               <v-text-field
                 v-model="fixingMethod"
-                label="Rögzítési mód"
+                :label="$t('tasks.expanded.fixingMethod')"
                 :disabled="isToDisable(item)"
                 @change="
                   updateLocationData(
@@ -135,7 +135,7 @@
               </v-text-field>
               <v-text-field
                 v-model="sitePreparation"
-                label="Helyszín kialakítási feladat"
+                :label="$t('tasks.expanded.sitePreparation')"
                 :disabled="isToDisable(item)"
                 @change="
                   updateLocationData(
@@ -148,7 +148,7 @@
               ></v-text-field>
               <v-textarea
                 v-model="comment"
-                label="Megbízás leírása"
+                :label="$t('tasks.expanded.taskDescription')"
                 :disabled="isToDisable(item)"
                 @change="
                   updateLocationData(
@@ -161,9 +161,9 @@
               ></v-textarea>
               <v-textarea
                 v-model="lockerApproach"
-                label="Megközelítés"
+                :label="$t('tasks.expanded.approach')"
                 :disabled="isToDisable(item)"
-                placeholder="Add meg, hogyan találja meg a címzett.."
+                :placeholder="$t('tasks.expanded.approachPlaceholder')"
                 @change="
                   updateLocationData(
                     item,
@@ -175,7 +175,7 @@
               ></v-textarea>
               <v-textarea
                 v-model="feedback"
-                label="Report"
+                :label="$t('tasks.expanded.report')"
                 :disabled="isToDisable(item)"
                 @change="
                   updateLocationData(
@@ -329,10 +329,10 @@ export default {
     },
     showModal(photo) {
       this.$store.dispatch('notification/showModal', {
-        message: 'Biztosan törölni szeretnéd?',
+        message: this.$t('tasks.deleteConfirm'),
         buttons: [
           {
-            text: 'Igen',
+            text: this.$t('common.yes'),
             style: 'primary',
             loading: this.$store.state.task.tasks.loadingDeleteMedia,
             action: () =>
@@ -347,7 +347,7 @@ export default {
                 })
           },
           {
-            text: 'Mégse',
+            text: this.$t('common.cancel'),
             style: 'secondary',
             loading: false,
             action: () => this.$store.dispatch('notification/hideModal')

@@ -195,7 +195,9 @@
         <!-- FilterRow in Mobile view-->
         <v-expansion-panels v-else v-model="filtersAccordion">
           <v-expansion-panel class="accordion">
-            <v-expansion-panel-header>Szűrők</v-expansion-panel-header>
+            <v-expansion-panel-header>{{
+              $t('tasks.filterPanel')
+            }}</v-expansion-panel-header>
             <v-expansion-panel-content>
               <v-row>
                 <v-col cols="4" md="4" sm="2">
@@ -206,7 +208,7 @@
                     item-text="name"
                     small-chips
                     solo
-                    placeholder="Típus"
+                    :placeholder="$t('tasks.filters.type')"
                     hide-details="auto"
                     multiple
                   />
@@ -214,7 +216,7 @@
                 <v-col cols="4" md="4" sm="2">
                   <v-text-field
                     v-model="filters['zip']"
-                    placeholder="Zip"
+                    :placeholder="$t('tasks.filters.zip')"
                     solo
                     hide-details="auto"
                   />
@@ -222,7 +224,7 @@
                 <v-col cols="4" md="4" sm="2">
                   <v-text-field
                     v-model="filters['city']"
-                    placeholder="City"
+                    :placeholder="$t('tasks.filters.city')"
                     solo
                     hide-details="auto"
                   />
@@ -232,7 +234,7 @@
                 <v-col cols="4" md="4" sm="2">
                   <v-text-field
                     v-model="filters['tof_shop_id']"
-                    placeholder="Tof ShopId"
+                    :placeholder="$t('tasks.filters.tofShopId')"
                     solo
                     hide-details="auto"
                   />
@@ -240,7 +242,7 @@
                 <v-col cols="4" md="4" sm="2">
                   <v-text-field
                     v-model="filters['box_id']"
-                    placeholder="Box Id"
+                    :placeholder="$t('tasks.filters.boxId')"
                     solo
                     hide-details="auto"
                   />
@@ -248,7 +250,7 @@
                 <v-col cols="12" md="4" sm="2">
                   <v-text-field
                     v-model="filters['serial']"
-                    placeholder="Serial"
+                    :placeholder="$t('tasks.filters.serial')"
                     solo
                     hide-details="auto"
                   />
@@ -260,7 +262,7 @@
                     v-model="filters.startDatePlan"
                     type="datetime-local"
                     class="datetime"
-                    label="Tól (tervezett)"
+                    :label="$t('tasks.filters.fromPlanned')"
                     hide-details="auto"
                   />
                 </v-col>
@@ -269,7 +271,7 @@
                     v-model="filters.endDatePlan"
                     type="datetime-local"
                     class="datetime"
-                    label="Ig (tervezett)"
+                    :label="$t('tasks.filters.toPlanned')"
                     hide-details="auto"
                   />
                 </v-col>
@@ -280,7 +282,7 @@
                     v-model="filters.startDate"
                     type="datetime-local"
                     class="datetime"
-                    label="Tól (tény)"
+                    :label="$t('tasks.filters.fromActual')"
                     hide-details="auto"
                   />
                 </v-col>
@@ -289,7 +291,7 @@
                     v-model="filters.endDate"
                     type="datetime-local"
                     class="datetime"
-                    label="Ig (tény)"
+                    :label="$t('tasks.filters.toActual')"
                     hide-details="auto"
                   />
                 </v-col>
@@ -298,7 +300,7 @@
                 <v-col cols="12" md="4" sm="2">
                   <v-text-field
                     v-model="filters.createdBy"
-                    placeholder="Létrehozta"
+                    :placeholder="$t('tasks.filters.createdBy')"
                     solo
                     hide-details="auto"
                   />
@@ -679,7 +681,7 @@
           class="ma-2"
           @click="downloadTig"
         >
-          TIG letöltés
+          {{ $t('tasks.downloadTig') }}
         </v-btn>
         <v-btn
           v-if="
@@ -692,7 +694,7 @@
           class="ma-2"
           @click="downloadTasks"
         >
-          Letöltés
+          {{ $t('tasks.downloadTasks') }}
         </v-btn>
       </template>
 
