@@ -10,6 +10,7 @@
       :items-per-page="itemsPerPage"
       @update:page="$emit('update:page', $event)"
       @update:items-per-page="$emit('update:items-per-page', $event)"
+      @update:options="handleOptionsUpdate"
       fixed-header
       show-expand
       show-select
@@ -18,7 +19,7 @@
       class="elevation-1 custom-table"
     >
       <!-- FilterRow in Desktop view-->
-      <template v-slot:body.prepend>
+      <template #[`body.prepend`]>
         <tr v-if="!isMobile" class="filterRow">
           <!-- placeholder td for selection column -->
           <td></td>
@@ -794,6 +795,8 @@ export default {
       selected: [],
       taskFiles: [],
       filtersAccordion: [],
+      sortBy: null,
+      sortDesc: false,
       rules: [
         (value) =>
           !value ||
@@ -894,6 +897,33 @@ export default {
     window.removeEventListener('resize', this.checkMobile);
   },
   methods: {
+    normalizeSortBy(value) {
+      if (Array.isArray(value)) {
+        return value.length ? value[0] : null;
+      }
+      return value || null;
+    },
+    normalizeSortDesc(value) {
+      if (Array.isArray(value)) {
+        return value.length ? Boolean(value[0]) : false;
+      }
+      return Boolean(value);
+    },
+    handleOptionsUpdate(options) {
+      const nextSortBy = this.normalizeSortBy(options?.sortBy);
+      const nextSortDesc = this.normalizeSortDesc(options?.sortDesc);
+
+      if (this.sortBy === nextSortBy && this.sortDesc === nextSortDesc) {
+        return;
+      }
+
+      this.sortBy = nextSortBy;
+      this.sortDesc = nextSortDesc;
+      this.$emit('update:sort', {
+        sortBy: this.sortBy,
+        sortDesc: this.sortDesc
+      });
+    },
     filter(headerValue) {
       if (this.filters[headerValue] === '') {
         console.log(this.statusId);
@@ -905,7 +935,9 @@ export default {
         [headerValue]: this.filters[headerValue],
         statusId: this.statusId,
         itemsPerPage: this.itemsPerPage,
-        page: this.page
+        page: this.page,
+        sortBy: this.sortBy,
+        sortDesc: this.sortDesc
       });
 
       //store filter kiíratása console-ra

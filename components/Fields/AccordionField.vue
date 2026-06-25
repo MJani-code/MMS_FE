@@ -27,6 +27,7 @@
         :items-per-page="itemsPerPage"
         @update:page="handlePageChange"
         @update:items-per-page="handleItemsPerPageChange"
+        @update:sort="handleSortChange"
         @updateLockerData="updateLockerData"
         @bulkUpdateLockerData="bulkUpdateLockerData"
         @addFee="addFee"
@@ -75,7 +76,9 @@ export default {
     isExpanded: false,
     hasLoadedOnce: false,
     page: 1,
-    itemsPerPage: 10
+    itemsPerPage: 10,
+    sortBy: null,
+    sortDesc: false
   }),
   computed: {
     ...mapGetters('task/tasks', ['getTasksForStatus', 'isStatusLoading']),
@@ -118,6 +121,8 @@ export default {
         statusId: this.statusId,
         page: this.page,
         itemsPerPage: this.itemsPerPage,
+        sortBy: this.sortBy,
+        sortDesc: this.sortDesc,
         searchText: this.$store.getters['task/tasks/getFilters'].searchText
       });
 
@@ -150,6 +155,16 @@ export default {
     async handleItemsPerPageChange(newItemsPerPage) {
       this.itemsPerPage = newItemsPerPage;
       this.page = 1;
+      if (this.isExpanded) {
+        await this.loadTasksForStatus();
+      }
+    },
+
+    async handleSortChange({ sortBy, sortDesc }) {
+      this.sortBy = sortBy || null;
+      this.sortDesc = Boolean(sortDesc);
+      this.page = 1;
+
       if (this.isExpanded) {
         await this.loadTasksForStatus();
       }

@@ -585,14 +585,21 @@ export const actions = {
 
   async fetchTask(
     { commit, rootState, state },
-    { statusId, page, itemsPerPage }
+    { statusId, page, itemsPerPage, sortBy = null, sortDesc = false }
   ) {
     commit('SET_LOADING_STATUS', { statusId, isLoading: true });
     try {
       const token = rootState.token;
       const result = await APIPOST(
         'getTask',
-        { statusId, page, itemsPerPage, filters: state.filters },
+        {
+          statusId,
+          page,
+          itemsPerPage,
+          sortBy,
+          sortDesc,
+          filters: state.filters
+        },
         token
       );
 
@@ -695,7 +702,9 @@ export const actions = {
       await this.dispatch('task/tasks/fetchTask', {
         statusId: payload.statusId ?? null,
         page: payload.page ?? null,
-        itemsPerPage: payload.itemsPerPage ?? null
+        itemsPerPage: payload.itemsPerPage ?? null,
+        sortBy: payload.sortBy ?? null,
+        sortDesc: payload.sortDesc ?? false
       });
     } catch (error) {
       console.error('Error setting filter:', error);
