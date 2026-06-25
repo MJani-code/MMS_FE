@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="d-flex align-center">
     <!-- Bell icon -->
     <div class="d-flex ga-12 justify-center">
       <v-badge
@@ -18,7 +18,7 @@
     <template v-if="showList">
       <v-sheet
         class="d-flex align-center justify-center flex-wrap mx-auto px-4 pt-3"
-        style="position: absolute; right: 20px; overflow: scroll"
+        style="position: absolute; right: 20px; top: 50px; overflow: scroll"
         elevation="4"
         width="300"
         max-height="800px"
@@ -45,7 +45,7 @@
 
         <!-- No notifications -->
         <template v-else>
-          <p class="text-body-2 mb-4">Nincsenek új értesítéseid</p>
+          <p class="text-body-2 mb-4">{{ $t('tasks.notifications.noNew') }}</p>
         </template>
       </v-sheet>
     </template>

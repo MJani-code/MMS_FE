@@ -29,6 +29,7 @@
           :task-types="tasks.taskTypes"
           :responsibles="tasks.responsibles"
           :locker-serials="tasks.lockerSerials"
+          :companies="tasks.companies"
           :priorities="tasks.priorities"
         >
         </AccordionField>

@@ -46,7 +46,7 @@
       />
       <v-toolbar-title :style="{ color: 'white' }">MMS </v-toolbar-title>
       <v-spacer />
-      <div class="d-flex" style="gap: 20px">
+      <div class="d-flex align-center" style="gap: 20px">
         <LanguageSwitcher :style="{ color: 'white' }" />
         <v-icon @click="$vuetify.theme.dark = !$vuetify.theme.dark">
           {{

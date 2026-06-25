@@ -7,7 +7,7 @@
           <v-icon v-if="isMobile">mdi-image-marker</v-icon>
           <span v-else>
             <v-icon>mdi-image-marker</v-icon>
-            Helyszín fotók</span
+            {{ $t('tasks.expanded.locationPhotosTab') }}</span
           >
         </v-tab>
 
@@ -16,7 +16,7 @@
           <v-icon v-if="isMobile">mdi-map-marker-alert</v-icon>
           <span v-else>
             <v-icon>mdi-map-marker-alert</v-icon>
-            Megbízás részletei</span
+            {{ $t('tasks.expanded.taskDetailsTab') }}</span
           >
         </v-tab>
 
@@ -25,7 +25,7 @@
           <v-icon v-if="isMobile">mdi-cash-check</v-icon>
           <span v-else>
             <v-icon>mdi-cash-check</v-icon>
-            Díjak</span
+            {{ $t('tasks.expanded.feesTab') }}</span
           ></v-tab
         >
 
@@ -94,7 +94,7 @@
                       prepend-icon="mdi-camera"
                       color="primary"
                       counter
-                      label="Kép feltöltés"
+                      :label="$t('tasks.expanded.uploadImageLabel')"
                       outlined
                       required
                       :disabled="isToDisable(item)"
@@ -103,7 +103,7 @@
                       type="submit"
                       :disabled="isToDisable(item)"
                       class="mt-4 mb-4"
-                      >Feltöltés</v-btn
+                      >{{ $t('tasks.expanded.uploadButton') }}</v-btn
                     >
                   </form>
                 </template>

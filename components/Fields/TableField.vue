@@ -48,6 +48,7 @@
               :placeholder="header.text"
               hide-details="auto"
               multiple
+              @input="filter(header.value)"
             />
             <v-text-field
               v-if="header.filterable && header.value === 'zip'"
@@ -55,6 +56,7 @@
               :placeholder="header.text"
               solo
               hide-details="auto"
+              @input="filter(header.value)"
             />
             <v-text-field
               v-if="header.filterable && header.value === 'city'"
@@ -62,6 +64,7 @@
               :placeholder="header.text"
               solo
               hide-details="auto"
+              @input="filter(header.value)"
             />
             <v-text-field
               v-if="header.filterable && header.value === 'address'"
@@ -69,6 +72,7 @@
               :placeholder="header.text"
               solo
               hide-details="auto"
+              @input="filter(header.value)"
             />
             <v-select
               v-if="header.filterable && header.value === 'location_type'"
@@ -81,42 +85,47 @@
               :placeholder="header.text"
               hide-details="auto"
               multiple
+              @input="filter(header.value)"
             />
             <v-text-field
               v-if="
                 header.filterable && header.value === 'planned_delivery_date'
               "
-              v-model="filters.startDatePlan"
+              v-model="filters['planned_delivery_dateFrom']"
               type="datetime-local"
               class="datetime"
               :label="$t('tasks.filters.fromPlanned')"
               hide-details="auto"
+              @input="filter(header.value + 'From')"
             />
             <v-text-field
               v-if="
                 header.filterable && header.value === 'planned_delivery_date'
               "
-              v-model="filters.endDatePlan"
+              v-model="filters['planned_delivery_dateTo']"
               type="datetime-local"
               class="datetime"
               :label="$t('tasks.filters.toPlanned')"
               hide-details="auto"
+              @input="filter(header.value + 'To')"
             />
             <v-text-field
               v-if="header.filterable && header.value === 'delivery_date'"
-              v-model="filters.startDate"
+              v-model="filters['delivery_dateFrom']"
               type="datetime-local"
               class="datetime"
               :label="$t('tasks.filters.fromActual')"
               hide-details="auto"
+              @input="filter(header.value + 'From')"
             />
             <v-text-field
               v-if="header.filterable && header.value === 'delivery_date'"
-              v-model="filters.endDate"
+              v-model="filters['delivery_dateTo']"
               type="datetime-local"
               class="datetime"
               :label="$t('tasks.filters.toActual')"
               hide-details="auto"
+              @input="filter(header.value + 'To')"
             />
             <v-select
               v-if="header.filterable && header.value === 'responsibles'"
@@ -129,6 +138,7 @@
               :placeholder="header.text"
               hide-details="auto"
               multiple
+              @input="filter(header.value)"
             />
             <v-text-field
               v-if="header.filterable && header.value === 'tof_shop_id'"
@@ -136,6 +146,7 @@
               :placeholder="header.text"
               solo
               hide-details="auto"
+              @input="filter(header.value)"
             />
             <v-text-field
               v-if="header.filterable && header.value === 'box_id'"
@@ -143,6 +154,7 @@
               :placeholder="header.text"
               solo
               hide-details="auto"
+              @input="filter(header.value)"
             />
             <v-text-field
               v-if="header.filterable && header.value === 'serial'"
@@ -150,6 +162,7 @@
               :placeholder="header.text"
               solo
               hide-details="auto"
+              @input="filter(header.value)"
             />
             <v-text-field
               v-if="header.filterable && header.value === 'createdBy'"
@@ -160,19 +173,21 @@
             />
             <v-text-field
               v-if="header.filterable && header.value === 'createdAt'"
-              v-model="filters.startCreatedAt"
+              v-model="filters['createdAtFrom']"
               type="datetime-local"
               class="datetime"
               :label="$t('tasks.filters.fromCreatedAt')"
               hide-details="auto"
+              @input="filter(header.value + 'From')"
             />
             <v-text-field
               v-if="header.filterable && header.value === 'createdAt'"
-              v-model="filters.endCreatedAt"
+              v-model="filters['createdAtTo']"
               type="datetime-local"
               class="datetime"
               :label="$t('tasks.filters.toCreatedAt')"
               hide-details="auto"
+              @input="filter(header.value + 'To')"
             />
           </td>
         </tr>
@@ -731,6 +746,10 @@ export default {
       required: true
     },
     locationTypes: {
+      type: Array,
+      required: true
+    },
+    companies: {
       type: Array,
       required: true
     },

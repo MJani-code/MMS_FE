@@ -91,6 +91,7 @@ export const state = () => ({
   fees: [],
   allowedStatuses: [],
   locationTypes: [],
+  companies: [],
   taskTypes: [],
   lockerSerials: [],
   responsibles: [],
@@ -177,6 +178,7 @@ export const mutations = {
     state.locationTypes = payload.locationTypes || [];
     state.taskTypes = payload.taskTypes || [];
     state.lockerSerials = payload.lockerSerials || [];
+    state.companies = payload.companies || [];
     state.responsibles = payload.responsibles || [];
     state.priorities = payload.priorities || [];
   },
