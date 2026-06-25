@@ -20,13 +20,25 @@
       <!-- FilterRow in Desktop view-->
       <template v-slot:body.prepend>
         <tr v-if="!isMobile" class="filterRow">
-          <!-- placeholder td for checkbox and expand icon -->
+          <!-- placeholder td for selection column -->
           <td></td>
           <td></td>
           <!-- real header cells -->
           <td v-for="(header, index) in headers" :key="index">
             <v-select
-              v-if="header.filterable && header.text === 'Típus'"
+              v-if="header.filterable && header.value === 'priorityId'"
+              v-model="filters[header.value]"
+              :items="priorities"
+              item-value="id"
+              item-text="name"
+              small-chips
+              solo
+              :placeholder="header.text"
+              hide-details="auto"
+              multiple
+            />
+            <v-select
+              v-if="header.filterable && header.value === 'taskTypes'"
               v-model="filters[header.value]"
               :items="taskTypes"
               item-value="id"
@@ -37,44 +49,29 @@
               hide-details="auto"
               multiple
             />
-            <v-select
-              v-if="header.filterable && header.text === 'Státusz'"
-              v-model="filters[header.value]"
-              :items="statuses"
-              item-value="id"
-              item-text="name"
-              small-chips
-              solo
-              :placeholder="header.text"
-              hide-details="auto"
-              multiple
-              disabled
-            />
             <v-text-field
-              v-if="header.filterable && header.text === 'Zip'"
+              v-if="header.filterable && header.value === 'zip'"
               v-model="filters[header.value]"
               :placeholder="header.text"
               solo
               hide-details="auto"
-              @input="filter(header.value)"
             />
             <v-text-field
-              v-if="header.filterable && header.text === 'Település'"
+              v-if="header.filterable && header.value === 'city'"
               v-model="filters[header.value]"
               :placeholder="header.text"
               solo
               hide-details="auto"
-              @input="filter(header.value)"
             />
             <v-text-field
-              v-if="header.filterable && header.text === 'Cím'"
+              v-if="header.filterable && header.value === 'address'"
               v-model="filters[header.value]"
               :placeholder="header.text"
               solo
               hide-details="auto"
             />
             <v-select
-              v-if="header.filterable && header.text === 'Lokáció típus'"
+              v-if="header.filterable && header.value === 'location_type'"
               v-model="filters[header.value]"
               :items="locationTypes"
               item-value="id"
@@ -87,48 +84,44 @@
             />
             <v-text-field
               v-if="
-                header.filterable && header.text === 'Kivitelezési dátum(terv)'
+                header.filterable && header.value === 'planned_delivery_date'
               "
               v-model="filters.startDatePlan"
               type="datetime-local"
               class="datetime"
-              label="Tól"
+              :label="$t('tasks.filters.fromPlanned')"
               hide-details="auto"
             />
             <v-text-field
               v-if="
-                header.filterable && header.text === 'Kivitelezési dátum(terv)'
+                header.filterable && header.value === 'planned_delivery_date'
               "
               v-model="filters.endDatePlan"
               type="datetime-local"
               class="datetime"
-              label="Ig"
+              :label="$t('tasks.filters.toPlanned')"
               hide-details="auto"
             />
             <v-text-field
-              v-if="
-                header.filterable && header.text === 'Kivitelezési dátum(tény)'
-              "
+              v-if="header.filterable && header.value === 'delivery_date'"
               v-model="filters.startDate"
               type="datetime-local"
               class="datetime"
-              label="Tól"
+              :label="$t('tasks.filters.fromActual')"
               hide-details="auto"
             />
             <v-text-field
-              v-if="
-                header.filterable && header.text === 'Kivitelezési dátum(tény)'
-              "
+              v-if="header.filterable && header.value === 'delivery_date'"
               v-model="filters.endDate"
               type="datetime-local"
               class="datetime"
-              label="Ig"
+              :label="$t('tasks.filters.toActual')"
               hide-details="auto"
             />
             <v-select
-              v-if="header.filterable && header.text === 'Megbízottak'"
+              v-if="header.filterable && header.value === 'responsibles'"
               v-model="filters[header.value]"
-              :items="responsibles"
+              :items="companies"
               item-value="id"
               item-text="name"
               small-chips
@@ -138,48 +131,47 @@
               multiple
             />
             <v-text-field
-              v-if="header.filterable && header.text === 'Tof Shop Id'"
+              v-if="header.filterable && header.value === 'tof_shop_id'"
               v-model="filters[header.value]"
               :placeholder="header.text"
               solo
               hide-details="auto"
             />
             <v-text-field
-              v-if="header.filterable && header.text === 'Box Id'"
-              v-model="filters[header.value]"
-              :placeholder="header.text"
-              solo
-              hide-details="auto"
-              @input="filter(header.value)"
-            />
-            <v-text-field
-              v-if="header.filterable && header.text === 'Serial'"
+              v-if="header.filterable && header.value === 'box_id'"
               v-model="filters[header.value]"
               :placeholder="header.text"
               solo
               hide-details="auto"
             />
             <v-text-field
-              v-if="header.filterable && header.text === 'Létrehozta'"
+              v-if="header.filterable && header.value === 'serial'"
+              v-model="filters[header.value]"
+              :placeholder="header.text"
+              solo
+              hide-details="auto"
+            />
+            <v-text-field
+              v-if="header.filterable && header.value === 'createdBy'"
               v-model="filters.createdBy"
               :placeholder="header.text"
               solo
               hide-details="auto"
             />
             <v-text-field
-              v-if="header.filterable && header.text === 'Létrehozva'"
+              v-if="header.filterable && header.value === 'createdAt'"
               v-model="filters.startCreatedAt"
               type="datetime-local"
               class="datetime"
-              label="Tól"
+              :label="$t('tasks.filters.fromCreatedAt')"
               hide-details="auto"
             />
             <v-text-field
-              v-if="header.filterable && header.text === 'Létrehozva'"
+              v-if="header.filterable && header.value === 'createdAt'"
               v-model="filters.endCreatedAt"
               type="datetime-local"
               class="datetime"
-              label="Ig"
+              :label="$t('tasks.filters.toCreatedAt')"
               hide-details="auto"
             />
           </td>
@@ -914,7 +906,10 @@ export default {
       navigator.clipboard
         .writeText(text)
         .then(() => {
-          this.showNotification('success', 'Szöveg másolva a vágólapra');
+          this.showNotification(
+            'success',
+            this.$t('tasks.table.copiedToClipboard')
+          );
         })
         .catch((err) => {
           this.showNotification('error', err);
@@ -1013,10 +1008,11 @@ export default {
         if (!response.success) {
           this.showNotification('error', response.message);
         } else {
-          this.$emit('bulkUpdateLockerData', response.data.payload);
           this.showNotification(
             'success',
-            ` ${this.selected.length} db kiválasztott elemek frissítése sikeres volt`
+            this.$t('tasks.table.bulkUpdateSuccess', {
+              count: this.selected.length
+            })
           );
           this.selected = [];
         }

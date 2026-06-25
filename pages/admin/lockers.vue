@@ -1,16 +1,25 @@
 <template>
   <div>
     <v-sheet elevation="1" outlined rounded class="mb-10 mt-8">
-      <v-card-title class="text-h5"> Szűrők </v-card-title>
+      <v-card-title class="text-h5">
+        {{ $t('lockers.filters') }}
+      </v-card-title>
       <LockerFiltersField :filters="filters" @update-filter="updateFilter" />
     </v-sheet>
     <v-sheet elevation="1" outlined rounded class="mb-4">
-      <v-card-title class="text-h5"> Automaták </v-card-title>
+      <v-card-title class="text-h5">
+        {{ $t('lockers.lockers') }}
+      </v-card-title>
       <v-card-subtitle class="text-body-2">
-        Összesen: {{ filteredLockers.length }} db
+        {{ $t('lockers.total') }} {{ filteredLockers.length }}
+        {{ $t('lockers.totalUnits') }}
       </v-card-subtitle>
       <v-col cols="12" sm="12" md="3" lg="2">
-        <v-select v-model="sortKey" :items="sortOptions" label="Rendezés" />
+        <v-select
+          v-model="sortKey"
+          :items="$t('lockers.sortOptions')"
+          :label="$t('lockers.order')"
+        />
       </v-col>
       <template v-if="isLoading">
         <v-sheet class="pa-3">

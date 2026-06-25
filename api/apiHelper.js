@@ -60,9 +60,60 @@ const API = axios.create({
   // }
 });
 
+const FALLBACK_LOCALE = 'hu';
+
+const getCurrentLocale = () => {
+  if (typeof window === 'undefined') {
+    return FALLBACK_LOCALE;
+  }
+
+  const appLocale = localStorage.getItem('appLocale');
+  if (appLocale) {
+    return appLocale;
+  }
+
+  const storedData = localStorage.getItem('data');
+  if (!storedData) {
+    return FALLBACK_LOCALE;
+  }
+
+  try {
+    const parsed = JSON.parse(storedData);
+    return parsed.locale || FALLBACK_LOCALE;
+  } catch (_error) {
+    return FALLBACK_LOCALE;
+  }
+};
+
+const withLocalePayload = (data) => {
+  const locale = getCurrentLocale();
+
+  if (data instanceof FormData) {
+    if (!data.has('locale')) {
+      data.append('locale', locale);
+    }
+    return data;
+  }
+
+  if (data && typeof data === 'object') {
+    if (Object.prototype.hasOwnProperty.call(data, 'locale')) {
+      return data;
+    }
+    return {
+      ...data,
+      locale
+    };
+  }
+
+  return {
+    value: data,
+    locale
+  };
+};
+
 export const APIPOST = async (endpoint, data, token, download) => {
   const url = config.apiUrl[endpoint];
-  return await API.post(url, data, {
+  return await API.post(url, withLocalePayload(data), {
     headers: {
       Authorization: `Bearer ${token}`
     },
@@ -72,7 +123,7 @@ export const APIPOST = async (endpoint, data, token, download) => {
 
 export const APIPOST2 = async (endpoint, data, token) => {
   const url = config.apiUrl[endpoint];
-  return await API.post(url, data, {
+  return await API.post(url, withLocalePayload(data), {
     headers: {
       'Content-Type': 'multipart/form-data',
       Authorization: `Bearer ${token}`
@@ -111,7 +162,7 @@ export const APIDELETE = async (endpoint, data, token) => {
 
 export const APIUPLOAD = async (endpoint, data, token) => {
   const url = config.apiUrl[endpoint];
-  return await API.post(url, data, {
+  return await API.post(url, withLocalePayload(data), {
     headers: {
       'Content-Type': 'multipart/form-data',
       Authorization: `Bearer ${token}`
