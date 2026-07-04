@@ -584,11 +584,14 @@ export const actions = {
   },
 
   async fetchTask(
-    { commit, rootState, state },
+    { commit, rootState, state, dispatch },
     { statusId, page, itemsPerPage, sortBy = null, sortDesc = false }
   ) {
     commit('SET_LOADING_STATUS', { statusId, isLoading: true });
+
     try {
+      await dispatch('fetchInitialData');
+
       const token = rootState.token;
       const result = await APIPOST(
         'getTask',
