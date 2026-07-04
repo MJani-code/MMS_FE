@@ -37,6 +37,8 @@
               :placeholder="header.text"
               hide-details="auto"
               multiple
+              @input="scheduleFilter(header.value)"
+              @blur="flushFilter(header.value)"
             />
             <v-select
               v-if="header.filterable && header.value === 'taskTypes'"
@@ -49,7 +51,8 @@
               :placeholder="header.text"
               hide-details="auto"
               multiple
-              @input="filter(header.value)"
+              @input="scheduleFilter(header.value)"
+              @blur="flushFilter(header.value)"
             />
             <v-text-field
               v-if="header.filterable && header.value === 'zip'"
@@ -57,7 +60,8 @@
               :placeholder="header.text"
               solo
               hide-details="auto"
-              @input="filter(header.value)"
+              @input="scheduleFilter(header.value)"
+              @blur="flushFilter(header.value)"
             />
             <v-text-field
               v-if="header.filterable && header.value === 'city'"
@@ -65,7 +69,8 @@
               :placeholder="header.text"
               solo
               hide-details="auto"
-              @input="filter(header.value)"
+              @input="scheduleFilter(header.value)"
+              @blur="flushFilter(header.value)"
             />
             <v-text-field
               v-if="header.filterable && header.value === 'address'"
@@ -73,7 +78,8 @@
               :placeholder="header.text"
               solo
               hide-details="auto"
-              @input="filter(header.value)"
+              @input="scheduleFilter(header.value)"
+              @blur="flushFilter(header.value)"
             />
             <v-select
               v-if="header.filterable && header.value === 'location_type'"
@@ -86,7 +92,8 @@
               :placeholder="header.text"
               hide-details="auto"
               multiple
-              @input="filter(header.value)"
+              @input="scheduleFilter(header.value)"
+              @blur="flushFilter(header.value)"
             />
             <v-text-field
               v-if="
@@ -97,7 +104,8 @@
               class="datetime"
               :label="$t('tasks.filters.fromPlanned')"
               hide-details="auto"
-              @input="filter(header.value + 'From')"
+              @input="scheduleFilter(header.value + 'From')"
+              @blur="flushFilter(header.value + 'From')"
             />
             <v-text-field
               v-if="
@@ -108,7 +116,8 @@
               class="datetime"
               :label="$t('tasks.filters.toPlanned')"
               hide-details="auto"
-              @input="filter(header.value + 'To')"
+              @input="scheduleFilter(header.value + 'To')"
+              @blur="flushFilter(header.value + 'To')"
             />
             <v-text-field
               v-if="header.filterable && header.value === 'delivery_date'"
@@ -117,7 +126,8 @@
               class="datetime"
               :label="$t('tasks.filters.fromActual')"
               hide-details="auto"
-              @input="filter(header.value + 'From')"
+              @input="scheduleFilter(header.value + 'From')"
+              @blur="flushFilter(header.value + 'From')"
             />
             <v-text-field
               v-if="header.filterable && header.value === 'delivery_date'"
@@ -126,7 +136,8 @@
               class="datetime"
               :label="$t('tasks.filters.toActual')"
               hide-details="auto"
-              @input="filter(header.value + 'To')"
+              @input="scheduleFilter(header.value + 'To')"
+              @blur="flushFilter(header.value + 'To')"
             />
             <v-select
               v-if="header.filterable && header.value === 'responsibles'"
@@ -139,7 +150,8 @@
               :placeholder="header.text"
               hide-details="auto"
               multiple
-              @input="filter(header.value)"
+              @input="scheduleFilter(header.value)"
+              @blur="flushFilter(header.value)"
             />
             <v-text-field
               v-if="header.filterable && header.value === 'tof_shop_id'"
@@ -147,7 +159,8 @@
               :placeholder="header.text"
               solo
               hide-details="auto"
-              @input="filter(header.value)"
+              @input="scheduleFilter(header.value)"
+              @blur="flushFilter(header.value)"
             />
             <v-text-field
               v-if="header.filterable && header.value === 'box_id'"
@@ -155,7 +168,8 @@
               :placeholder="header.text"
               solo
               hide-details="auto"
-              @input="filter(header.value)"
+              @input="scheduleFilter(header.value)"
+              @blur="flushFilter(header.value)"
             />
             <v-text-field
               v-if="header.filterable && header.value === 'serial'"
@@ -163,7 +177,8 @@
               :placeholder="header.text"
               solo
               hide-details="auto"
-              @input="filter(header.value)"
+              @input="scheduleFilter(header.value)"
+              @blur="flushFilter(header.value)"
             />
             <v-text-field
               v-if="header.filterable && header.value === 'createdBy'"
@@ -179,7 +194,8 @@
               class="datetime"
               :label="$t('tasks.filters.fromCreatedAt')"
               hide-details="auto"
-              @input="filter(header.value + 'From')"
+              @input="scheduleFilter(header.value + 'From')"
+              @blur="flushFilter(header.value + 'From')"
             />
             <v-text-field
               v-if="header.filterable && header.value === 'createdAt'"
@@ -188,7 +204,8 @@
               class="datetime"
               :label="$t('tasks.filters.toCreatedAt')"
               hide-details="auto"
-              @input="filter(header.value + 'To')"
+              @input="scheduleFilter(header.value + 'To')"
+              @blur="flushFilter(header.value + 'To')"
             />
           </td>
         </tr>
@@ -792,6 +809,8 @@ export default {
     return {
       serials: [],
       filters: {},
+      filterTimers: {},
+      lastSubmittedFilters: {},
       selected: [],
       taskFiles: [],
       filtersAccordion: [],
@@ -894,6 +913,8 @@ export default {
     window.addEventListener('resize', this.checkMobile);
   },
   beforeDestroy() {
+    Object.values(this.filterTimers).forEach((timer) => clearTimeout(timer));
+    this.filterTimers = {};
     window.removeEventListener('resize', this.checkMobile);
   },
   methods: {
@@ -924,24 +945,53 @@ export default {
         sortDesc: this.sortDesc
       });
     },
-    filter(headerValue) {
-      if (this.filters[headerValue] === '') {
-        console.log(this.statusId);
-        console.log(this.itemsPerPage);
-        //TODO: Ha a szűrő értéke üresre változik, akkor újra kell kérni az adatokat a backendtől, hogy a szűrés törlődjön
+    scheduleFilter(headerValue) {
+      if (this.filterTimers[headerValue]) {
+        clearTimeout(this.filterTimers[headerValue]);
       }
-      //setFilter
+
+      this.filterTimers[headerValue] = setTimeout(() => {
+        this.flushFilter(headerValue);
+      }, 2000);
+    },
+    flushFilter(headerValue) {
+      if (this.filterTimers[headerValue]) {
+        clearTimeout(this.filterTimers[headerValue]);
+        this.filterTimers[headerValue] = null;
+      }
+
+      const value = this.filters[headerValue] ?? '';
+      const hasLastSubmitted = Object.prototype.hasOwnProperty.call(
+        this.lastSubmittedFilters,
+        headerValue
+      );
+
+      if (!hasLastSubmitted && value === '') {
+        return;
+      }
+
+      if (
+        hasLastSubmitted &&
+        this.lastSubmittedFilters[headerValue] === value
+      ) {
+        return;
+      }
+
+      const targetPage = 1;
+      if (this.page !== targetPage) {
+        this.$emit('update:page', targetPage);
+      }
+
       this.$store.dispatch('task/tasks/setFilter', {
-        [headerValue]: this.filters[headerValue],
+        [headerValue]: value,
         statusId: this.statusId,
         itemsPerPage: this.itemsPerPage,
-        page: this.page,
+        page: targetPage,
         sortBy: this.sortBy,
         sortDesc: this.sortDesc
       });
 
-      //store filter kiíratása console-ra
-      console.log('Current filters:', this.$store.state.task.tasks.filters);
+      this.lastSubmittedFilters[headerValue] = value;
     },
     checkLockerCondition(locker) {
       if (
