@@ -3,6 +3,7 @@
     <v-data-table
       :loading="isLoading"
       v-model="selected"
+      :expanded.sync="expandedChildRows"
       :headers="headers"
       :items="tasks"
       :server-items-length="serverItemsLength"
@@ -11,6 +12,7 @@
       @update:page="$emit('update:page', $event)"
       @update:items-per-page="$emit('update:items-per-page', $event)"
       @update:options="handleOptionsUpdate"
+      @item-expanded="onItemExpanded($event, $event.item.box_id)"
       fixed-header
       show-expand
       show-select
@@ -720,6 +722,7 @@
       <template #expanded-item="{ item }">
         <TableExpandedField
           :item="item"
+          :is-expanded="true"
           :headers="headers"
           :taskTypes="taskTypes"
           :lockerSerials="lockerSerials"
@@ -822,7 +825,8 @@ export default {
           value.size < 20000000 ||
           'Avatar size should be less than 20 MB!'
       ],
-      isMobile: false
+      isMobile: false,
+      expandedChildRows: []
     };
   },
   computed: {
@@ -918,6 +922,16 @@ export default {
     window.removeEventListener('resize', this.checkMobile);
   },
   methods: {
+    onItemExpanded({ item, value }, boxId) {
+      //Ha expanded akkor lekéri a képeket, ha collapsed akkor nem kell
+      if (value === true && item?.lockers?.[0]?.brand === 'Direct4Me') {
+        this.$store.dispatch('task/tasks/getD4meLocationPhotos', {
+          boxId,
+          taskId: item?.id,
+          statusId: item?.status_exohu_id
+        });
+      }
+    },
     normalizeSortBy(value) {
       if (Array.isArray(value)) {
         return value.length ? value[0] : null;
