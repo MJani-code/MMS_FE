@@ -342,10 +342,14 @@ export default {
       this.newIntervention.uuid = this.locker.serial;
     },
     verifyLocker() {
-      this.$emit('verifyLocker', {
-        taskId: this.taskId,
-        data: this.locker
-      });
+      if (this.locker.brand === 'Direct4Me') {
+        this.$store.dispatch('task/tasks/verifyD4meLocker', this.locker);
+      } else {
+        this.$emit('verifyLocker', {
+          taskId: this.taskId,
+          data: this.locker
+        });
+      }
     },
     checkConnectionStatus() {
       const timestamp = this.locker.lastConnectionTimestamp;
