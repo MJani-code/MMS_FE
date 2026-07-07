@@ -324,18 +324,66 @@ export const mutations = {
     }
   },
 
-  ADD_TASK_PHOTO(state, { locationId, photoUrl }) {
-    const statusId = Object.keys(state.tasksByStatus).find((sId) =>
-      state.tasksByStatus[sId].some((t) => t.location_id === locationId)
-    );
-    const tasks = state.tasksByStatus[statusId];
+  ADD_TASK_PHOTO(state, { statusId, taskId, locationId, photoUrl }) {
+    const matchesLocation = (task) =>
+      String(task?.box_id) === String(locationId) ||
+      String(task?.location_id) === String(locationId);
+    const matchesTaskId = (task) => String(task?.id) === String(taskId);
+
+    const resolvedStatusId =
+      statusId !== undefined && statusId !== null
+        ? statusId
+        : taskId !== undefined && taskId !== null
+          ? Object.keys(state.tasksByStatus).find((sId) =>
+              state.tasksByStatus[sId].some(matchesTaskId)
+            )
+          : Object.keys(state.tasksByStatus).find((sId) =>
+              state.tasksByStatus[sId].some(matchesLocation)
+            );
+
+    const tasks = state.tasksByStatus[resolvedStatusId];
     if (tasks) {
-      const taskIndex = tasks.findIndex((t) => t.location_id === locationId);
+      const taskIndex =
+        taskId !== undefined && taskId !== null
+          ? tasks.findIndex(matchesTaskId)
+          : tasks.findIndex(matchesLocation);
       if (taskIndex !== -1) {
         const task = tasks[taskIndex];
-        const newPhotos = task.location_photos
-          ? [...task.location_photos, { url: photoUrl }]
-          : [{ url: photoUrl }];
+        const incomingPhotos = Array.isArray(photoUrl) ? photoUrl : [photoUrl];
+
+        const normalizedPhotos = incomingPhotos
+          .map((photo) => {
+            if (!photo) return null;
+            if (typeof photo === 'string') {
+              return { url: photo };
+            }
+            if (typeof photo === 'object') {
+              if (photo.url) return { url: photo.url };
+              if (photo.imagePath) return { url: photo.imagePath };
+            }
+            return null;
+          })
+          .filter(Boolean);
+
+        const existingPhotos = Array.isArray(task.location_photos)
+          ? task.location_photos
+          : [];
+        const existingUrls = new Set(
+          existingPhotos
+            .map((photo) => photo?.url)
+            .filter((url) => typeof url === 'string' && url.length > 0)
+        );
+
+        const uniqueNewPhotos = normalizedPhotos.filter((photo) => {
+          const url = photo?.url;
+          if (!url || existingUrls.has(url)) {
+            return false;
+          }
+          existingUrls.add(url);
+          return true;
+        });
+
+        const newPhotos = [...existingPhotos, ...uniqueNewPhotos];
         const updatedTask = { ...task, location_photos: newPhotos };
         tasks.splice(taskIndex, 1, updatedTask);
       }
@@ -688,6 +736,24 @@ export const actions = {
     }
   },
 
+  async getD4meLocationPhotos({ rootState, commit }, payload) {
+    const boxId = typeof payload === 'object' ? payload?.boxId : payload;
+    const taskId = typeof payload === 'object' ? payload?.taskId : null;
+    const statusId = typeof payload === 'object' ? payload?.statusId : null;
+
+    const token = rootState.token;
+    const d4meResult = await APIGET('getDirect4MeLocations', { boxId }, token);
+    const photos = d4meResult.data?.data?.[0]?.images?.images || [];
+    if (d4meResult.data.status === 200) {
+      commit('ADD_TASK_PHOTO', {
+        statusId,
+        taskId,
+        locationId: boxId,
+        photoUrl: photos.map((p) => p.imagePath)
+      });
+    }
+  },
+
   async setFilter({ commit }, payload) {
     try {
       if (payload && Object.prototype.hasOwnProperty.call(payload, 'key')) {
@@ -931,6 +997,7 @@ export const actions = {
   },
 
   async uploadMedia({ commit, rootState }, payload) {
+    commit('turnOnLoading', null, { root: true });
     try {
       const token = rootState.token;
       const formData = new FormData();
@@ -945,6 +1012,7 @@ export const actions = {
 
         commit('ADD_TASK_PHOTO', {
           statusId: payload.statusId,
+          taskId: payload.taskId,
           locationId: responsePayload.locationId,
           photoUrl: responsePayload.url
         });
@@ -963,6 +1031,8 @@ export const actions = {
         success: false,
         message: 'Hiba történt a fájl feltöltése során'
       };
+    } finally {
+      commit('turnOffLoading', null, { root: true });
     }
   },
 
@@ -1154,36 +1224,35 @@ export const actions = {
         message: 'Hiba történt a locker ellenőrzése során'
       };
     }
+  },
+
+  async verifyD4meLocker({ commit, rootState }, payload) {
+    try {
+      const token = rootState.token;
+      const result = await APIPOST('verifyD4meLocker', payload, token);
+
+      if (result.data.status === 200) {
+        const responsePayload = result.data.payload;
+
+        commit('UPDATE_TASK_LOCKER', {
+          taskId: payload.task_id,
+          lockerId: payload.id,
+          updates: responsePayload
+        });
+
+        return { success: true, data: result.data };
+      } else {
+        return { success: false, message: result.data.message };
+      }
+    } catch (error) {
+      console.error('Error verifying D4me locker:', error);
+      return {
+        success: false,
+        message: 'Hiba történt a D4me locker ellenőrzése során'
+      };
+    }
   }
 };
 
 // Helper function
-function enrichTasksWithLocationData(tasks, locations) {
-  tasks.forEach((task) => {
-    const location = locations.find((loc) => loc.id === task.box_id);
-    if (location) {
-      if (task.lockers && task.lockers.length > 0) {
-        task.lockers.forEach((locker) => {
-          locker['is_registered'] = 1;
-          locker['is_active'] = 1;
-        });
-      }
-      task['longitude'] = location.longitude;
-      task['latitude'] = location.latitude;
-
-      if (!task.location_photos) {
-        task.location_photos = [];
-      }
-
-      if (location.images?.images?.length > 0) {
-        const currentPhotos = task.location_photos.map((p) => p.url);
-        location.images.images.forEach((image) => {
-          if (image.imagePath && !currentPhotos.includes(image.imagePath)) {
-            task.location_photos.push({ url: image.imagePath });
-          }
-        });
-      }
-    }
-  });
-  return tasks;
-}
+function enrichTasksWithLocationData(boxId) {}
