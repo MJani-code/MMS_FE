@@ -26,6 +26,7 @@ export const config = {
     downloadTig: host + '/MMS_BE/api/task/downloadTig.php',
     downloadTasks: host + '/MMS_BE/api/task/downloadTasks.php',
     verifyLocker: host + '/MMS_BE/api/task/verifyLocker.php',
+    verifyD4meLocker: host + '/MMS_BE/api/task/d4me/verifyD4meLocker.php',
     getLockerFromLos: host + '/MMS_BE/api/task/getLockerFromLos.php',
     getDataForCreateTask: host + '/MMS_BE/api/task/getDataForCreateTask.php',
     createTask: host + '/MMS_BE/api/task/createTask.php',
