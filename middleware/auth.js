@@ -35,7 +35,8 @@ export default async function ({
         if (token) {
           const response = await APIPOST('auth', {
             token: token,
-            urlTo: route.path
+            urlTo: route.path,
+            locale: store.state.locale || 'hu'
           });
           if (response.data.status === 401 || response.data.status === 400) {
             //localStorage.removeItem('data'); // lejárt token törlése
