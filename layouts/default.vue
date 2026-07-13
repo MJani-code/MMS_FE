@@ -47,6 +47,7 @@
       <v-toolbar-title :style="{ color: 'white' }">MMS </v-toolbar-title>
       <v-spacer />
       <div class="d-flex align-center" style="gap: 20px">
+        <VersionSwitcher />
         <LanguageSwitcher :style="{ color: 'white' }" />
         <v-icon @click="$vuetify.theme.dark = !$vuetify.theme.dark">
           {{
@@ -82,6 +83,7 @@ import Modal from '../components/Modal.vue';
 import BounceLoader from '../components/BounceLoader.vue';
 import BellNotifications from '../components/BellNotifications.vue';
 import LanguageSwitcher from '../components/LanguageSwitcher.vue';
+import VersionSwitcher from '../components/VersionSwitcher.vue';
 
 export default {
   name: 'DefaultLayout',
@@ -90,7 +92,8 @@ export default {
     Modal,
     BounceLoader,
     BellNotifications,
-    LanguageSwitcher
+    LanguageSwitcher,
+    VersionSwitcher
   },
   data() {
     return {

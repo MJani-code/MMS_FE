@@ -40,12 +40,27 @@ export default {
   },
   router: {
     mode: 'history',
-    middleware: ['auth']
+    middleware: ['auth'],
+    extendRoutes(routes) {
+      const prefixedRoutes = routes
+        .filter((route) => route.path !== '/v1')
+        .map((route) => ({
+          ...route,
+          name: route.name ? `${route.name}-v1` : undefined,
+          path: route.path === '/' ? '/v1' : `/v1${route.path}`
+        }));
+
+      routes.push(...prefixedRoutes);
+    }
   },
 
   css: ['@/assets/styles.scss'],
 
-  plugins: ['~/plugins/broadcast.js', '~/plugins/i18n-sync.client.js'],
+  plugins: [
+    '~/plugins/broadcast.js',
+    '~/plugins/i18n-sync.client.js',
+    '~/plugins/version-sync.client.js'
+  ],
 
   // loading: '~/components/BounceLoader.vue',
 

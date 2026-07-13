@@ -11,7 +11,10 @@ export default async function ({
   route
 }) {
 
-  if (route.path === '/') {
+  const isV1Route = route.path === '/v1' || route.path.startsWith('/v1/');
+  const normalizedPath = (route.fullPath || route.path).replace(/^\/v1(?=\/|$)/, '') || '/';
+
+  if (normalizedPath === '/') {
     return;
   }
   // Adatok lekérése a localStorage-ból
@@ -35,12 +38,12 @@ export default async function ({
         if (token) {
           const response = await APIPOST('auth', {
             token: token,
-            urlTo: route.path,
+            urlTo: normalizedPath,
             locale: store.state.locale || 'hu'
           });
           if (response.data.status === 401 || response.data.status === 400) {
             //localStorage.removeItem('data'); // lejárt token törlése
-            return redirect('/');
+            return redirect(isV1Route ? '/v1' : '/');
           }
         }
 
@@ -55,7 +58,7 @@ export default async function ({
       }
     }
   } else {
-    return redirect('/');
+    return redirect(isV1Route ? '/v1' : '/');
   }
 
 }
