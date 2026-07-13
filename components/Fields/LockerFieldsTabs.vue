@@ -235,6 +235,10 @@ export default {
     taskId: {
       type: Number,
       required: true
+    },
+    boxId: {
+      type: Number,
+      required: false
     }
   },
   data: () => ({
@@ -343,7 +347,11 @@ export default {
     },
     verifyLocker() {
       if (this.locker.brand === 'Direct4Me') {
-        this.$store.dispatch('task/tasks/verifyD4meLocker', this.locker);
+        const lockerPayload = {
+          ...this.locker,
+          boxId: this.boxId
+        };
+        this.$store.dispatch('task/tasks/verifyD4meLocker', lockerPayload);
       } else {
         this.$emit('verifyLocker', {
           taskId: this.taskId,
