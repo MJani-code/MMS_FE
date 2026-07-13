@@ -3,6 +3,7 @@
     <FieldsLockerFieldsTabs
       :locker="locker"
       :taskId="taskId"
+      :boxId="boxId"
       @updateLockerData="$emit('updateLockerData', $event)"
       @verifyLocker="$emit('verifyLocker', $event)"
     />
@@ -19,6 +20,10 @@ export default {
     taskId: {
       type: Number,
       required: true
+    },
+    boxId: {
+      type: Number,
+      required: false
     }
   }
 };
