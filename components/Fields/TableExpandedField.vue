@@ -217,6 +217,7 @@
             <LockerField
               :locker="locker"
               :taskId="item.id"
+              :boxId="item.box_id"
               @verifyLocker="verifyLocker"
             />
           </v-col>
