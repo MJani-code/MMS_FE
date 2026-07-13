@@ -1232,7 +1232,7 @@ export const actions = {
       const result = await APIPOST('verifyD4meLocker', payload, token);
 
       if (result.data.status === 200) {
-        const responsePayload = result.data.payload;
+        const responsePayload = result.data.data;
 
         commit('UPDATE_TASK_LOCKER', {
           taskId: payload.task_id,
