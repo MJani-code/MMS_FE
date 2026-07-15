@@ -64,13 +64,13 @@ const resolveEndpointUrl = (endpoint) => {
   }
 
   if (version === 'v1') {
-    if (rawUrl.includes('/MMS_BE/api/v1/')) {
+    if (rawUrl.includes('/MMS_BE/v1/api/')) {
       return rawUrl;
     }
-    return rawUrl.replace('/MMS_BE/api/', '/MMS_BE/api/v1/');
+    return rawUrl.replace('/MMS_BE/api/', '/MMS_BE/v1/api/');
   }
 
-  return rawUrl.replace('/MMS_BE/api/v1/', '/MMS_BE/api/');
+  return rawUrl.replace('/MMS_BE/v1/api/', '/MMS_BE/api/');
 };
 
 const API = axios.create({
