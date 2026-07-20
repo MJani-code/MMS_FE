@@ -172,6 +172,7 @@ export default {
       general: 'General',
       statusCheckButton: 'Status check',
       lastConnection: 'Last connection time',
+      lastDelivery: 'Last delivery time',
       fault: 'Fault',
       selectIssue: 'Select issue',
       selectIntervention: 'Select intervention',
@@ -214,6 +215,7 @@ export default {
     list: {
       lockerStationId: 'LockerStationId',
       lastConnection: 'Last connection',
+      lastDelivery: 'Last delivery',
       version: 'Version',
       uuid: 'UUID',
       lockerStatus: 'Locker status',

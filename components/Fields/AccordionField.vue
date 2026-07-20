@@ -84,7 +84,6 @@ export default {
     ...mapGetters('task/tasks', ['getTasksForStatus', 'isStatusLoading']),
 
     loadedTasks() {
-      // Deep clone hogy ne módosítsuk közvetlenül a store state-t
       const tasks = this.getTasksForStatus(this.statusId);
       return JSON.parse(JSON.stringify(tasks));
     },
@@ -92,16 +91,6 @@ export default {
     isLoading() {
       return this.isStatusLoading(this.statusId);
     }
-  },
-  watch: {
-    // 'loadedTasks.length'(newLength) {
-    //   if (this.hasLoadedOnce) {
-    //     this.$emit('countChanged', {
-    //       statusId: this.statusId,
-    //       count: newLength
-    //     });
-    //   }
-    // }
   },
   methods: {
     handleHeaderClick() {
@@ -145,7 +134,6 @@ export default {
     },
 
     async handlePageChange(newPage) {
-      // v-data-table emits 1-based page numbers
       this.page = newPage;
       if (this.isExpanded) {
         await this.loadTasksForStatus();
@@ -253,7 +241,6 @@ export default {
     },
 
     bulkUpdateLockerData(data) {
-      // Tömeges frissítést továbbra is a szülő koordinálja
       this.$emit('bulkUpdateLockerData', { ...data, statusId: this.statusId });
     },
 

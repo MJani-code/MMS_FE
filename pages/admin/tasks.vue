@@ -130,42 +130,9 @@ export default {
     this.turnOffLoading();
   },
   methods: {
-    // searchedText(value) {
-    // },
     async fetchInitialData() {
       const result = await this.$store.dispatch('task/tasks/fetchInitialData');
     },
-    // handleTasksLoaded(payload) {
-    //   // Info célból, ha szükséges
-    // },
-    // handleCountChanged(payload) {
-    //   const { statusId, count } = payload;
-    //   this.$store.commit('task/tasks/UPDATE_STATUS_COUNT', { statusId, count });
-    // },
-    // objectContainsQuery(obj, query) {
-    //   // Ellenőrizzük az összes kulcsot és értéket
-    //   return Object.entries(obj).some(([key, value]) => {
-    //     if (Array.isArray(value)) {
-    //       // Ha a kulcs értéke tömb, rekurzívan végigmegyünk minden elemén
-    //       return value.some((item) =>
-    //         typeof item === 'object'
-    //           ? this.objectContainsQuery(item, query)
-    //           : String(item).toLowerCase().includes(query)
-    //       );
-    //     }
-    //     // Ha szöveges érték, alapértelmezett keresés
-    //     return String(value).toLowerCase().includes(query);
-    //   });
-    // },
-    // filteredTasks(searchedValue) {
-    //   if (searchedValue.key === 'tofShopIdFilter') {
-    //     this.selectedAdminFilter = searchedValue.value;
-    //   } else if (searchedValue.key === 'serialFilter') {
-    //     this.selectedSerialFilter = searchedValue.value;
-    //   } else if (searchedValue.key === 'search') {
-    //     this.searchText = searchedValue.value;
-    //   }
-    // },
     turnOnLoading() {
       this.$store.commit('turnOnLoading');
     },
@@ -223,109 +190,6 @@ export default {
       this.$store.commit('closeCreateTaskModal');
       this.turnOffLoading();
     },
-    // refreshOpenAccordions() {
-    //   Object.keys(this.$refs).forEach((refKey) => {
-    //     if (refKey.startsWith('accordion-')) {
-    //       const accordionRef = this.$refs[refKey];
-    //       if (accordionRef && accordionRef[0] && accordionRef[0].isExpanded) {
-    //         accordionRef[0].refreshTasks();
-    //       }
-    //     }
-    //   });
-    // },
-    // async handleStatusChange(payload) {
-    //   const { taskId, oldStatusId, newStatusId, color, status_exohu } = payload;
-
-    //   // Megkeressük a task-ot a store-ban
-    //   const tasks =
-    //     this.$store.state.task.tasks.tasksByStatus[oldStatusId] || [];
-    //   const task = tasks.find((t) => t.id === taskId);
-
-    //   if (task) {
-    //     // Frissítjük a task adatait
-    //     const updatedTask = {
-    //       ...task,
-    //       status_exohu_id: newStatusId,
-    //       status_color: color,
-    //       status_exohu: status_exohu
-    //     };
-
-    //     // Store mutation-nel mozgatjuk a task-ot (ez frissíti a számlálókat is)
-    //     this.$store.commit('task/tasks/MOVE_TASK_TO_STATUS', {
-    //       taskId,
-    //       fromStatusId: oldStatusId,
-    //       toStatusId: newStatusId,
-    //       updatedTask
-    //     });
-
-    //     // Ha az új accordion már be van töltve, frissítjük
-    //     this.$nextTick(() => {
-    //       const newAccordionRef = this.$refs[`accordion-${newStatusId}`];
-    //       if (newAccordionRef && newAccordionRef[0]) {
-    //         const newAccordion = newAccordionRef[0];
-    //         if (newAccordion.isExpanded && newAccordion.hasLoadedOnce) {
-    //           newAccordion.refreshTasks();
-    //         }
-    //       }
-    //     });
-    //   }
-    // },
-    // async handleBulkUpdateLockerData(payload) {
-    //   const taskIds = payload.taskIds;
-    //   const column = payload.column;
-    //   const value = payload.value;
-    //   const oldStatusId = payload.statusId;
-
-    //   // Ha státusz változott tömeges művelettel
-    //   if (column == 'status_by_exohu_id' && oldStatusId !== value) {
-    //     // Store-ban eltávolítjuk a taskokat (ez frissíti a számlálót is)
-    //     this.$store.commit('task/tasks/REMOVE_TASKS_FROM_STATUS', {
-    //       statusId: oldStatusId,
-    //       taskIds: taskIds
-    //     });
-
-    //     // Frissítjük az új státuszú accordion-t ha már be van töltve
-    //     this.$nextTick(() => {
-    //       const newAccordionRef = this.$refs[`accordion-${value}`];
-    //       if (newAccordionRef && newAccordionRef[0]) {
-    //         const newAccordion = newAccordionRef[0];
-    //         if (newAccordion.isExpanded && newAccordion.hasLoadedOnce) {
-    //           newAccordion.refreshTasks();
-    //         }
-    //       }
-    //     });
-    //   }
-    // },
-    // async handleDownloadTig(payload) {
-    //   try {
-    //     const response = await this.downloadTig(payload);
-
-    //     const url = window.URL.createObjectURL(new Blob([response.data]));
-    //     const link = document.createElement('a');
-    //     link.href = url;
-    //     link.setAttribute('download', 'tig.xlsx');
-    //     document.body.appendChild(link);
-    //     link.click();
-    //     document.body.removeChild(link);
-    //   } catch (error) {
-    //     this.showNotification('error', error);
-    //   }
-    // },
-    // async handleDownloadTasks(payload) {
-    //   try {
-    //     const response = await this.downloadTasks(payload);
-
-    //     const url = window.URL.createObjectURL(new Blob([response.data]));
-    //     const link = document.createElement('a');
-    //     link.href = url;
-    //     link.setAttribute('download', 'completedtasks.xlsx');
-    //     document.body.appendChild(link);
-    //     link.click();
-    //     document.body.removeChild(link);
-    //   } catch (error) {
-    //     this.showNotification('error', error);
-    //   }
-    // },
     showNotification($type, $message) {
       this.$store.dispatch('notification/addNotification', {
         type: $type,

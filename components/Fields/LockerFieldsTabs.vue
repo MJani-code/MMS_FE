@@ -35,12 +35,18 @@
               <v-icon color="success">{{ locker.currentVersion }}</v-icon>
             </div>
             <br />
-            <v-list-item-title class="ml-2"
+            <v-list-item-title v-if="locker.brand !== 'Direct4Me'" class="ml-2"
               >{{ $t('tasks.lockerTabs.lastConnection') }}:
               <span
                 :class="isConnectionLost ? 'error--text' : 'success--text'"
                 >{{ formattedLastConnectionTimestamp }}</span
               >
+            </v-list-item-title>
+            <v-list-item-title v-else class="ml-2"
+              >{{ $t('tasks.lockerTabs.lastDelivery') }}:
+              <span class="success--text">{{
+                formattedLastConnectionTimestamp
+              }}</span>
             </v-list-item-title>
             <br />
             <v-col cols="12" sm="6" md="6" lg="5" xl="5">

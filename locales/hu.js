@@ -173,6 +173,7 @@ export default {
       general: 'Általános',
       statusCheckButton: 'Állapot ellenőrző',
       lastConnection: 'Utolsó csatlakozási idő',
+      lastDelivery: 'Utolsó kézbesítési idő',
       fault: 'Hiba',
       selectIssue: 'Hiba kiválasztása',
       selectIntervention: 'Beavatkozás kiválasztása',
@@ -215,6 +216,7 @@ export default {
     list: {
       lockerStationId: 'LockerStationId',
       lastConnection: 'Utolsó csatlakozás',
+      lastDelivery: 'Utolsó kézbesítés',
       version: 'Verzió',
       uuid: 'UUID',
       lockerStatus: 'Locker állapot',

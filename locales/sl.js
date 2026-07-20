@@ -171,6 +171,7 @@ export default {
       general: 'Splošno',
       statusCheckButton: 'Preveri stanje',
       lastConnection: 'Zadnji cas povezave',
+      lastDelivery: 'Zadnja kèzbesitev',
       fault: 'Napaka',
       selectIssue: 'Izberi napako',
       selectIntervention: 'Izberi poseg',
@@ -213,6 +214,7 @@ export default {
     list: {
       lockerStationId: 'LockerStationId',
       lastConnection: 'Zadnja povezava',
+      lastDelivery: 'Zadnja kèzbesitev',
       version: 'Verzija',
       uuid: 'UUID',
       lockerStatus: 'Stanje omarice',
