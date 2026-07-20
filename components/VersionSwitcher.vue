@@ -14,11 +14,7 @@
 </template>
 
 <script>
-import {
-  applyVersionPrefix,
-  getStoredVersion,
-  setStoredVersion
-} from '@/utils/versioning';
+import { getStoredVersion, setStoredVersion } from '@/utils/versioning';
 
 export default {
   name: 'VersionSwitcher',
@@ -38,11 +34,36 @@ export default {
   },
 
   methods: {
+    redirectToV1Subdomain() {
+      if (typeof window === 'undefined') {
+        return;
+      }
+
+      const { protocol, hostname, port, pathname, search, hash } =
+        window.location;
+      const parts = hostname.split('.');
+      const hasSubdomain = parts.length > 2;
+      const currentSubdomain = hasSubdomain ? parts[0] : '';
+
+      let targetSubdomain = 'v1';
+      if (currentSubdomain === 'dev') {
+        targetSubdomain = 'dev-v1';
+      }
+
+      const targetHostname = hasSubdomain
+        ? [targetSubdomain, ...parts.slice(1)].join('.')
+        : [targetSubdomain, ...parts].join('.');
+      const targetPort = port ? `:${port}` : '';
+      const targetUrl = `${protocol}//${targetHostname}${targetPort}${pathname}${search}${hash}`;
+
+      window.location.assign(targetUrl);
+    },
+
     onVersionChange(version) {
       setStoredVersion(version);
-      const targetPath = applyVersionPrefix(this.$route.fullPath, version);
-      if (targetPath !== this.$route.fullPath) {
-        this.$router.replace(targetPath);
+
+      if (version === 'v1') {
+        this.redirectToV1Subdomain();
       }
     }
   }

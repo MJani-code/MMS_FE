@@ -11,8 +11,7 @@ export default async function ({
   route
 }) {
 
-  const isV1Route = route.path === '/v1' || route.path.startsWith('/v1/');
-  const normalizedPath = (route.fullPath || route.path).replace(/^\/v1(?=\/|$)/, '') || '/';
+  const normalizedPath = route.fullPath || route.path;
 
   if (normalizedPath === '/') {
     return;
@@ -43,7 +42,7 @@ export default async function ({
           });
           if (response.data.status === 401 || response.data.status === 400) {
             //localStorage.removeItem('data'); // lejárt token törlése
-            return redirect(isV1Route ? '/v1' : '/');
+            return redirect('/');
           }
         }
 
@@ -58,7 +57,7 @@ export default async function ({
       }
     }
   } else {
-    return redirect(isV1Route ? '/v1' : '/');
+    return redirect('/');
   }
 
 }

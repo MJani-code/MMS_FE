@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { getStoredVersion } from '@/utils/versioning';
 
 let host = '';
 if (window.location.hostname === 'localhost') {
@@ -53,24 +52,6 @@ export const config = {
     getInitialData: host + '/MMS_BE/api/task/getInitialData.php',
     getTask: host + '/MMS_BE/api/task/getTask.php'
   }
-};
-
-const resolveEndpointUrl = (endpoint) => {
-  const rawUrl = config.apiUrl[endpoint];
-  const version = getStoredVersion();
-
-  if (!rawUrl || typeof rawUrl !== 'string') {
-    return rawUrl;
-  }
-
-  if (version === 'v1') {
-    if (rawUrl.includes('/MMS_BE/v1/api/')) {
-      return rawUrl;
-    }
-    return rawUrl.replace('/MMS_BE/api/', '/MMS_BE/v1/api/');
-  }
-
-  return rawUrl.replace('/MMS_BE/v1/api/', '/MMS_BE/api/');
 };
 
 const API = axios.create({
@@ -133,7 +114,7 @@ const withLocalePayload = (data) => {
 };
 
 export const APIPOST = async (endpoint, data, token, download) => {
-  const url = resolveEndpointUrl(endpoint);
+  const url = config.apiUrl[endpoint];
   return await API.post(url, withLocalePayload(data), {
     headers: {
       Authorization: `Bearer ${token}`
@@ -143,7 +124,7 @@ export const APIPOST = async (endpoint, data, token, download) => {
 };
 
 export const APIPOST2 = async (endpoint, data, token) => {
-  const url = resolveEndpointUrl(endpoint);
+  const url = config.apiUrl[endpoint];
   return await API.post(url, withLocalePayload(data), {
     headers: {
       'Content-Type': 'multipart/form-data',
@@ -153,7 +134,7 @@ export const APIPOST2 = async (endpoint, data, token) => {
 };
 
 export const APIGET = async (endpoint, params, token) => {
-  const url = resolveEndpointUrl(endpoint);
+  const url = config.apiUrl[endpoint];
   return await API.get(url, {
     headers: {
       Authorization: `Bearer ${token}`
@@ -163,7 +144,7 @@ export const APIGET = async (endpoint, params, token) => {
 };
 
 export const APIPUT = async (endpoint, data, token) => {
-  const url = resolveEndpointUrl(endpoint);
+  const url = config.apiUrl[endpoint];
   return await API.put(url, data, {
     headers: {
       Authorization: `Bearer ${token}`
@@ -172,7 +153,7 @@ export const APIPUT = async (endpoint, data, token) => {
 };
 
 export const APIDELETE = async (endpoint, data, token) => {
-  const url = resolveEndpointUrl(endpoint);
+  const url = config.apiUrl[endpoint];
   return await API.delete(url, {
     headers: {
       Authorization: `Bearer ${token}`
@@ -182,7 +163,7 @@ export const APIDELETE = async (endpoint, data, token) => {
 };
 
 export const APIUPLOAD = async (endpoint, data, token) => {
-  const url = resolveEndpointUrl(endpoint);
+  const url = config.apiUrl[endpoint];
   return await API.post(url, withLocalePayload(data), {
     headers: {
       'Content-Type': 'multipart/form-data',
@@ -192,7 +173,7 @@ export const APIUPLOAD = async (endpoint, data, token) => {
 };
 
 export const APIDOWNLOAD = async (endpoint, token) => {
-  const url = resolveEndpointUrl(endpoint);
+  const url = config.apiUrl[endpoint];
   return await API.get(url, {
     headers: {
       Authorization: `Bearer ${token}`

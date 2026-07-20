@@ -70,13 +70,14 @@
     <v-footer :absolute="!fixed" app>
       <span
         >&copy; {{ new Date().getFullYear() }} BY: Martolin. Version:
-        1.0.4</span
+        {{ projectVersion }}</span
       >
     </v-footer>
   </v-app>
 </template>
 
 <script>
+import packageJson from '../package.json';
 import { routers } from '@/routers/routers.js';
 import Notification from '../components/Notification.vue';
 import Modal from '../components/Modal.vue';
@@ -105,6 +106,7 @@ export default {
       miniVariant: false,
       right: true,
       rightDrawer: false,
+      projectVersion: packageJson.version,
       firstName: this.$store.state.firstName,
       userId: this.$store.state.userId,
       showConfirmLogoutModal: false
