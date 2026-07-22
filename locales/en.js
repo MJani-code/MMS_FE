@@ -190,7 +190,8 @@ export default {
       issues: 'Issues',
       usedParts: 'Used parts',
       description: 'Description',
-      delete: 'Delete'
+      delete: 'Delete',
+      deleteConfirm: 'Are you sure you want to delete the intervention?'
     }
   },
   lockers: {

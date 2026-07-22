@@ -99,7 +99,10 @@ export default {
         this.isExpanded = willBeExpanded;
 
         // Load tasks only when the accordion is opened (lazy load per panel).
-        if (willBeExpanded) {
+        if (
+          willBeExpanded &&
+          !this.$store.getters['task/tasks/getFilters'].searchText
+        ) {
           this.loadTasksForStatus();
         }
       });

@@ -35,19 +35,21 @@ export const actions = {
     commit('setInterventions', res.data.payload.interventions);
   },
 
-  async deleteIntervention({ dispatch, commit }, data) {
+  async deleteIntervention({ dispatch, rootState }, data) {
+    const translate = this.app.i18n.t.bind(this.app.i18n);
+
     dispatch(
       'notification/showModal',
       {
-        message: 'Biztosan törlöd a beavatkozást?',
+        message: translate('tasks.repairReports.deleteConfirm'),
         buttons: [
           {
-            text: 'Mégse',
+            text: translate('common.cancel'),
             style: 'secondary',
             action: () => dispatch('notification/hideModal', {}, { root: true })
           },
           {
-            text: 'Igen',
+            text: translate('common.yes'),
             style: 'primary',
             action: () =>
               dispatch('locker/repair/confirmDeleteIntervention', data, {
@@ -68,7 +70,7 @@ export const actions = {
       dispatch(
         'notification/addNotification',
         {
-          message: 'Beavatkozás sikeresen törölve.',
+          message: res.data.message || 'Hiba történt a törlés során.',
           type: 'success'
         },
         { root: true }
@@ -115,7 +117,7 @@ export const actions = {
       dispatch(
         'notification/addNotification',
         {
-          message: 'Beavatkozás sikeresen hozzáadva.',
+          message: res.data.message || 'Hiba történt a hozzáadás során.',
           type: 'success'
         },
         { root: true }

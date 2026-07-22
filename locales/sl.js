@@ -189,7 +189,8 @@ export default {
       issues: 'Napake',
       usedParts: 'Uporabljeni deli',
       description: 'Opis',
-      delete: 'Izbrisi'
+      delete: 'Izbrisi',
+      deleteConfirm: 'Ali res zelite izbrisati poseg?'
     }
   },
   lockers: {

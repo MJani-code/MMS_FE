@@ -191,7 +191,8 @@ export default {
       issues: 'Hibák',
       usedParts: 'Felhasznált alkatrészek',
       description: 'Leírás',
-      delete: 'Törlés'
+      delete: 'Törlés',
+      deleteConfirm: 'Biztosan törlöd a beavatkozást?'
     }
   },
   lockers: {
