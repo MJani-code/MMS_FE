@@ -186,9 +186,6 @@ export default {
       } catch (error) {
         this.showNotification('error', error.message || error);
       }
-
-      this.$store.commit('closeCreateTaskModal');
-      this.turnOffLoading();
     },
     showNotification($type, $message) {
       this.$store.dispatch('notification/addNotification', {

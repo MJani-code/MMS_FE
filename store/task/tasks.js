@@ -106,9 +106,6 @@ export const state = () => ({
 
 export const getters = {
   getServerItemLength: (state) => (statusId) => {
-    if (!state.serverItemLengthByStatus[statusId]) {
-      return state.serverItemLengthByStatus;
-    }
     return state.serverItemLengthByStatus[statusId]?.count || 0;
   },
 
@@ -148,10 +145,26 @@ export const mutations = {
       return;
     }
 
-    if (!state.serverItemLengthByStatus[statusId]) {
-      state.serverItemLengthByStatus[statusId] = { count: 0 };
+    const normalizedStatusId = String(statusId);
+    const nextCount = Number(data.count) || 0;
+
+    state.serverItemLengthByStatus = {
+      ...state.serverItemLengthByStatus,
+      [normalizedStatusId]: {
+        ...(state.serverItemLengthByStatus[normalizedStatusId] || {}),
+        count: nextCount
+      }
+    };
+
+    if (state.statusGroups[normalizedStatusId]) {
+      state.statusGroups = {
+        ...state.statusGroups,
+        [normalizedStatusId]: {
+          ...state.statusGroups[normalizedStatusId],
+          count: nextCount
+        }
+      };
     }
-    state.serverItemLengthByStatus[statusId].count = data.count || 0;
   },
 
   SET_SEARCH_TEXT(state, text) {
@@ -537,27 +550,28 @@ export const mutations = {
     }
   },
 
-  // UPDATE_STATUS_COUNT(state, { statusId, count, direction }) {
-  //   if (direction == 'plus') {
-  //     if (state.serverItemLengthByStatus[statusId]) {
-  //       state.serverItemLengthByStatus[statusId].count =
-  //         (state.serverItemLengthByStatus[statusId].count || 0) + 1;
-  //     }
-  //     return;
-  //   }
-  //   if (direction == 'minus') {
-  //     if (state.serverItemLengthByStatus[statusId]) {
-  //       state.serverItemLengthByStatus[statusId].count = Math.max(
-  //         0,
-  //         (state.serverItemLengthByStatus[statusId].count || 0) - 1
-  //       );
-  //     }
-  //     return;
-  //   }
-  //   if (state.serverItemLengthByStatus[statusId] && typeof count === 'number') {
-  //     state.serverItemLengthByStatus[statusId].count = count;
-  //   }
-  // },
+  UPDATE_STATUS_COUNT(state, { statusId, count }) {
+    const normalizedStatusId = String(statusId);
+    const nextCount = Number(count) || 0;
+
+    state.serverItemLengthByStatus = {
+      ...state.serverItemLengthByStatus,
+      [normalizedStatusId]: {
+        ...(state.serverItemLengthByStatus[normalizedStatusId] || {}),
+        count: nextCount
+      }
+    };
+
+    if (state.statusGroups[normalizedStatusId]) {
+      state.statusGroups = {
+        ...state.statusGroups,
+        [normalizedStatusId]: {
+          ...state.statusGroups[normalizedStatusId],
+          count: nextCount
+        }
+      };
+    }
+  },
 
   SET_EXPANDED_ACCORDIONS(state, indices) {
     state.expandedAccordions = Array.isArray(indices) ? indices : [];
@@ -638,7 +652,9 @@ export const actions = {
     commit('SET_LOADING_STATUS', { statusId, isLoading: true });
 
     try {
-      await dispatch('fetchInitialData');
+      if (!state.filters.searchText) {
+        await dispatch('fetchInitialData');
+      }
 
       const token = rootState.token;
       const result = await APIPOST(
@@ -656,16 +672,12 @@ export const actions = {
 
       if (result.data.status === 200) {
         let tasks = result.data.data || [];
-
-        // D4ME lokációk adatainak betöltése
-        // const d4meResult = await APIGET('getDirect4MeLocations', null, token);
-        // if (d4meResult.data.status === 200) {
-        //   const locations = d4meResult.data.data;
-        //   tasks = enrichTasksWithLocationData(tasks, locations);
-        // }
+        let taskCount = result.data.pagination['totalCount'];
 
         if (statusId !== null && statusId !== undefined) {
           commit('SET_TASKS_FOR_STATUS', { statusId, tasks });
+
+          commit('UPDATE_STATUS_COUNT', { statusId, count: taskCount });
         }
 
         return { success: true, tasks };
@@ -827,10 +839,13 @@ export const actions = {
   },
 
   async uploadBatchTasks({ dispatch }, payload) {
+    if (payload && typeof payload === 'object' && !payload.locale) {
+      payload.locale = this.state.locale || 'hu';
+    }
     return await dispatch('createTaskBatch', payload);
   },
 
-  async createTask({ dispatch, rootState }, payload) {
+  async createTask({ dispatch, commit, rootState }, payload) {
     try {
       const token = rootState.token;
       const locale = rootState.locale || 'hu';
@@ -855,8 +870,11 @@ export const actions = {
       console.error('Error creating task:', error);
       return {
         success: false,
-        message: 'Hiba történt a feladat létrehozása során'
+        message: 'Error occurred while creating the task'
       };
+    } finally {
+      commit('closeCreateTaskModal', null, { root: true });
+      commit('turnOffLoading', null, { root: true });
     }
   },
 
