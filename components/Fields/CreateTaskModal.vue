@@ -234,10 +234,10 @@ export default {
         return;
       } else {
         this.createTask(this.data);
-        //making form empty
-        this.$refs.createTask.reset();
-        this.data.lockers = [];
-        this.selectedLockers = [];
+        // //making form empty
+        // this.$refs.createTask.reset();
+        // this.data.lockers = [];
+        // this.selectedLockers = [];
       }
     },
     createTask() {
