@@ -58,6 +58,10 @@ export default {
       menu: 'Letöltés',
       newPoints: 'Új pontok letöltése'
     },
+    downloadError: 'Hiba történt a megbízások letöltése során.',
+    tig: {
+      downloadError: 'Hiba történt a TIG fájl letöltése során.'
+    },
     addTask: {
       menu: 'Új hozzáadása',
       loadLocations: 'Helyszínek betöltése',
