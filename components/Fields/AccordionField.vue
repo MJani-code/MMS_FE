@@ -247,12 +247,26 @@ export default {
       this.$emit('bulkUpdateLockerData', { ...data, statusId: this.statusId });
     },
 
-    downloadTig(data) {
-      this.$emit('downloadTig', { ...data, statusId: this.statusId });
+    async downloadTig(data) {
+      const result = await this.$store.dispatch('task/tasks/downloadTig', {
+        ...data,
+        statusId: this.statusId
+      });
+
+      if (!result.success) {
+        this.showNotification('error', result.message);
+      }
     },
 
-    downloadTasks(data) {
-      this.$emit('downloadTasks', { ...data, statusId: this.statusId });
+    async downloadTasks(data) {
+      const result = await this.$store.dispatch('task/tasks/downloadTasks', {
+        ...data,
+        statusId: this.statusId
+      });
+
+      if (!result.success) {
+        this.showNotification('error', result.message);
+      }
     },
 
     async verifyLocker(payload) {

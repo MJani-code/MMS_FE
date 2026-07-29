@@ -1,5 +1,12 @@
 // store/task/tasks.js
-import { APIGET, APIPOST, APIPOST2, APIPUT, APIDELETE } from '@/api/apiHelper';
+import {
+  APIGET,
+  APIPOST,
+  APIPOST2,
+  APIPUT,
+  APIDELETE,
+  APIDOWNLOAD
+} from '@/api/apiHelper';
 
 const FALLBACK_LOCALE = 'hu';
 
@@ -1267,6 +1274,111 @@ export const actions = {
       return {
         success: false,
         message: 'Hiba történt a D4me locker ellenőrzése során'
+      };
+    }
+  },
+
+  async downloadTig({ rootState }, payload = {}) {
+    try {
+      const translate = this.app.i18n.t.bind(this.app.i18n);
+      const token = rootState.token;
+      const response = await APIDOWNLOAD('downloadTig', token);
+
+      if (typeof window !== 'undefined') {
+        const responseData = response?.data;
+        const blob =
+          responseData instanceof Blob
+            ? responseData
+            : new Blob([responseData], {
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+              });
+
+        const contentDisposition =
+          response?.headers?.['content-disposition'] ||
+          response?.headers?.['Content-Disposition'] ||
+          '';
+        const fileNameMatch = contentDisposition.match(
+          /filename\*=UTF-8''([^;]+)|filename="?([^";]+)"?/
+        );
+        const fileName = decodeURIComponent(
+          payload.fileName ||
+            fileNameMatch?.[1] ||
+            fileNameMatch?.[2] ||
+            'tig.xlsx'
+        );
+
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.setAttribute('download', fileName);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(downloadUrl);
+      }
+
+      return {
+        success: true,
+        data: response,
+        payload
+      };
+    } catch (error) {
+      console.error('Error downloading TIG:', error);
+      return {
+        success: false,
+        message: 'Hiba történt a TIG letöltése során'
+      };
+    }
+  },
+
+  async downloadTasks({ rootState }, payload = {}) {
+    try {
+      const token = rootState.token;
+      const response = await APIDOWNLOAD('downloadTasks', token);
+
+      if (typeof window !== 'undefined') {
+        const responseData = response?.data;
+        const blob =
+          responseData instanceof Blob
+            ? responseData
+            : new Blob([responseData], {
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+              });
+
+        const contentDisposition =
+          response?.headers?.['content-disposition'] ||
+          response?.headers?.['Content-Disposition'] ||
+          '';
+        const fileNameMatch = contentDisposition.match(
+          /filename\*=UTF-8''([^;]+)|filename="?([^";]+)"?/
+        );
+        const fileName = decodeURIComponent(
+          payload.fileName ||
+            fileNameMatch?.[1] ||
+            fileNameMatch?.[2] ||
+            'tasks.xlsx'
+        );
+
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.setAttribute('download', fileName);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(downloadUrl);
+      }
+
+      return {
+        success: true,
+        data: response,
+        payload
+      };
+    } catch (error) {
+      console.error('Error downloading tasks:', error);
+      return {
+        success: false,
+        message: 'Hiba történt a taskok letöltése során'
       };
     }
   }
