@@ -13,6 +13,8 @@ export const config = {
     logout: host + '/MMS_BE/api/logout.php',
     auth: host + '/MMS_BE/api/auth.php',
     getAllTask: host + '/MMS_BE/api/task/getAllTask.php',
+    getTaskStatuses: host + '/MMS_BE/api/task/getTaskStatuses.php',
+    getTasksByStatus: host + '/MMS_BE/api/task/getTasksByStatus.php',
     updateTask: host + '/MMS_BE/api/task/updateTask.php',
     addFee: host + '/MMS_BE/api/task/addFee.php',
     addLocker: host + '/MMS_BE/api/task/addLocker.php',
@@ -24,6 +26,7 @@ export const config = {
     downloadTig: host + '/MMS_BE/api/task/downloadTig.php',
     downloadTasks: host + '/MMS_BE/api/task/downloadTasks.php',
     verifyLocker: host + '/MMS_BE/api/task/verifyLocker.php',
+    verifyD4meLocker: host + '/MMS_BE/api/task/d4me/verifyD4meLocker.php',
     getLockerFromLos: host + '/MMS_BE/api/task/getLockerFromLos.php',
     getDataForCreateTask: host + '/MMS_BE/api/task/getDataForCreateTask.php',
     createTask: host + '/MMS_BE/api/task/createTask.php',
@@ -32,6 +35,8 @@ export const config = {
     addIntervention: host + '/MMS_BE/api/task/addIntervention.php',
     deleteIntervention: host + '/MMS_BE/api/task/deleteIntervention.php',
     Locations_GetCountryPublicLocations:
+      host + '/MMS_BE/api/task/d4me/Locations_GetCountryPublicLocations.php',
+    getDirect4MeLocations:
       host + '/MMS_BE/api/task/d4me/Locations_GetCountryPublicLocations.php',
     downloadNewPoints: host + '/MMS_BE/api/task/downloadNewPoints.php',
     downloadNotifications:
@@ -43,9 +48,12 @@ export const config = {
     updatePartInStock: host + '/MMS_BE/api/parts/updatePartInStock.php',
     getPartsHistory: host + '/MMS_BE/api/parts/getPartsHistory.php',
     updateTaskInBatch: host + '/MMS_BE/api/task/updateTaskInBatch.php',
-    uploadMedia: host + '/MMS_BE/api/task/uploadMedia.php'
+    uploadMedia: host + '/MMS_BE/api/task/uploadMedia.php',
+    getInitialData: host + '/MMS_BE/api/task/getInitialData.php',
+    getTask: host + '/MMS_BE/api/task/getTask.php'
   }
 };
+
 const API = axios.create({
   // baseURL: process.env.API_URL ?? 'http://',
   timeout: 20000
@@ -54,9 +62,60 @@ const API = axios.create({
   // }
 });
 
+const FALLBACK_LOCALE = 'hu';
+
+const getCurrentLocale = () => {
+  if (typeof window === 'undefined') {
+    return FALLBACK_LOCALE;
+  }
+
+  const appLocale = localStorage.getItem('appLocale');
+  if (appLocale) {
+    return appLocale;
+  }
+
+  const storedData = localStorage.getItem('data');
+  if (!storedData) {
+    return FALLBACK_LOCALE;
+  }
+
+  try {
+    const parsed = JSON.parse(storedData);
+    return parsed.locale || FALLBACK_LOCALE;
+  } catch (_error) {
+    return FALLBACK_LOCALE;
+  }
+};
+
+const withLocalePayload = (data) => {
+  const locale = getCurrentLocale();
+
+  if (data instanceof FormData) {
+    if (!data.has('locale')) {
+      data.append('locale', locale);
+    }
+    return data;
+  }
+
+  if (data && typeof data === 'object') {
+    if (Object.prototype.hasOwnProperty.call(data, 'locale')) {
+      return data;
+    }
+    return {
+      ...data,
+      locale
+    };
+  }
+
+  return {
+    value: data,
+    locale
+  };
+};
+
 export const APIPOST = async (endpoint, data, token, download) => {
   const url = config.apiUrl[endpoint];
-  return await API.post(url, data, {
+  return await API.post(url, withLocalePayload(data), {
     headers: {
       Authorization: `Bearer ${token}`
     },
@@ -66,7 +125,7 @@ export const APIPOST = async (endpoint, data, token, download) => {
 
 export const APIPOST2 = async (endpoint, data, token) => {
   const url = config.apiUrl[endpoint];
-  return await API.post(url, data, {
+  return await API.post(url, withLocalePayload(data), {
     headers: {
       'Content-Type': 'multipart/form-data',
       Authorization: `Bearer ${token}`
@@ -84,17 +143,28 @@ export const APIGET = async (endpoint, params, token) => {
   });
 };
 
-export const APIPUT = async (url, data) => {
-  return await API.put(url, data);
+export const APIPUT = async (endpoint, data, token) => {
+  const url = config.apiUrl[endpoint];
+  return await API.put(url, data, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
 };
 
-export const APIDELETE = async (url) => {
-  return await API.delete(url);
+export const APIDELETE = async (endpoint, data, token) => {
+  const url = config.apiUrl[endpoint];
+  return await API.delete(url, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    },
+    data: data
+  });
 };
 
 export const APIUPLOAD = async (endpoint, data, token) => {
   const url = config.apiUrl[endpoint];
-  return await API.post(url, data, {
+  return await API.post(url, withLocalePayload(data), {
     headers: {
       'Content-Type': 'multipart/form-data',
       Authorization: `Bearer ${token}`

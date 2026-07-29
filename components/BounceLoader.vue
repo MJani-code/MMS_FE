@@ -62,11 +62,16 @@ export default {
 
 <style>
 .v-spinner {
-  position: relative;
+  position: absolute;
   z-index: 1000;
+  width: 100%;
+  height: 100%;
 }
 .v-spinner .v-bounce {
-  margin: 0;
+  margin: 20% auto auto auto;
+}
+
+.v-spinner .v-bounce1 {
 }
 
 .v-spinner .v-bounce2 {

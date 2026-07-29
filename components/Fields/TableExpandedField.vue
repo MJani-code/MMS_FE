@@ -86,7 +86,7 @@
             <v-row>
               <v-col class="col-12 col-sm-3 col-md-3 col-lg-2 col-xl-2">
                 <template>
-                  <form @submit.prevent="uploadTaskFile(item)">
+                  <form @submit.prevent="uploadTaskMedia(item)">
                     <v-file-input
                       :rules="rules"
                       v-model="taskFiles"
@@ -217,7 +217,7 @@
             <LockerField
               :locker="locker"
               :taskId="item.id"
-              @updateLockerData="updateLockerData"
+              :boxId="item.box_id"
               @verifyLocker="verifyLocker"
             />
           </v-col>
@@ -235,6 +235,7 @@ export default {
   components: { FeesField, LockerField },
   props: {
     item: Object,
+    statusId: [String, Number],
     taskTypes: Array,
     headers: Array,
     rules: Array,
@@ -280,17 +281,20 @@ export default {
         return true;
       }
     },
-    uploadTaskFile(data) {
-      this.$emit('uploadTaskFile', {
+    uploadTaskMedia(data) {
+      // store uploadTaskFile action
+      const response = this.$store.dispatch('task/tasks/uploadMedia', {
         taskId: data.id,
         locationId: data.location_id,
+        statusId: this.statusId,
         fileUpload: true,
         file: this.taskFiles
       });
+      return response;
     },
     updateLocationData(item, dbTable, dbColumn, key) {
-      this.$emit(
-        'updateTask',
+      this.$store.dispatch(
+        'task/tasks/updateTask',
         {
           dbTable: dbTable,
           dbColumn: dbColumn
@@ -298,11 +302,18 @@ export default {
         { id: item.location_id, value: this[key] }
       );
     },
-    updateLockerData(data) {
-      this.$emit('updateLockerData', data);
-    },
-    addFee(data) {
-      this.$emit('addFee', data);
+    // updateLockerData(data) {
+    //   this.$emit('updateLockerData', data);
+    // },
+    async addFee(payload) {
+      const result = await this.$store.dispatch('task/tasks/addFee', {
+        ...payload,
+        statusId: this.statusId
+      });
+
+      if (!result.success) {
+        this.showNotification('error', result.message);
+      }
     },
     deleteFee(data) {
       this.$emit('deleteFee', data);
@@ -324,11 +335,22 @@ export default {
           {
             text: this.$t('common.yes'),
             style: 'primary',
-            action: () => this.$emit('deletePhoto', photo)
+            loading: this.$store.state.task.tasks.loadingDeleteMedia,
+            action: () =>
+              this.$store
+                .dispatch('task/tasks/deleteMedia', {
+                  ...photo,
+                  statusId: this.statusId,
+                  locationId: this.item.location_id
+                })
+                .then(() => {
+                  this.$store.dispatch('notification/hideModal');
+                })
           },
           {
             text: this.$t('common.cancel'),
             style: 'secondary',
+            loading: false,
             action: () => this.$store.dispatch('notification/hideModal')
           }
         ]

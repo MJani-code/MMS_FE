@@ -1,28 +1,35 @@
 <template>
   <v-expansion-panel
     class="accordion"
-    :style="'borderLeft: 4px solid' + tasks[0].status_color"
+    :style="'borderLeft: 4px solid' + statusColor"
   >
-    <v-expansion-panel-header
-      >{{ title }}
-      <span class="text-left ml-2">{{ tasks.length }}</span>
+    <v-expansion-panel-header @click="handleHeaderClick">
+      {{ title }}
+      <span class="text-left ml-2">{{ serverItemsLength }}</span>
     </v-expansion-panel-header>
     <v-expansion-panel-content>
       <TableField
-        :tasks="tasks"
+        :statusId="statusId"
+        :isLoading="isLoading"
+        :tasks="loadedTasks"
         :headers="headers"
         :statuses="statuses"
         :fees="fees"
         :allowedStatuses="allowedStatuses"
         :locationTypes="locationTypes"
         :taskTypes="taskTypes"
+        :responsibles="responsibles"
         :lockerSerials="lockerSerials"
         :companies="companies"
         :priorities="priorities"
-        @eventToAccordion="eventToTask"
+        :server-items-length="serverItemsLength"
+        :page="page"
+        :items-per-page="itemsPerPage"
+        @update:page="handlePageChange"
+        @update:items-per-page="handleItemsPerPageChange"
+        @update:sort="handleSortChange"
         @updateLockerData="updateLockerData"
         @bulkUpdateLockerData="bulkUpdateLockerData"
-        @uploadTaskFile="eventToTask"
         @addFee="addFee"
         @addLocker="addLocker"
         @deleteFee="deleteFee"
@@ -37,7 +44,7 @@
 </template>
 
 <script>
-//import TableField from './TableField.vue';
+import { mapGetters } from 'vuex';
 
 export default {
   components: {
@@ -45,55 +52,239 @@ export default {
   },
   props: {
     title: String,
-    tasks: Array,
+    statusId: [String, Number],
+    statusColor: {
+      type: String,
+      default: '#ccc'
+    },
+    serverItemsLength: {
+      type: Number,
+      default: 0
+    },
     headers: Array,
     statuses: Array,
     fees: Array,
     allowedStatuses: Array,
     locationTypes: Array,
     taskTypes: Array,
+    responsibles: Array,
     lockerSerials: Array,
     companies: Array,
     priorities: Array
   },
   data: () => ({
-    panel: [0],
-    readonly: false
+    isExpanded: false,
+    hasLoadedOnce: false,
+    page: 1,
+    itemsPerPage: 10,
+    sortBy: null,
+    sortDesc: false
   }),
-  mounted() {},
+  computed: {
+    ...mapGetters('task/tasks', ['getTasksForStatus', 'isStatusLoading']),
+
+    loadedTasks() {
+      const tasks = this.getTasksForStatus(this.statusId);
+      return JSON.parse(JSON.stringify(tasks));
+    },
+
+    isLoading() {
+      return this.isStatusLoading(this.statusId);
+    }
+  },
   methods: {
-    eventToTask(payload) {
-      this.$emit('eventToTask', payload);
+    handleHeaderClick() {
+      this.$nextTick(() => {
+        const willBeExpanded = !this.isExpanded;
+        this.isExpanded = willBeExpanded;
+
+        // Load tasks only when the accordion is opened (lazy load per panel).
+        if (
+          willBeExpanded &&
+          !this.$store.getters['task/tasks/getFilters'].searchText
+        ) {
+          this.loadTasksForStatus();
+        }
+      });
     },
-    addFee(data) {
-      this.$emit('addFee', data);
+
+    async loadTasksForStatus() {
+      const result = await this.$store.dispatch('task/tasks/fetchTask', {
+        statusId: this.statusId,
+        page: this.page,
+        itemsPerPage: this.itemsPerPage,
+        sortBy: this.sortBy,
+        sortDesc: this.sortDesc,
+        searchText: this.$store.getters['task/tasks/getFilters'].searchText
+      });
+
+      if (result.success) {
+        this.hasLoadedOnce = true;
+        this.$emit('tasksLoaded', {
+          statusId: this.statusId,
+          tasks: this.loadedTasks
+        });
+      } else {
+        this.showNotification('error', result.message);
+      }
     },
-    addLocker(data) {
-      this.$emit('addLocker', data);
+
+    async refreshTasks() {
+      this.hasLoadedOnce = false;
+      if (this.isExpanded) {
+        await this.loadTasksForStatus();
+      }
     },
-    removeLocker(data) {
-      this.$emit('removeLocker', data);
+
+    async handlePageChange(newPage) {
+      this.page = newPage;
+      if (this.isExpanded) {
+        await this.loadTasksForStatus();
+      }
     },
-    deleteFee(data) {
-      this.$emit('deleteFee', data);
+
+    async handleItemsPerPageChange(newItemsPerPage) {
+      this.itemsPerPage = newItemsPerPage;
+      this.page = 1;
+      if (this.isExpanded) {
+        await this.loadTasksForStatus();
+      }
     },
-    deletePhoto(data) {
-      this.$emit('deletePhoto', data);
+
+    async handleSortChange({ sortBy, sortDesc }) {
+      this.sortBy = sortBy || null;
+      this.sortDesc = Boolean(sortDesc);
+      this.page = 1;
+
+      if (this.isExpanded) {
+        await this.loadTasksForStatus();
+      }
     },
-    updateLockerData(data) {
-      this.$emit('updateLockerData', data);
+
+    async updateTask(payload) {
+      const result = await this.$store.dispatch('task/tasks/updateTask', {
+        ...payload,
+        statusId: this.statusId
+      });
+      if (!result.success) {
+        this.showNotification('error', result.message);
+      }
     },
+
+    async addFee(payload) {
+      const result = await this.$store.dispatch('task/tasks/addFee', {
+        ...payload,
+        statusId: this.statusId
+      });
+
+      if (!result.success) {
+        this.showNotification('error', result.message);
+      }
+    },
+
+    async addLocker(payload) {
+      const result = await this.$store.dispatch('task/tasks/addLocker', {
+        ...payload,
+        statusId: this.statusId
+      });
+
+      if (result.success) {
+        this.showNotification('success', result.data.message);
+      } else {
+        this.showNotification('error', result.message);
+      }
+    },
+
+    async removeLocker(payload) {
+      const result = await this.$store.dispatch('task/tasks/removeLocker', {
+        ...payload,
+        statusId: this.statusId
+      });
+
+      if (!result.success) {
+        this.showNotification('error', result.message);
+      }
+    },
+
+    async deleteFee(payload) {
+      const result = await this.$store.dispatch('task/tasks/deleteFee', {
+        ...payload,
+        statusId: this.statusId
+      });
+
+      if (!result.success) {
+        this.showNotification('error', result.message);
+      }
+    },
+
+    async deletePhoto(payload) {
+      this.$store.dispatch('notification/hideModal');
+
+      const result = await this.$store.dispatch('task/tasks/deletePhoto', {
+        ...payload,
+        statusId: this.statusId
+      });
+
+      if (result.success) {
+        this.showNotification('success', result.message);
+      } else {
+        this.showNotification('error', result.message);
+      }
+    },
+
+    async updateLockerData(payload) {
+      const result = await this.$store.dispatch('task/tasks/updateTaskLocker', {
+        ...payload,
+        statusId: this.statusId
+      });
+
+      if (!result.success) {
+        this.showNotification('error', result.message);
+      }
+    },
+
     bulkUpdateLockerData(data) {
-      this.$emit('bulkUpdateLockerData', data);
+      this.$emit('bulkUpdateLockerData', { ...data, statusId: this.statusId });
     },
-    downloadTig(data) {
-      this.$emit('downloadTig', data);
+
+    async downloadTig(data) {
+      const result = await this.$store.dispatch('task/tasks/downloadTig', {
+        ...data,
+        statusId: this.statusId
+      });
+
+      if (!result.success) {
+        this.showNotification('error', result.message);
+      }
     },
-    downloadTasks(data) {
-      this.$emit('downloadTasks', data);
+
+    async downloadTasks(data) {
+      const result = await this.$store.dispatch('task/tasks/downloadTasks', {
+        ...data,
+        statusId: this.statusId
+      });
+
+      if (!result.success) {
+        this.showNotification('error', result.message);
+      }
     },
-    verifyLocker(data) {
-      this.$emit('verifyLocker', data);
+
+    async verifyLocker(payload) {
+      const result = await this.$store.dispatch('task/tasks/verifyLocker', {
+        ...payload
+      });
+
+      if (!result.success) {
+        this.showNotification('error', result.message);
+      }
+    },
+
+    showNotification(type, message) {
+      this.$store.dispatch('notification/addNotification', {
+        type: type,
+        message: message,
+        timeout: 5000
+      });
     }
   }
 };

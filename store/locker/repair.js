@@ -1,35 +1,5 @@
 import { taskMixin } from '@/mixins/taskMixin.js';
 
-const repairTexts = {
-  hu: {
-    confirmDeleteIntervention: 'Biztosan törlöd a beavatkozást?',
-    cancel: 'Mégse',
-    yes: 'Igen',
-    deleteSuccess: 'Beavatkozás sikeresen törölve.',
-    addSuccess: 'Beavatkozás sikeresen hozzáadva.'
-  },
-  en: {
-    confirmDeleteIntervention:
-      'Are you sure you want to delete the intervention?',
-    cancel: 'Cancel',
-    yes: 'Yes',
-    deleteSuccess: 'Intervention deleted successfully.',
-    addSuccess: 'Intervention added successfully.'
-  },
-  sl: {
-    confirmDeleteIntervention: 'Ali ste prepricani, da zelite izbrisati poseg?',
-    cancel: 'Preklici',
-    yes: 'Da',
-    deleteSuccess: 'Poseg je bil uspesno izbrisan.',
-    addSuccess: 'Poseg je bil uspesno dodan.'
-  }
-};
-
-function getRepairText(locale, key) {
-  const selectedLocale = repairTexts[locale] ? locale : 'hu';
-  return repairTexts[selectedLocale][key] || repairTexts.hu[key] || '';
-}
-
 export const state = () => ({
   issues: [],
   interventionList: [],
@@ -65,21 +35,21 @@ export const actions = {
     commit('setInterventions', res.data.payload.interventions);
   },
 
-  async deleteIntervention({ dispatch, commit, rootState }, data) {
-    const locale = rootState.locale || 'hu';
+  async deleteIntervention({ dispatch, rootState }, data) {
+    const translate = this.app.i18n.t.bind(this.app.i18n);
 
     dispatch(
       'notification/showModal',
       {
-        message: getRepairText(locale, 'confirmDeleteIntervention'),
+        message: translate('tasks.repairReports.deleteConfirm'),
         buttons: [
           {
-            text: getRepairText(locale, 'cancel'),
+            text: translate('common.cancel'),
             style: 'secondary',
             action: () => dispatch('notification/hideModal', {}, { root: true })
           },
           {
-            text: getRepairText(locale, 'yes'),
+            text: translate('common.yes'),
             style: 'primary',
             action: () =>
               dispatch('locker/repair/confirmDeleteIntervention', data, {
@@ -94,14 +64,13 @@ export const actions = {
 
   async confirmDeleteIntervention({ dispatch, commit, rootState }, data) {
     const token = rootState.token;
-    const locale = rootState.locale || 'hu';
 
     const res = await taskMixin.methods.deleteIntervention(data, token);
     if (res.data.status === 200) {
       dispatch(
         'notification/addNotification',
         {
-          message: getRepairText(locale, 'deleteSuccess'),
+          message: res.data.message || 'Hiba történt a törlés során.',
           type: 'success'
         },
         { root: true }
@@ -139,7 +108,6 @@ export const actions = {
     { taskId, interventionData }
   ) {
     const token = rootState.token;
-    const locale = rootState.locale || 'hu';
     const res = await taskMixin.methods.addIntervention(
       taskId,
       interventionData,
@@ -149,7 +117,7 @@ export const actions = {
       dispatch(
         'notification/addNotification',
         {
-          message: getRepairText(locale, 'addSuccess'),
+          message: res.data.message || 'Hiba történt a hozzáadás során.',
           type: 'success'
         },
         { root: true }

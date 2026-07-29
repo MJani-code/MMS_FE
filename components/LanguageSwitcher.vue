@@ -116,6 +116,7 @@ export default {
         this.$emit('change', code);
         this.menu = false;
         this.isSwitching = false;
+        this.$store.commit('turnOffLoading');
       }
     }
   }

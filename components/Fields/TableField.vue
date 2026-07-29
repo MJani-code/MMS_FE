@@ -1,11 +1,19 @@
 <template>
   <div>
     <v-data-table
+      :loading="isLoading"
       v-model="selected"
+      :expanded.sync="expandedChildRows"
       :headers="headers"
-      :items="filteredTasks"
+      :items="tasks"
+      :server-items-length="serverItemsLength"
+      :page="page"
+      :items-per-page="itemsPerPage"
+      @update:page="$emit('update:page', $event)"
+      @update:items-per-page="$emit('update:items-per-page', $event)"
+      @update:options="handleOptionsUpdate"
+      @item-expanded="onItemExpanded($event, $event.item.box_id)"
       fixed-header
-      :expanded.sync="expanded"
       show-expand
       show-select
       item-key="id"
@@ -16,6 +24,7 @@
       <template #[`body.prepend`]>
         <tr v-if="!isMobile" class="filterRow">
           <!-- placeholder td for selection column -->
+          <td></td>
           <td></td>
           <!-- real header cells -->
           <td v-for="(header, index) in headers" :key="index">
@@ -30,6 +39,8 @@
               :placeholder="header.text"
               hide-details="auto"
               multiple
+              @input="scheduleFilter(header.value)"
+              @blur="flushFilter(header.value)"
             />
             <v-select
               v-if="header.filterable && header.value === 'taskTypes'"
@@ -42,6 +53,8 @@
               :placeholder="header.text"
               hide-details="auto"
               multiple
+              @input="scheduleFilter(header.value)"
+              @blur="flushFilter(header.value)"
             />
             <v-text-field
               v-if="header.filterable && header.value === 'zip'"
@@ -49,6 +62,8 @@
               :placeholder="header.text"
               solo
               hide-details="auto"
+              @input="scheduleFilter(header.value)"
+              @blur="flushFilter(header.value)"
             />
             <v-text-field
               v-if="header.filterable && header.value === 'city'"
@@ -56,6 +71,8 @@
               :placeholder="header.text"
               solo
               hide-details="auto"
+              @input="scheduleFilter(header.value)"
+              @blur="flushFilter(header.value)"
             />
             <v-text-field
               v-if="header.filterable && header.value === 'address'"
@@ -63,6 +80,8 @@
               :placeholder="header.text"
               solo
               hide-details="auto"
+              @input="scheduleFilter(header.value)"
+              @blur="flushFilter(header.value)"
             />
             <v-select
               v-if="header.filterable && header.value === 'location_type'"
@@ -75,42 +94,52 @@
               :placeholder="header.text"
               hide-details="auto"
               multiple
+              @input="scheduleFilter(header.value)"
+              @blur="flushFilter(header.value)"
             />
             <v-text-field
               v-if="
                 header.filterable && header.value === 'planned_delivery_date'
               "
-              v-model="filters.startDatePlan"
+              v-model="filters['planned_delivery_dateFrom']"
               type="datetime-local"
               class="datetime"
               :label="$t('tasks.filters.fromPlanned')"
               hide-details="auto"
+              @input="scheduleFilter(header.value + 'From')"
+              @blur="flushFilter(header.value + 'From')"
             />
             <v-text-field
               v-if="
                 header.filterable && header.value === 'planned_delivery_date'
               "
-              v-model="filters.endDatePlan"
+              v-model="filters['planned_delivery_dateTo']"
               type="datetime-local"
               class="datetime"
               :label="$t('tasks.filters.toPlanned')"
               hide-details="auto"
+              @input="scheduleFilter(header.value + 'To')"
+              @blur="flushFilter(header.value + 'To')"
             />
             <v-text-field
               v-if="header.filterable && header.value === 'delivery_date'"
-              v-model="filters.startDate"
+              v-model="filters['delivery_dateFrom']"
               type="datetime-local"
               class="datetime"
               :label="$t('tasks.filters.fromActual')"
               hide-details="auto"
+              @input="scheduleFilter(header.value + 'From')"
+              @blur="flushFilter(header.value + 'From')"
             />
             <v-text-field
               v-if="header.filterable && header.value === 'delivery_date'"
-              v-model="filters.endDate"
+              v-model="filters['delivery_dateTo']"
               type="datetime-local"
               class="datetime"
               :label="$t('tasks.filters.toActual')"
               hide-details="auto"
+              @input="scheduleFilter(header.value + 'To')"
+              @blur="flushFilter(header.value + 'To')"
             />
             <v-select
               v-if="header.filterable && header.value === 'responsibles'"
@@ -123,6 +152,8 @@
               :placeholder="header.text"
               hide-details="auto"
               multiple
+              @input="scheduleFilter(header.value)"
+              @blur="flushFilter(header.value)"
             />
             <v-text-field
               v-if="header.filterable && header.value === 'tof_shop_id'"
@@ -130,6 +161,8 @@
               :placeholder="header.text"
               solo
               hide-details="auto"
+              @input="scheduleFilter(header.value)"
+              @blur="flushFilter(header.value)"
             />
             <v-text-field
               v-if="header.filterable && header.value === 'box_id'"
@@ -137,6 +170,8 @@
               :placeholder="header.text"
               solo
               hide-details="auto"
+              @input="scheduleFilter(header.value)"
+              @blur="flushFilter(header.value)"
             />
             <v-text-field
               v-if="header.filterable && header.value === 'serial'"
@@ -144,6 +179,8 @@
               :placeholder="header.text"
               solo
               hide-details="auto"
+              @input="scheduleFilter(header.value)"
+              @blur="flushFilter(header.value)"
             />
             <v-text-field
               v-if="header.filterable && header.value === 'createdBy'"
@@ -154,19 +191,23 @@
             />
             <v-text-field
               v-if="header.filterable && header.value === 'createdAt'"
-              v-model="filters.startCreatedAt"
+              v-model="filters['createdAtFrom']"
               type="datetime-local"
               class="datetime"
               :label="$t('tasks.filters.fromCreatedAt')"
               hide-details="auto"
+              @input="scheduleFilter(header.value + 'From')"
+              @blur="flushFilter(header.value + 'From')"
             />
             <v-text-field
               v-if="header.filterable && header.value === 'createdAt'"
-              v-model="filters.endCreatedAt"
+              v-model="filters['createdAtTo']"
               type="datetime-local"
               class="datetime"
               :label="$t('tasks.filters.toCreatedAt')"
               hide-details="auto"
+              @input="scheduleFilter(header.value + 'To')"
+              @blur="flushFilter(header.value + 'To')"
             />
           </td>
         </tr>
@@ -530,7 +571,7 @@
       <template #[`item.responsibles`]="{ header, item }">
         <v-select
           v-model="item.responsibles"
-          :items="companies"
+          :items="responsibles"
           item-value="id"
           item-text="name"
           small-chips
@@ -651,8 +692,8 @@
       <template v-slot:footer>
         <v-btn
           v-if="
-            filteredTasks.length > 0 &&
-            filteredTasks[0].status_exohu_id === 9 &&
+            tasks.length > 0 &&
+            tasks[0].status_exohu_id === 9 &&
             $store.getters['hasPermission']('21')
           "
           color="primary"
@@ -664,8 +705,8 @@
         </v-btn>
         <v-btn
           v-if="
-            filteredTasks.length > 0 &&
-            filteredTasks[0].status_exohu_id === 6 &&
+            tasks.length > 0 &&
+            tasks[0].status_exohu_id === 6 &&
             $store.getters['hasPermission']('24')
           "
           color="primary"
@@ -681,14 +722,13 @@
       <template #expanded-item="{ item }">
         <TableExpandedField
           :item="item"
+          :is-expanded="true"
           :headers="headers"
           :taskTypes="taskTypes"
           :lockerSerials="lockerSerials"
           :fees="fees"
           :rules="rules"
           @updateTask="updateTask"
-          @updateLockerData="updateLockerData"
-          @uploadTaskFile="uploadTaskFile"
           @addFee="addFee"
           @deleteFee="deleteFee"
           @verifyLocker="verifyLocker"
@@ -705,6 +745,10 @@ import TableExpandedField from './TableExpandedField.vue';
 export default {
   components: { TableExpandedField },
   props: {
+    statusId: {
+      type: [String, Number],
+      required: true
+    },
     tasks: {
       type: Array,
       required: true
@@ -728,6 +772,10 @@ export default {
       type: Array,
       required: true
     },
+    companies: {
+      type: Array,
+      required: true
+    },
     taskTypes: {
       type: Array,
       required: true
@@ -735,133 +783,147 @@ export default {
     lockerSerials: {
       type: Array
     },
-    companies: {
+    responsibles: {
       type: Array,
       required: true
     },
     priorities: {
       type: Array,
       required: true
+    },
+    isLoading: {
+      type: Boolean,
+      default: false
+    },
+    serverItemsLength: {
+      type: Number,
+      default: 0
+    },
+    page: {
+      type: Number,
+      default: 1
+    },
+    itemsPerPage: {
+      type: Number,
+      default: 10
     }
   },
   data() {
     return {
       serials: [],
       filters: {},
+      filterTimers: {},
+      lastSubmittedFilters: {},
       selected: [],
-      expanded: [],
       taskFiles: [],
       filtersAccordion: [],
+      sortBy: null,
+      sortDesc: false,
       rules: [
         (value) =>
           !value ||
           value.size < 20000000 ||
           'Avatar size should be less than 20 MB!'
       ],
-      isMobile: false
+      isMobile: false,
+      expandedChildRows: []
     };
-  },
-  computed: {
-    filteredTasks() {
-      return this.tasks.filter((task) => {
-        return Object.keys(this.filters).every((key) => {
-          const filterValue = this.filters[key];
-
-          if (!filterValue || filterValue.length === 0) {
-            // Ha nincs szűrés, minden elem megjelenik
-            return true;
-          }
-          if (key === 'startDatePlan' || key === 'endDatePlan') {
-            // Ha a dátum oszlopról van szó, ellenőrizzük a tól-ig intervallumot
-            const taskDate = new Date(task.planned_delivery_date); // Feltételezzük, hogy task.date a dátum
-            const startDatePlan = new Date(this.filters.startDatePlan);
-            const endDatePlan = new Date(this.filters.endDatePlan);
-
-            return (
-              (!this.filters.startDatePlan || taskDate >= startDatePlan) &&
-              (!this.filters.endDatePlan || taskDate <= endDatePlan)
-            );
-          }
-          if (key === 'startDate' || key === 'endDate') {
-            // Ha a dátum oszlopról van szó, ellenőrizzük a tól-ig intervallumot
-            const taskDate = new Date(task.delivery_date); // Feltételezzük, hogy task.date a dátum
-            const startDate = new Date(this.filters.startDate);
-            const endDate = new Date(this.filters.endDate);
-
-            return (
-              (!this.filters.startDate || taskDate >= startDate) &&
-              (!this.filters.endDate || taskDate <= endDate)
-            );
-          }
-
-          if (key === 'startCreatedAt' || key === 'endCreatedAt') {
-            // Ha a 'startCreatedAt' vagy 'endCreatedAt' oszlopról van szó, ellenőrizzük a tól-ig intervallumot
-            const taskDate = new Date(task.createdAt);
-            const startDate = new Date(this.filters.startCreatedAt);
-            const endDate = new Date(this.filters.endCreatedAt);
-
-            return (
-              (!this.filters.startCreatedAt || taskDate >= startDate) &&
-              (!this.filters.endCreatedAt || taskDate <= endDate)
-            );
-          }
-
-          if (key === 'responsibles') {
-            // Ha a 'responsibles' oszlopról van szó, ellenőrizzük, hogy bármelyik felelős benne van-e
-            if (Array.isArray(filterValue) && filterValue.length > 0) {
-              return filterValue.some((responsibleId) =>
-                task.responsibles.includes(responsibleId)
-              );
-            }
-            return true; // Ha nincs szűrés, minden elem megjelenik
-          }
-
-          if (key === 'serial') {
-            // Ha a 'serial' oszlopról van szó, ellenőrizzük, hogy bármelyik felelős benne van-e
-            if (filterValue.length > 0) {
-              return task.lockers.some(
-                (locker) =>
-                  locker.serial &&
-                  locker.serial
-                    .toLowerCase()
-                    .includes(filterValue.toLowerCase())
-              );
-            }
-            return true; // Ha nincs szűrés, minden elem megjelenik
-          }
-
-          if (key === 'taskTypes') {
-            // Ha a 'tasTypes' oszlopról van szó, ellenőrizzük, hogy bármelyik típus benne van-e
-            if (Array.isArray(filterValue) && filterValue.length > 0) {
-              return filterValue.some((taskTypeId) =>
-                task.taskTypes.includes(taskTypeId)
-              );
-            }
-            return true; // Ha nincs szűrés, minden elem megjelenik
-          }
-
-          if (Array.isArray(filterValue)) {
-            // Ha az összes lehetséges típus ki van jelölve, akkor minden elem megjelenik
-            const allSelected = filterValue.length === this.taskTypes.length;
-            return allSelected || filterValue.includes(task[key]);
-          }
-
-          // Más mezők egyszerű összehasonlítása
-          return String(task[key])
-            .toLowerCase()
-            .includes(String(filterValue).toLowerCase());
-        });
-      });
-    }
   },
   mounted() {
     this.checkMobile();
     window.addEventListener('resize', this.checkMobile);
   },
   beforeDestroy() {
+    Object.values(this.filterTimers).forEach((timer) => clearTimeout(timer));
+    this.filterTimers = {};
     window.removeEventListener('resize', this.checkMobile);
   },
   methods: {
+    onItemExpanded({ item, value }, boxId) {
+      //Ha expanded akkor lekéri a képeket, ha collapsed akkor nem kell
+      if (value === true && item?.lockers?.[0]?.brand === 'Direct4Me') {
+        this.$store.dispatch('task/tasks/getD4meLocationPhotos', {
+          boxId,
+          taskId: item?.id,
+          statusId: item?.status_exohu_id
+        });
+      }
+    },
+    normalizeSortBy(value) {
+      if (Array.isArray(value)) {
+        return value.length ? value[0] : null;
+      }
+      return value || null;
+    },
+    normalizeSortDesc(value) {
+      if (Array.isArray(value)) {
+        return value.length ? Boolean(value[0]) : false;
+      }
+      return Boolean(value);
+    },
+    handleOptionsUpdate(options) {
+      const nextSortBy = this.normalizeSortBy(options?.sortBy);
+      const nextSortDesc = this.normalizeSortDesc(options?.sortDesc);
+
+      if (this.sortBy === nextSortBy && this.sortDesc === nextSortDesc) {
+        return;
+      }
+
+      this.sortBy = nextSortBy;
+      this.sortDesc = nextSortDesc;
+      this.$emit('update:sort', {
+        sortBy: this.sortBy,
+        sortDesc: this.sortDesc
+      });
+    },
+    scheduleFilter(headerValue) {
+      if (this.filterTimers[headerValue]) {
+        clearTimeout(this.filterTimers[headerValue]);
+      }
+
+      this.filterTimers[headerValue] = setTimeout(() => {
+        this.flushFilter(headerValue);
+      }, 2000);
+    },
+    flushFilter(headerValue) {
+      if (this.filterTimers[headerValue]) {
+        clearTimeout(this.filterTimers[headerValue]);
+        this.filterTimers[headerValue] = null;
+      }
+
+      const value = this.filters[headerValue] ?? '';
+      const hasLastSubmitted = Object.prototype.hasOwnProperty.call(
+        this.lastSubmittedFilters,
+        headerValue
+      );
+
+      if (!hasLastSubmitted && value === '') {
+        return;
+      }
+
+      if (
+        hasLastSubmitted &&
+        this.lastSubmittedFilters[headerValue] === value
+      ) {
+        return;
+      }
+
+      const targetPage = 1;
+      if (this.page !== targetPage) {
+        this.$emit('update:page', targetPage);
+      }
+
+      this.$store.dispatch('task/tasks/setFilter', {
+        [headerValue]: value,
+        statusId: this.statusId,
+        itemsPerPage: this.itemsPerPage,
+        page: targetPage,
+        sortBy: this.sortBy,
+        sortDesc: this.sortDesc
+      });
+
+      this.lastSubmittedFilters[headerValue] = value;
+    },
     checkLockerCondition(locker) {
       if (
         locker.fault ||
@@ -943,8 +1005,13 @@ export default {
     },
     async updateTask(header, selectedItem) {
       let color = '';
+      let status_exohu = null;
       if (header.dbColumn === 'status_by_exohu_id') {
-        color = this.getColorOfSelectedStatus(selectedItem['value']);
+        const selectedStatus = this.allowedStatuses.find(
+          (status) => status.id === selectedItem['value']
+        );
+        color = selectedStatus.color;
+        status_exohu = selectedStatus.name;
       }
 
       //Ha dátumot alaphelyzetbe állítjuk a backendnek 0000-00-00 00:00:00 formátumban kell elküldeni
@@ -962,11 +1029,19 @@ export default {
       }
       // Ha több elem van kiválasztva akkor egy bulk frissítést hajtunk végre
       if (this.selected.length > 0) {
-        const response = await this.bulkUpdateTask(header, selectedItem);
-        if (response.status !== 200) {
+        const response = await this.$store.dispatch(
+          'task/tasks/bulkUpdateTask',
+          {
+            taskIds: this.selected.map((item) => item.id),
+            column: header.dbColumn,
+            value: selectedItem['value'],
+            color: color,
+            status_exohu: status_exohu
+          }
+        );
+        if (!response.success) {
           this.showNotification('error', response.message);
         } else {
-          this.$emit('bulkUpdateLockerData', response.payload);
           this.showNotification(
             'success',
             this.$t('tasks.table.bulkUpdateSuccess', {
@@ -978,50 +1053,25 @@ export default {
         return;
       }
 
-      this.$emit('eventToAccordion', {
+      this.$store.dispatch('task/tasks/updateTask', {
         id: selectedItem.id,
         dbTable: header.dbTable,
         dbColumn: header.dbColumn,
+        column: header.dbColumn,
         value: selectedItem['value'],
-        color: color
+        color: color,
+        status_exohu: status_exohu
       });
     },
-    bulkUpdateTask(header, selectedItem) {
-      const response = this.$store.dispatch(
-        'task/updateTaskInBatch/updateTask',
-        {
-          taskIds: this.selected.map((item) => item.id),
-          column: header.dbColumn,
-          value: selectedItem['value']
-        }
-      );
-      return response;
-    },
-    getColorOfSelectedStatus(statusId) {
-      return this.statuses.find((status) => status.id === statusId).color;
-    },
-    updateLockerData(data) {
-      this.$emit('updateLockerData', data);
-    },
     addLocker(header, item) {
-      if (item.lockers.length < this.lockerSerialsLengths) {
-        this.$store.dispatch('notification/addNotification', {
-          type: 'error',
-          message: this.$t('tasks.table.itemAlreadyInList'),
-          timeout: 5000
-        });
-        return;
-      } else {
-        const newValue = item.lockers.slice(-1)[0];
-        this.$emit('addLocker', {
-          task_id: item.id,
-          tof_shop_id: item.tof_shop_id,
-          task_locations_id: item.location_id,
-          dbTable: header.dbTable,
-          dbColumn: header.dbColumn,
-          value: newValue
-        });
-      }
+      this.$store.dispatch('task/tasks/addLocker', {
+        task_id: item.id,
+        tof_shop_id: item.tof_shop_id,
+        task_locations_id: item.location_id,
+        dbTable: header.dbTable,
+        dbColumn: header.dbColumn,
+        value: item.lockers.slice(-1)[0]
+      });
     },
     getLengthOfSerials(value) {
       if (value != undefined) {
@@ -1029,15 +1079,15 @@ export default {
         this.lockerSerialsLengths = lockerSerialsLengths;
       }
     },
-    removeLocker(item) {
-      this.$emit('removeLocker', {
-        value: item.serial,
-        id: item.id,
-        taskId: item.task_id
+    async removeLocker(payload) {
+      const result = await this.$store.dispatch('task/tasks/removeLocker', {
+        ...payload,
+        statusId: this.statusId
       });
-    },
-    uploadTaskFile(item) {
-      this.$emit('uploadTaskFile', item);
+
+      if (!result.success) {
+        this.showNotification('error', result.message);
+      }
     },
     addFee(data) {
       this.$emit('addFee', data);
@@ -1055,7 +1105,7 @@ export default {
       this.$emit('deletePhoto', data);
     },
     verifyLocker(locker) {
-      this.$emit('verifyLocker', locker);
+      this.$emit('verifyLocker', locker.data);
     },
     tableClass() {
       return 'table-row';

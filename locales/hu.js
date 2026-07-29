@@ -58,6 +58,10 @@ export default {
       menu: 'Letöltés',
       newPoints: 'Új pontok letöltése'
     },
+    downloadError: 'Hiba történt a megbízások letöltése során.',
+    tig: {
+      downloadError: 'Hiba történt a TIG fájl letöltése során.'
+    },
     addTask: {
       menu: 'Új hozzáadása',
       loadLocations: 'Helyszínek betöltése',
@@ -173,6 +177,7 @@ export default {
       general: 'Általános',
       statusCheckButton: 'Állapot ellenőrző',
       lastConnection: 'Utolsó csatlakozási idő',
+      lastDelivery: 'Utolsó kézbesítési idő',
       fault: 'Hiba',
       selectIssue: 'Hiba kiválasztása',
       selectIntervention: 'Beavatkozás kiválasztása',
@@ -190,7 +195,8 @@ export default {
       issues: 'Hibák',
       usedParts: 'Felhasznált alkatrészek',
       description: 'Leírás',
-      delete: 'Törlés'
+      delete: 'Törlés',
+      deleteConfirm: 'Biztosan törlöd a beavatkozást?'
     }
   },
   lockers: {
@@ -215,6 +221,7 @@ export default {
     list: {
       lockerStationId: 'LockerStationId',
       lastConnection: 'Utolsó csatlakozás',
+      lastDelivery: 'Utolsó kézbesítés',
       version: 'Verzió',
       uuid: 'UUID',
       lockerStatus: 'Locker állapot',

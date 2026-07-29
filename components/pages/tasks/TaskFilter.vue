@@ -23,7 +23,7 @@
         id="serialFilter"
         v-model="selectedSerialFilter"
         :items="serialFilterOptions"
-        :label="$t('tasks.filters.serial')"
+        label="Serial"
         outlined
       />
     </v-col>
@@ -38,7 +38,7 @@
         id="tofShopIdFilter"
         v-model="selectedAdminFilter"
         :items="adminFilterOptions"
-        :label="$t('tasks.taskFilter.active')"
+        label="Aktiv"
         outlined
       />
     </v-col>

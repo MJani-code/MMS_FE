@@ -1,7 +1,7 @@
 //prettier-ignore
 export const routers = [{
     icon: 'mdi-home-account',
-  titleKey: 'nav.routers.lockers',
+    titleKey: 'nav.routers.lockers',
     to: '/admin/lockers'
   },
   // tasks management

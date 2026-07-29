@@ -2,9 +2,9 @@
   <v-row>
     <v-col cols="12" sm="8" md="8" lg="4" xl="4">
       <div v-for="(item, index) in taskItemsToInvoice" :key="index">
-        <v-list-item-title class="mb-2"
-          >{{ $t('tasks.fees.addItems') }}
-        </v-list-item-title>
+        <v-list-item-title class="mb-2">{{
+          $t('tasks.fees.addItems')
+        }}</v-list-item-title>
         <v-form ref="form" @submit.prevent="addItem(item)">
           <v-select
             v-model="serial"
@@ -43,7 +43,7 @@
           <v-text-field
             v-if="getFeeType(item.feeId) === 5"
             v-model="item.otherItems"
-            :label="$t('tasks.fees.noteLabel')"
+            :placeholder="$t('tasks.fees.noteLabel')"
             required
             class="mb-4 ml-2"
           />
@@ -59,9 +59,7 @@
     <v-divider vertical class="divider-vertical"></v-divider>
     <v-col cols="12" sm="8" md="4" lg="6" xl="5">
       <v-list class="transparent">
-        <v-list-item-title>
-          {{ $t('tasks.fees.addedItems') }}
-        </v-list-item-title>
+        <v-list-item-title>{{ $t('tasks.fees.addedItems') }}</v-list-item-title>
         <v-list-item class="pa-0">
           <v-list-item-subtitle>{{
             $t('tasks.fees.nameColumn')
@@ -152,6 +150,7 @@ export default {
             return !!v || this.$t('tasks.fees.validation.lockerRequired');
           }
         ],
+        //lockerSerials: [(v) => !!v || 'Kötelező megadni locker azonosítót'],
         fees: [(v) => !!v || this.$t('tasks.fees.validation.feeRequired')],
         quantity: [
           (v) => !!v || this.$t('tasks.fees.validation.quantityRequired')

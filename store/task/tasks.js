@@ -1,5 +1,12 @@
 // store/task/tasks.js
-import { APIGET, APIPOST, APIPOST2, APIPUT, APIDELETE } from '@/api/apiHelper';
+import {
+  APIGET,
+  APIPOST,
+  APIPOST2,
+  APIPUT,
+  APIDELETE,
+  APIDOWNLOAD
+} from '@/api/apiHelper';
 
 const FALLBACK_LOCALE = 'hu';
 
@@ -91,6 +98,7 @@ export const state = () => ({
   fees: [],
   allowedStatuses: [],
   locationTypes: [],
+  companies: [],
   taskTypes: [],
   lockerSerials: [],
   responsibles: [],
@@ -99,14 +107,12 @@ export const state = () => ({
   // Loading states
   isLoadingStatuses: false,
   loadingStatus: {}, // { [statusId]: boolean }
-  loadingDeleteMedia: false
+  loadingDeleteMedia: false,
+  isSearchLoading: false
 });
 
 export const getters = {
   getServerItemLength: (state) => (statusId) => {
-    if (!state.serverItemLengthByStatus[statusId]) {
-      return state.serverItemLengthByStatus;
-    }
     return state.serverItemLengthByStatus[statusId]?.count || 0;
   },
 
@@ -146,10 +152,26 @@ export const mutations = {
       return;
     }
 
-    if (!state.serverItemLengthByStatus[statusId]) {
-      state.serverItemLengthByStatus[statusId] = { count: 0 };
+    const normalizedStatusId = String(statusId);
+    const nextCount = Number(data.count) || 0;
+
+    state.serverItemLengthByStatus = {
+      ...state.serverItemLengthByStatus,
+      [normalizedStatusId]: {
+        ...(state.serverItemLengthByStatus[normalizedStatusId] || {}),
+        count: nextCount
+      }
+    };
+
+    if (state.statusGroups[normalizedStatusId]) {
+      state.statusGroups = {
+        ...state.statusGroups,
+        [normalizedStatusId]: {
+          ...state.statusGroups[normalizedStatusId],
+          count: nextCount
+        }
+      };
     }
-    state.serverItemLengthByStatus[statusId].count = data.count || 0;
   },
 
   SET_SEARCH_TEXT(state, text) {
@@ -176,6 +198,7 @@ export const mutations = {
     state.locationTypes = payload.locationTypes || [];
     state.taskTypes = payload.taskTypes || [];
     state.lockerSerials = payload.lockerSerials || [];
+    state.companies = payload.companies || [];
     state.responsibles = payload.responsibles || [];
     state.priorities = payload.priorities || [];
   },
@@ -200,6 +223,10 @@ export const mutations = {
 
   SET_LOADING_DELETE_MEDIA(state, isLoading) {
     state.loadingDeleteMedia = isLoading;
+  },
+
+  SET_SEARCH_LOADING(state, isLoading) {
+    state.isSearchLoading = isLoading;
   },
 
   UPDATE_TASK_IN_STATUS(state, { statusId, taskId, updates }) {
@@ -233,14 +260,42 @@ export const mutations = {
   },
 
   ADD_TASK_FEE(state, { statusId, taskId, fee }) {
-    const tasks = state.tasksByStatus[statusId];
-    if (tasks) {
-      const task = tasks.find((t) => t.id === taskId);
-      if (task) {
-        if (!task.taskFees) task.taskFees = [];
-        task.taskFees.push(fee);
-      }
-    }
+    const resolvedStatusId =
+      statusId !== undefined && statusId !== null
+        ? statusId
+        : Object.keys(state.tasksByStatus).find((sId) =>
+            state.tasksByStatus[sId].some(
+              (t) => String(t?.id) === String(taskId ?? fee?.taskId)
+            )
+          );
+
+    const tasks = state.tasksByStatus[resolvedStatusId];
+    if (!tasks) return;
+
+    const resolvedTaskId = taskId ?? fee?.taskId;
+    const taskIndex = tasks.findIndex(
+      (t) => String(t?.id) === String(resolvedTaskId)
+    );
+    if (taskIndex === -1) return;
+
+    const task = tasks[taskIndex];
+    const existingFees = Array.isArray(task.taskFees) ? task.taskFees : [];
+
+    const normalizedFee = {
+      ...fee,
+      taskId: fee?.taskId ?? resolvedTaskId,
+      quantity:
+        fee?.quantity !== undefined && fee?.quantity !== null
+          ? Number(fee.quantity)
+          : fee?.quantity
+    };
+
+    const updatedTask = {
+      ...task,
+      taskFees: [...existingFees, normalizedFee]
+    };
+
+    tasks.splice(taskIndex, 1, updatedTask);
   },
 
   REMOVE_TASK_FEE(state, { statusId, taskId, feeId }) {
@@ -317,18 +372,66 @@ export const mutations = {
     }
   },
 
-  ADD_TASK_PHOTO(state, { locationId, photoUrl }) {
-    const statusId = Object.keys(state.tasksByStatus).find((sId) =>
-      state.tasksByStatus[sId].some((t) => t.location_id === locationId)
-    );
-    const tasks = state.tasksByStatus[statusId];
+  ADD_TASK_PHOTO(state, { statusId, taskId, locationId, photoUrl }) {
+    const matchesLocation = (task) =>
+      String(task?.box_id) === String(locationId) ||
+      String(task?.location_id) === String(locationId);
+    const matchesTaskId = (task) => String(task?.id) === String(taskId);
+
+    const resolvedStatusId =
+      statusId !== undefined && statusId !== null
+        ? statusId
+        : taskId !== undefined && taskId !== null
+          ? Object.keys(state.tasksByStatus).find((sId) =>
+              state.tasksByStatus[sId].some(matchesTaskId)
+            )
+          : Object.keys(state.tasksByStatus).find((sId) =>
+              state.tasksByStatus[sId].some(matchesLocation)
+            );
+
+    const tasks = state.tasksByStatus[resolvedStatusId];
     if (tasks) {
-      const taskIndex = tasks.findIndex((t) => t.location_id === locationId);
+      const taskIndex =
+        taskId !== undefined && taskId !== null
+          ? tasks.findIndex(matchesTaskId)
+          : tasks.findIndex(matchesLocation);
       if (taskIndex !== -1) {
         const task = tasks[taskIndex];
-        const newPhotos = task.location_photos
-          ? [...task.location_photos, { url: photoUrl }]
-          : [{ url: photoUrl }];
+        const incomingPhotos = Array.isArray(photoUrl) ? photoUrl : [photoUrl];
+
+        const normalizedPhotos = incomingPhotos
+          .map((photo) => {
+            if (!photo) return null;
+            if (typeof photo === 'string') {
+              return { url: photo };
+            }
+            if (typeof photo === 'object') {
+              if (photo.url) return { url: photo.url };
+              if (photo.imagePath) return { url: photo.imagePath };
+            }
+            return null;
+          })
+          .filter(Boolean);
+
+        const existingPhotos = Array.isArray(task.location_photos)
+          ? task.location_photos
+          : [];
+        const existingUrls = new Set(
+          existingPhotos
+            .map((photo) => photo?.url)
+            .filter((url) => typeof url === 'string' && url.length > 0)
+        );
+
+        const uniqueNewPhotos = normalizedPhotos.filter((photo) => {
+          const url = photo?.url;
+          if (!url || existingUrls.has(url)) {
+            return false;
+          }
+          existingUrls.add(url);
+          return true;
+        });
+
+        const newPhotos = [...existingPhotos, ...uniqueNewPhotos];
         const updatedTask = { ...task, location_photos: newPhotos };
         tasks.splice(taskIndex, 1, updatedTask);
       }
@@ -355,7 +458,10 @@ export const mutations = {
     }
   },
 
-  MOVE_TASK_TO_STATUS(state, { taskId, toStatusId, updatedTask }) {
+  MOVE_TASK_TO_STATUS(
+    state,
+    { taskId, toStatusId, updatedTask, toStatusMeta }
+  ) {
     //kikeressük a régi státuszt a taskId alapján
     const fromStatusId = Object.keys(state.tasksByStatus).find((statusId) =>
       state.tasksByStatus[statusId].some((t) => String(t.id) === String(taskId))
@@ -390,22 +496,25 @@ export const mutations = {
         state.serverItemLengthByStatus[fromStatusId].count - 1
       );
     }
+    const statusMeta =
+      state.statuses.find((s) => String(s.id) === String(toStatusId)) ||
+      state.allowedStatuses.find((s) => String(s.id) === String(toStatusId));
+    const statusName =
+      toStatusMeta?.status_exohu || statusMeta?.name || 'Ismeretlen státusz';
+    const statusColor = toStatusMeta?.color || statusMeta?.color || '#ccc';
+
     if (!state.serverItemLengthByStatus[toStatusId]) {
-      const statusMeta = state.statuses.find(
-        (s) => String(s.id) === String(toStatusId)
-      );
-      const statusName = statusMeta ? statusMeta.name : 'Ismeretlen státusz';
       //statusGroupban is létrehozzuk az új státusz csoportot, ha még nem létezik
       if (!state.statusGroups[toStatusId]) {
         state.statusGroups[toStatusId] = {
-          color: statusMeta?.color || '#ccc',
+          color: statusColor,
           count: 1,
           title: statusName
         };
       }
 
       state.serverItemLengthByStatus[toStatusId] = {
-        color: statusMeta?.color || '#ccc',
+        color: statusColor,
         count: 1,
         title: statusName
       };
@@ -413,6 +522,18 @@ export const mutations = {
       // Ha az új státusz csoport már létezik, növeljük a számlálót
       state.serverItemLengthByStatus[toStatusId].count =
         (state.serverItemLengthByStatus[toStatusId].count || 0) + 1;
+
+      // Ha korábban 0-ra csökkent és töröltük a groupot, hozd vissza az első elemnél.
+      if (!state.statusGroups[toStatusId]) {
+        state.statusGroups[toStatusId] = {
+          color: statusColor,
+          count: state.serverItemLengthByStatus[toStatusId].count,
+          title: statusName
+        };
+      } else {
+        state.statusGroups[toStatusId].count =
+          state.serverItemLengthByStatus[toStatusId].count;
+      }
     }
     //Ha a számláló értéke 0, akkor eltávolítjuk a státusz csoportot
     if (
@@ -421,6 +542,7 @@ export const mutations = {
     ) {
       const { [fromStatusId]: _, ...rest } = state.statusGroups;
       state.statusGroups = rest;
+      delete state.serverItemLengthByStatus[fromStatusId];
     }
   },
 
@@ -442,6 +564,13 @@ export const mutations = {
   },
 
   REMOVE_GROUP_FROM_STATUS(state, statusId) {
+    if (!statusId) {
+      state.statusGroups = {};
+      state.tasksByStatus = {};
+      state.serverItemLengthByStatus = {};
+      return;
+    }
+
     // Eltávolítjuk a státusz csoportot
     const { [statusId]: _, ...rest } = state.statusGroups;
     state.statusGroups = rest;
@@ -451,34 +580,33 @@ export const mutations = {
       delete state.tasksByStatus[statusId];
     }
 
-    //Ha nincs statusId, akkor minden státusz csoportot és taskot eltávolítunk
-    if (!statusId) {
-      state.statusGroups = {};
-      state.tasksByStatus = {};
+    if (state.serverItemLengthByStatus[statusId]) {
+      delete state.serverItemLengthByStatus[statusId];
     }
   },
 
-  // UPDATE_STATUS_COUNT(state, { statusId, count, direction }) {
-  //   if (direction == 'plus') {
-  //     if (state.serverItemLengthByStatus[statusId]) {
-  //       state.serverItemLengthByStatus[statusId].count =
-  //         (state.serverItemLengthByStatus[statusId].count || 0) + 1;
-  //     }
-  //     return;
-  //   }
-  //   if (direction == 'minus') {
-  //     if (state.serverItemLengthByStatus[statusId]) {
-  //       state.serverItemLengthByStatus[statusId].count = Math.max(
-  //         0,
-  //         (state.serverItemLengthByStatus[statusId].count || 0) - 1
-  //       );
-  //     }
-  //     return;
-  //   }
-  //   if (state.serverItemLengthByStatus[statusId] && typeof count === 'number') {
-  //     state.serverItemLengthByStatus[statusId].count = count;
-  //   }
-  // },
+  UPDATE_STATUS_COUNT(state, { statusId, count }) {
+    const normalizedStatusId = String(statusId);
+    const nextCount = Number(count) || 0;
+
+    state.serverItemLengthByStatus = {
+      ...state.serverItemLengthByStatus,
+      [normalizedStatusId]: {
+        ...(state.serverItemLengthByStatus[normalizedStatusId] || {}),
+        count: nextCount
+      }
+    };
+
+    if (state.statusGroups[normalizedStatusId]) {
+      state.statusGroups = {
+        ...state.statusGroups,
+        [normalizedStatusId]: {
+          ...state.statusGroups[normalizedStatusId],
+          count: nextCount
+        }
+      };
+    }
+  },
 
   SET_EXPANDED_ACCORDIONS(state, indices) {
     state.expandedAccordions = Array.isArray(indices) ? indices : [];
@@ -553,11 +681,16 @@ export const actions = {
   },
 
   async fetchTask(
-    { commit, rootState, state },
-    { statusId, page, itemsPerPage }
+    { commit, rootState, state, dispatch },
+    { statusId, page, itemsPerPage, sortBy = null, sortDesc = false }
   ) {
     commit('SET_LOADING_STATUS', { statusId, isLoading: true });
+
     try {
+      if (!state.filters.searchText) {
+        await dispatch('fetchInitialData');
+      }
+
       const token = rootState.token;
       const result = await APIPOST(
         'getTask',
@@ -565,24 +698,21 @@ export const actions = {
           statusId,
           page,
           itemsPerPage,
-          filters: state.filters,
-          locale: rootState.locale || FALLBACK_LOCALE
+          sortBy,
+          sortDesc,
+          filters: state.filters
         },
         token
       );
 
       if (result.data.status === 200) {
         let tasks = result.data.data || [];
-
-        // D4ME lokációk adatainak betöltése
-        // const d4meResult = await APIGET('getDirect4MeLocations', null, token);
-        // if (d4meResult.data.status === 200) {
-        //   const locations = d4meResult.data.data;
-        //   tasks = enrichTasksWithLocationData(tasks, locations);
-        // }
+        let taskCount = result.data.pagination['totalCount'];
 
         if (statusId !== null && statusId !== undefined) {
           commit('SET_TASKS_FOR_STATUS', { statusId, tasks });
+
+          commit('UPDATE_STATUS_COUNT', { statusId, count: taskCount });
         }
 
         return { success: true, tasks };
@@ -604,6 +734,7 @@ export const actions = {
   },
 
   async setSearchText({ commit, dispatch, state }, text) {
+    commit('SET_SEARCH_LOADING', true);
     try {
       commit('SET_SEARCH_TEXT', text);
       commit('REMOVE_GROUP_FROM_STATUS', null); // Minden státusz csoport és task eltávolítása a store-ból
@@ -647,6 +778,26 @@ export const actions = {
       }
     } catch (error) {
       console.error('Error setting search text:', error);
+    } finally {
+      commit('SET_SEARCH_LOADING', false);
+    }
+  },
+
+  async getD4meLocationPhotos({ rootState, commit }, payload) {
+    const boxId = typeof payload === 'object' ? payload?.boxId : payload;
+    const taskId = typeof payload === 'object' ? payload?.taskId : null;
+    const statusId = typeof payload === 'object' ? payload?.statusId : null;
+
+    const token = rootState.token;
+    const d4meResult = await APIGET('getDirect4MeLocations', { boxId }, token);
+    const photos = d4meResult.data?.data?.[0]?.images?.images || [];
+    if (d4meResult.data.status === 200) {
+      commit('ADD_TASK_PHOTO', {
+        statusId,
+        taskId,
+        locationId: boxId,
+        photoUrl: photos.map((p) => p.imagePath)
+      });
     }
   },
 
@@ -667,19 +818,98 @@ export const actions = {
       await this.dispatch('task/tasks/fetchTask', {
         statusId: payload.statusId ?? null,
         page: payload.page ?? null,
-        itemsPerPage: payload.itemsPerPage ?? null
+        itemsPerPage: payload.itemsPerPage ?? null,
+        sortBy: payload.sortBy ?? null,
+        sortDesc: payload.sortDesc ?? false
       });
     } catch (error) {
       console.error('Error setting filter:', error);
     }
   },
 
-  clearSearchText({ commit, dispatch }) {
+  async clearSearchText({ commit, dispatch }) {
+    commit('SET_SEARCH_LOADING', true);
     try {
       commit('CLEAR_SEARCH_TEXT');
-      dispatch('fetchInitialData');
+      await dispatch('fetchInitialData');
     } catch (error) {
       console.error('Error clearing search text:', error);
+    } finally {
+      commit('SET_SEARCH_LOADING', false);
+    }
+  },
+
+  async createTaskBatch({ dispatch, rootState }, payload) {
+    try {
+      const token = rootState.token;
+      const locale = rootState.locale || 'hu';
+
+      const formData = payload instanceof FormData ? payload : new FormData();
+      if (!(payload instanceof FormData) && payload?.file) {
+        formData.append('file', payload.file);
+      }
+      if (!formData.has('locale')) {
+        formData.append('locale', locale);
+      }
+
+      const result = await APIPOST2('createTaskBatch', formData, token);
+
+      if (result.data.status === 200) {
+        await dispatch('fetchInitialData');
+        return {
+          success: true,
+          data: result.data,
+          message: result.data.message
+        };
+      }
+
+      return { success: false, message: result.data.message };
+    } catch (error) {
+      console.error('Error creating task batch:', error);
+      return {
+        success: false,
+        message: 'Hiba történt a kötegelt feladat létrehozása során'
+      };
+    }
+  },
+
+  async uploadBatchTasks({ dispatch }, payload) {
+    if (payload && typeof payload === 'object' && !payload.locale) {
+      payload.locale = this.state.locale || 'hu';
+    }
+    return await dispatch('createTaskBatch', payload);
+  },
+
+  async createTask({ dispatch, commit, rootState }, payload) {
+    try {
+      const token = rootState.token;
+      const locale = rootState.locale || 'hu';
+      const requestPayload = {
+        ...(payload || {}),
+        locale
+      };
+
+      const result = await APIPOST('createTask', requestPayload, token);
+
+      if (result.data.status === 200) {
+        await dispatch('fetchInitialData');
+        return {
+          success: true,
+          data: result.data,
+          message: result.data.message
+        };
+      }
+
+      return { success: false, message: result.data.message };
+    } catch (error) {
+      console.error('Error creating task:', error);
+      return {
+        success: false,
+        message: 'Error occurred while creating the task'
+      };
+    } finally {
+      commit('closeCreateTaskModal', null, { root: true });
+      commit('turnOffLoading', null, { root: true });
     }
   },
 
@@ -711,6 +941,7 @@ export const actions = {
             commit('MOVE_TASK_TO_STATUS', {
               taskId: responsePayload.id,
               toStatusId: responsePayload.value,
+              toStatusMeta: responsePayload,
               updatedTask: {
                 ...task,
                 status_exohu_id: responsePayload.value
@@ -742,6 +973,8 @@ export const actions = {
       const result = await APIPOST('updateTaskInBatch', payload, token);
 
       if (result.data.status === 200) {
+        const responsePayload = result.data.payload || {};
+
         if (
           payload.column === 'status_by_exohu_id' &&
           Array.isArray(payload.taskIds)
@@ -763,10 +996,11 @@ export const actions = {
             if (task) {
               commit('MOVE_TASK_TO_STATUS', {
                 taskId,
-                toStatusId: payload.value,
+                toStatusId: responsePayload.value ?? payload.value,
+                toStatusMeta: responsePayload,
                 updatedTask: {
                   ...task,
-                  status_exohu_id: payload.value
+                  status_exohu_id: responsePayload.value ?? payload.value
                 }
               });
             }
@@ -816,6 +1050,7 @@ export const actions = {
   },
 
   async uploadMedia({ commit, rootState }, payload) {
+    commit('turnOnLoading', null, { root: true });
     try {
       const token = rootState.token;
       const formData = new FormData();
@@ -830,6 +1065,7 @@ export const actions = {
 
         commit('ADD_TASK_PHOTO', {
           statusId: payload.statusId,
+          taskId: payload.taskId,
           locationId: responsePayload.locationId,
           photoUrl: responsePayload.url
         });
@@ -848,6 +1084,8 @@ export const actions = {
         success: false,
         message: 'Hiba történt a fájl feltöltése során'
       };
+    } finally {
+      commit('turnOffLoading', null, { root: true });
     }
   },
 
@@ -1039,36 +1277,146 @@ export const actions = {
         message: 'Hiba történt a locker ellenőrzése során'
       };
     }
+  },
+
+  async verifyD4meLocker({ commit, rootState }, payload) {
+    try {
+      const token = rootState.token;
+      const result = await APIPOST('verifyD4meLocker', payload, token);
+
+      if (result.data.status === 200) {
+        const responsePayload = result.data.data;
+
+        commit('UPDATE_TASK_LOCKER', {
+          taskId: payload.task_id,
+          lockerId: payload.id,
+          updates: responsePayload
+        });
+
+        return { success: true, data: result.data };
+      } else {
+        return { success: false, message: result.data.message };
+      }
+    } catch (error) {
+      console.error('Error verifying D4me locker:', error);
+      return {
+        success: false,
+        message: 'Hiba történt a D4me locker ellenőrzése során'
+      };
+    }
+  },
+
+  async downloadTig({ rootState }, payload = {}) {
+    const translate = this.app?.i18n?.t?.bind(this.app.i18n);
+
+    try {
+      const token = rootState.token;
+      const response = await APIDOWNLOAD('downloadTig', token);
+
+      if (typeof window !== 'undefined') {
+        const responseData = response?.data;
+        const blob =
+          responseData instanceof Blob
+            ? responseData
+            : new Blob([responseData], {
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+              });
+
+        const contentDisposition =
+          response?.headers?.['content-disposition'] ||
+          response?.headers?.['Content-Disposition'] ||
+          '';
+        const fileNameMatch = contentDisposition.match(
+          /filename\*=UTF-8''([^;]+)|filename="?([^";]+)"?/
+        );
+        const fileName = decodeURIComponent(
+          payload.fileName ||
+            fileNameMatch?.[1] ||
+            fileNameMatch?.[2] ||
+            'tig.xlsx'
+        );
+
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.setAttribute('download', fileName);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(downloadUrl);
+      }
+
+      return {
+        success: true,
+        data: response,
+        payload
+      };
+    } catch (error) {
+      console.error('Error downloading TIG:', error);
+      return {
+        success: false,
+        message:
+          translate('tasks.tig.downloadError') ||
+          'Hiba történt a TIG letöltése során'
+      };
+    }
+  },
+
+  async downloadTasks({ rootState }, payload = {}) {
+    const translate = this.app?.i18n?.t?.bind(this.app.i18n);
+    try {
+      const token = rootState.token;
+      const response = await APIDOWNLOAD('downloadTasks', token);
+
+      if (typeof window !== 'undefined') {
+        const responseData = response?.data;
+        const blob =
+          responseData instanceof Blob
+            ? responseData
+            : new Blob([responseData], {
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+              });
+
+        const contentDisposition =
+          response?.headers?.['content-disposition'] ||
+          response?.headers?.['Content-Disposition'] ||
+          '';
+        const fileNameMatch = contentDisposition.match(
+          /filename\*=UTF-8''([^;]+)|filename="?([^";]+)"?/
+        );
+        const fileName = decodeURIComponent(
+          payload.fileName ||
+            fileNameMatch?.[1] ||
+            fileNameMatch?.[2] ||
+            'tasks.xlsx'
+        );
+
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.setAttribute('download', fileName);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(downloadUrl);
+      }
+
+      return {
+        success: true,
+        data: response,
+        payload
+      };
+    } catch (error) {
+      console.error('Error downloading tasks:', error);
+      return {
+        success: false,
+        message:
+          translate('tasks.downloadError') ||
+          'Hiba történt a feladatok letöltése során'
+      };
+    }
   }
 };
 
 // Helper function
-function enrichTasksWithLocationData(tasks, locations) {
-  tasks.forEach((task) => {
-    const location = locations.find((loc) => loc.id === task.box_id);
-    if (location) {
-      if (task.lockers && task.lockers.length > 0) {
-        task.lockers.forEach((locker) => {
-          locker['is_registered'] = 1;
-          locker['is_active'] = 1;
-        });
-      }
-      task['longitude'] = location.longitude;
-      task['latitude'] = location.latitude;
-
-      if (!task.location_photos) {
-        task.location_photos = [];
-      }
-
-      if (location.images?.images?.length > 0) {
-        const currentPhotos = task.location_photos.map((p) => p.url);
-        location.images.images.forEach((image) => {
-          if (image.imagePath && !currentPhotos.includes(image.imagePath)) {
-            task.location_photos.push({ url: image.imagePath });
-          }
-        });
-      }
-    }
-  });
-  return tasks;
-}
+function enrichTasksWithLocationData(boxId) {}

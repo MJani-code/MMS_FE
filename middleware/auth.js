@@ -11,7 +11,9 @@ export default async function ({
   route
 }) {
 
-  if (route.path === '/') {
+  const normalizedPath = route.fullPath || route.path;
+
+  if (normalizedPath === '/') {
     return;
   }
   // Adatok lekérése a localStorage-ból
@@ -35,7 +37,8 @@ export default async function ({
         if (token) {
           const response = await APIPOST('auth', {
             token: token,
-            urlTo: route.path
+            urlTo: normalizedPath,
+            locale: store.state.locale || 'hu'
           });
           if (response.data.status === 401 || response.data.status === 400) {
             //localStorage.removeItem('data'); // lejárt token törlése

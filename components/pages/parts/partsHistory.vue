@@ -1,12 +1,12 @@
 <template>
   <v-data-table
-    :headers="tableHeaders"
+    :headers="headers"
     :items="items"
     :loading="loading"
     :loading-text="$t('parts.history.loadingText')"
     class="elevation-1 parts-history"
   >
-    <template v-slot:[`item.taskTypes`]="{ item }">
+    <template #[`item.taskTypes`]="{ item }">
       <template v-if="item.taskTypes.length > 0">
         <v-chip
           v-for="(taskType, index) in item.taskTypes"
@@ -18,13 +18,13 @@
       </template>
     </template>
 
-    <template v-slot:[`item.reason`]="{ item }">
+    <template #[`item.reason`]="{ item }">
       <v-chip :color="colorForReason(item.reason)">
         {{ item.reason }}
       </v-chip>
     </template>
 
-    <template v-slot:[`item.createdByName`]="{ item }">
+    <template #[`item.createdByName`]="{ item }">
       <v-chip :color="colorForUser(item.createdByName)">
         {{ item.createdByName }}
       </v-chip>
@@ -71,7 +71,7 @@ export default {
   }),
 
   computed: {
-    tableHeaders() {
+    headers() {
       return [
         {
           text: this.$t('parts.history.headers.id'),

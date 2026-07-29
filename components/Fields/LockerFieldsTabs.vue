@@ -35,12 +35,18 @@
               <v-icon color="success">{{ locker.currentVersion }}</v-icon>
             </div>
             <br />
-            <v-list-item-title class="ml-2"
+            <v-list-item-title v-if="locker.brand !== 'Direct4Me'" class="ml-2"
               >{{ $t('tasks.lockerTabs.lastConnection') }}:
               <span
                 :class="isConnectionLost ? 'error--text' : 'success--text'"
                 >{{ formattedLastConnectionTimestamp }}</span
               >
+            </v-list-item-title>
+            <v-list-item-title v-else class="ml-2"
+              >{{ $t('tasks.lockerTabs.lastDelivery') }}:
+              <span class="success--text">{{
+                formattedLastConnectionTimestamp
+              }}</span>
             </v-list-item-title>
             <br />
             <v-col cols="12" sm="6" md="6" lg="5" xl="5">
@@ -235,6 +241,10 @@ export default {
     taskId: {
       type: Number,
       required: true
+    },
+    boxId: {
+      type: Number,
+      required: false
     }
   },
   data: () => ({
@@ -322,7 +332,7 @@ export default {
       //   })));
     },
     updateLockerData(value, lockerId, dbTable, dbColumn) {
-      this.$emit('updateLockerData', {
+      this.$store.dispatch('task/tasks/updateTaskLocker', {
         id: lockerId,
         task_id: this.taskId,
         dbTable: dbTable,
@@ -342,10 +352,18 @@ export default {
       this.newIntervention.uuid = this.locker.serial;
     },
     verifyLocker() {
-      this.$emit('verifyLocker', {
-        taskId: this.taskId,
-        data: this.locker
-      });
+      if (this.locker.brand === 'Direct4Me') {
+        const lockerPayload = {
+          ...this.locker,
+          boxId: this.boxId
+        };
+        this.$store.dispatch('task/tasks/verifyD4meLocker', lockerPayload);
+      } else {
+        this.$emit('verifyLocker', {
+          taskId: this.taskId,
+          data: this.locker
+        });
+      }
     },
     checkConnectionStatus() {
       const timestamp = this.locker.lastConnectionTimestamp;

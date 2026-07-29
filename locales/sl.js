@@ -56,6 +56,10 @@ export default {
       menu: 'Prenos',
       newPoints: 'Prenos novih tock'
     },
+    downloadError: 'Prišlo je do napake pri prenosu nalog.',
+    tig: {
+      downloadError: 'Prišlo je do napake pri prenosu TIG datoteke.'
+    },
     addTask: {
       menu: 'Dodaj novo',
       loadLocations: 'Nalozi lokacije',
@@ -171,6 +175,7 @@ export default {
       general: 'Splošno',
       statusCheckButton: 'Preveri stanje',
       lastConnection: 'Zadnji cas povezave',
+      lastDelivery: 'Zadnja kèzbesitev',
       fault: 'Napaka',
       selectIssue: 'Izberi napako',
       selectIntervention: 'Izberi poseg',
@@ -188,7 +193,8 @@ export default {
       issues: 'Napake',
       usedParts: 'Uporabljeni deli',
       description: 'Opis',
-      delete: 'Izbrisi'
+      delete: 'Izbrisi',
+      deleteConfirm: 'Ali res zelite izbrisati poseg?'
     }
   },
   lockers: {
@@ -213,6 +219,7 @@ export default {
     list: {
       lockerStationId: 'LockerStationId',
       lastConnection: 'Zadnja povezava',
+      lastDelivery: 'Zadnja kèzbesitev',
       version: 'Verzija',
       uuid: 'UUID',
       lockerStatus: 'Stanje omarice',

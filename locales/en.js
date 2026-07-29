@@ -57,6 +57,10 @@ export default {
       menu: 'Download',
       newPoints: 'Download new points'
     },
+    downloadError: 'An error occurred while downloading the tasks file.',
+    tig: {
+      downloadError: 'An error occurred while downloading the TIG file.'
+    },
     addTask: {
       menu: 'Add new',
       loadLocations: 'Load locations',
@@ -172,6 +176,7 @@ export default {
       general: 'General',
       statusCheckButton: 'Status check',
       lastConnection: 'Last connection time',
+      lastDelivery: 'Last delivery time',
       fault: 'Fault',
       selectIssue: 'Select issue',
       selectIntervention: 'Select intervention',
@@ -189,7 +194,8 @@ export default {
       issues: 'Issues',
       usedParts: 'Used parts',
       description: 'Description',
-      delete: 'Delete'
+      delete: 'Delete',
+      deleteConfirm: 'Are you sure you want to delete the intervention?'
     }
   },
   lockers: {
@@ -214,6 +220,7 @@ export default {
     list: {
       lockerStationId: 'LockerStationId',
       lastConnection: 'Last connection',
+      lastDelivery: 'Last delivery',
       version: 'Version',
       uuid: 'UUID',
       lockerStatus: 'Locker status',

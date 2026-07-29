@@ -46,7 +46,8 @@
       />
       <v-toolbar-title :style="{ color: 'white' }">MMS </v-toolbar-title>
       <v-spacer />
-      <div class="d-flex" style="gap: 20px">
+      <div class="d-flex align-center" style="gap: 20px">
+        <VersionSwitcher />
         <LanguageSwitcher :style="{ color: 'white' }" />
         <v-icon @click="$vuetify.theme.dark = !$vuetify.theme.dark">
           {{
@@ -69,19 +70,21 @@
     <v-footer :absolute="!fixed" app>
       <span
         >&copy; {{ new Date().getFullYear() }} BY: Martolin. Version:
-        {{ appVersion }}</span
+        {{ projectVersion }}</span
       >
     </v-footer>
   </v-app>
 </template>
 
 <script>
+import packageJson from '../package.json';
 import { routers } from '@/routers/routers.js';
 import Notification from '../components/Notification.vue';
 import Modal from '../components/Modal.vue';
 import BounceLoader from '../components/BounceLoader.vue';
 import BellNotifications from '../components/BellNotifications.vue';
 import LanguageSwitcher from '../components/LanguageSwitcher.vue';
+import VersionSwitcher from '../components/VersionSwitcher.vue';
 
 export default {
   name: 'DefaultLayout',
@@ -90,7 +93,8 @@ export default {
     Modal,
     BounceLoader,
     BellNotifications,
-    LanguageSwitcher
+    LanguageSwitcher,
+    VersionSwitcher
   },
   data() {
     return {
@@ -102,6 +106,7 @@ export default {
       miniVariant: false,
       right: true,
       rightDrawer: false,
+      projectVersion: packageJson.version,
       firstName: this.$store.state.firstName,
       userId: this.$store.state.userId,
       showConfirmLogoutModal: false
@@ -110,10 +115,6 @@ export default {
   computed: {
     loading() {
       return this.$store.state.loading;
-    },
-    appVersion() {
-      console.log(this.$config.appVersion);
-      return this.$config.appVersion;
     }
   },
   methods: {

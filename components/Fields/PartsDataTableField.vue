@@ -1,6 +1,6 @@
 <template>
   <v-data-table
-    :headers="tableHeaders"
+    :headers="headers"
     :items="stock"
     :expanded.sync="expanded"
     item-key="stockId"
@@ -8,13 +8,13 @@
     sort-by="partName"
     class="elevation-1 parts-data-table"
   >
-    <template v-slot:[`item.quantity`]="{ item }">
+    <template #[`item.quantity`]="{ item }">
       <v-chip :color="item.quantity >= item.minStock ? 'green' : 'red'">
         {{ item.quantity }}
       </v-chip>
     </template>
 
-    <template v-slot:[`item.badQuantity`]="{ item }">
+    <template #[`item.badQuantity`]="{ item }">
       <v-chip :color="item.badQuantity > 0 ? 'red' : 'green'">
         {{ item.badQuantity }}
       </v-chip>
@@ -171,12 +171,12 @@
 
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn class="secondary" text @click="close">{{
-                  $t('common.cancel')
-                }}</v-btn>
-                <v-btn class="primary" text @click="save(method)">{{
-                  $t('common.save')
-                }}</v-btn>
+                <v-btn class="secondary" text @click="close">
+                  {{ $t('common.cancel') }}
+                </v-btn>
+                <v-btn class="primary" text @click="save(method)">
+                  {{ $t('common.save') }}
+                </v-btn>
               </v-card-actions>
             </v-card>
           </v-form>
@@ -196,7 +196,7 @@
       </td>
     </template>
 
-    <template v-slot:[`item.actions`]="{ item }">
+    <template #[`item.actions`]="{ item }">
       <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
     </template>
   </v-data-table>
@@ -296,7 +296,7 @@ export default {
   },
 
   computed: {
-    tableHeaders() {
+    headers() {
       return [
         {
           text: this.$t('parts.stock.headers.partName'),

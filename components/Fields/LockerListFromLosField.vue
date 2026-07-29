@@ -280,6 +280,13 @@ export default {
 </script>
 
 <style scoped>
+.v-card {
+  /* transition: transform 0.2s; */
+  /* cursor: pointer; */
+}
+.v-card:hover {
+  /* transform: scale(1.05); */
+}
 .v-progress-circular {
   margin: 0.2rem;
 }
