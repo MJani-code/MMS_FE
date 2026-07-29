@@ -57,6 +57,10 @@ export default {
       menu: 'Download',
       newPoints: 'Download new points'
     },
+    downloadError: 'An error occurred while downloading the tasks file.',
+    tig: {
+      downloadError: 'An error occurred while downloading the TIG file.'
+    },
     addTask: {
       menu: 'Add new',
       loadLocations: 'Load locations',

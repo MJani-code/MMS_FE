@@ -56,6 +56,10 @@ export default {
       menu: 'Prenos',
       newPoints: 'Prenos novih tock'
     },
+    downloadError: 'Prišlo je do napake pri prenosu nalog.',
+    tig: {
+      downloadError: 'Prišlo je do napake pri prenosu TIG datoteke.'
+    },
     addTask: {
       menu: 'Dodaj novo',
       loadLocations: 'Nalozi lokacije',

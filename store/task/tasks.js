@@ -1279,8 +1279,9 @@ export const actions = {
   },
 
   async downloadTig({ rootState }, payload = {}) {
+    const translate = this.app?.i18n?.t?.bind(this.app.i18n);
+
     try {
-      const translate = this.app.i18n.t.bind(this.app.i18n);
       const token = rootState.token;
       const response = await APIDOWNLOAD('downloadTig', token);
 
@@ -1326,12 +1327,15 @@ export const actions = {
       console.error('Error downloading TIG:', error);
       return {
         success: false,
-        message: 'Hiba történt a TIG letöltése során'
+        message:
+          translate('tasks.tig.downloadError') ||
+          'Hiba történt a TIG letöltése során'
       };
     }
   },
 
   async downloadTasks({ rootState }, payload = {}) {
+    const translate = this.app?.i18n?.t?.bind(this.app.i18n);
     try {
       const token = rootState.token;
       const response = await APIDOWNLOAD('downloadTasks', token);
@@ -1378,7 +1382,9 @@ export const actions = {
       console.error('Error downloading tasks:', error);
       return {
         success: false,
-        message: 'Hiba történt a taskok letöltése során'
+        message:
+          translate('tasks.downloadError') ||
+          'Hiba történt a feladatok letöltése során'
       };
     }
   }
