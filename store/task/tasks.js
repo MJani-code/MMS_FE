@@ -260,14 +260,42 @@ export const mutations = {
   },
 
   ADD_TASK_FEE(state, { statusId, taskId, fee }) {
-    const tasks = state.tasksByStatus[statusId];
-    if (tasks) {
-      const task = tasks.find((t) => t.id === taskId);
-      if (task) {
-        if (!task.taskFees) task.taskFees = [];
-        task.taskFees.push(fee);
-      }
-    }
+    const resolvedStatusId =
+      statusId !== undefined && statusId !== null
+        ? statusId
+        : Object.keys(state.tasksByStatus).find((sId) =>
+            state.tasksByStatus[sId].some(
+              (t) => String(t?.id) === String(taskId ?? fee?.taskId)
+            )
+          );
+
+    const tasks = state.tasksByStatus[resolvedStatusId];
+    if (!tasks) return;
+
+    const resolvedTaskId = taskId ?? fee?.taskId;
+    const taskIndex = tasks.findIndex(
+      (t) => String(t?.id) === String(resolvedTaskId)
+    );
+    if (taskIndex === -1) return;
+
+    const task = tasks[taskIndex];
+    const existingFees = Array.isArray(task.taskFees) ? task.taskFees : [];
+
+    const normalizedFee = {
+      ...fee,
+      taskId: fee?.taskId ?? resolvedTaskId,
+      quantity:
+        fee?.quantity !== undefined && fee?.quantity !== null
+          ? Number(fee.quantity)
+          : fee?.quantity
+    };
+
+    const updatedTask = {
+      ...task,
+      taskFees: [...existingFees, normalizedFee]
+    };
+
+    tasks.splice(taskIndex, 1, updatedTask);
   },
 
   REMOVE_TASK_FEE(state, { statusId, taskId, feeId }) {
