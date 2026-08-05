@@ -297,9 +297,11 @@ export default {
         'task/tasks/updateTask',
         {
           dbTable: dbTable,
-          dbColumn: dbColumn
+          dbColumn: dbColumn,
+          id: item.location_id,
+          value: this[key]
         },
-        { id: item.location_id, value: this[key] }
+        { id: item.location_id, value: key }
       );
     },
     // updateLockerData(data) {
