@@ -299,6 +299,8 @@ export default {
           dbTable: dbTable,
           dbColumn: dbColumn,
           id: item.location_id,
+          task_id: item.id,
+          statusId: item.status_exohu_id,
           value: this[key]
         },
         { id: item.location_id, value: key }
