@@ -232,9 +232,9 @@ export const mutations = {
   UPDATE_TASK_IN_STATUS(state, { statusId, taskId, updates }) {
     const tasks = state.tasksByStatus[statusId];
     if (tasks) {
-      const taskIndex = tasks.findIndex((t) => t.id === taskId);
+      const taskIndex = tasks.findIndex((t) => String(t.id) === String(taskId));
       if (taskIndex !== -1) {
-        tasks[taskIndex] = { ...tasks[taskIndex], ...updates };
+        tasks.splice(taskIndex, 1, { ...tasks[taskIndex], ...updates });
       }
     }
   },
@@ -950,11 +950,19 @@ export const actions = {
           }
         } else {
           // Task frissítés
-          commit('UPDATE_TASK_IN_STATUS', {
-            statusId: payload.statusId,
-            taskId: responsePayload.id,
-            updates: { [responsePayload.column]: responsePayload.value }
-          });
+          if (payload.dbTable === 'task_locations') {
+            commit('UPDATE_TASK_IN_STATUS', {
+              statusId: payload.statusId,
+              taskId: responsePayload.taskId,
+              updates: { [responsePayload.column]: responsePayload.value }
+            });
+          } else {
+            commit('UPDATE_TASK_IN_STATUS', {
+              statusId: payload.statusId,
+              taskId: responsePayload.id,
+              updates: { [responsePayload.column]: responsePayload.value }
+            });
+          }
         }
 
         return { success: true, data: result.data };
