@@ -1055,6 +1055,7 @@ export default {
 
       this.$store.dispatch('task/tasks/updateTask', {
         id: selectedItem.id,
+        statusId: this.statusId,
         dbTable: header.dbTable,
         dbColumn: header.dbColumn,
         column: header.dbColumn,

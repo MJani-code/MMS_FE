@@ -161,15 +161,15 @@ export default {
       }
     },
 
-    async updateTask(payload) {
-      const result = await this.$store.dispatch('task/tasks/updateTask', {
-        ...payload,
-        statusId: this.statusId
-      });
-      if (!result.success) {
-        this.showNotification('error', result.message);
-      }
-    },
+    // async updateTask(payload) {
+    //   const result = await this.$store.dispatch('task/tasks/updateTask', {
+    //     ...payload,
+    //     statusId: this.statusId
+    //   });
+    //   if (!result.success) {
+    //     this.showNotification('error', result.message);
+    //   }
+    // },
 
     async addFee(payload) {
       const result = await this.$store.dispatch('task/tasks/addFee', {
